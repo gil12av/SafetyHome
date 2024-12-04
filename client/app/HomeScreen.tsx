@@ -1,7 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, Button, Image } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const HomeScreen = ({ navigation }) => {
+type RootStackParamList = {
+  Home: undefined;
+  UserForm: undefined; // הוסף דפים נוספים שאתה משתמש בהם כאן
+};
+
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+const HomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Image

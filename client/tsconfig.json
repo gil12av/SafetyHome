@@ -5,13 +5,26 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
-    }
+      ],
+      "*": ["node_modules/*"]
+    },
+    "target": "es6",
+    "module": "esnext",
+    "jsx": "react-native", // מוודא טיפול ב-JSX ל-React 17+
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true, // מאפשר ייבוא סינתטי (חשוב ל-React)
+    "skipLibCheck": true, // התעלמות מבדיקות מיותרות בתלויות
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "baseUrl": "./"
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
   ]
 }
