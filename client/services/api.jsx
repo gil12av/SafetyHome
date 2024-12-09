@@ -14,10 +14,13 @@ export const registerUser = async (userData) => {
 
 export const scanNetwork = async () => {
   try {
-    const response = await axios.get(`${API_URL}/scan-network`);
-    return response.data;
+    const response = await fetch('http://localhost:5001/api/scan-network');
+    if (!response.ok) throw new Error('Failed to scan network');
+    return await response.json();
   } catch (error) {
-    console.error("Error scanning network:", error);
-    throw error;
+    console.error(error);
+    return null;
   }
 };
+
+

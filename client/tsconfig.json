@@ -3,28 +3,20 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "*": ["node_modules/*"]
+      "@/*": ["./*"],
+      "@react-navigation/native-stack": ["node_modules/@react-navigation/native-stack"]
     },
     "target": "es6",
-    "module": "esnext",
-    "jsx": "react-native", // מוודא טיפול ב-JSX ל-React 17+
+    "module": "commonjs",
+    "jsx": "react-native",
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true, // מאפשר ייבוא סינתטי (חשוב ל-React)
-    "skipLibCheck": true, // התעלמות מבדיקות מיותרות בתלויות
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
-    "baseUrl": "./"
+    "baseUrl": "./",
+    "typeRoots": ["./node_modules/@types"]
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
+  "exclude": ["node_modules"]
 }

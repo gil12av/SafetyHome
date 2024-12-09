@@ -1,48 +1,72 @@
-const express = require('express');
-const User = require('../models/User');
-const ScannedDevice = require("../models/ScannedDevices");
+const express = require("express");
+const bcrypt = require("bcryptjs");
+const User = require("../models/User"); // מודל המשתמש
+
 const router = express.Router();
 
-// fetch a new user or exiting user.
-router.post('/', async (req, res) => {
-  const { name, email, password } = req.body;
+// נתיב הרשמה
+router.post("/register", async (req, res) => {
+  const { firstName, lastName, email, password, phone, address } = req.body;
+
+  if (!firstName || !lastName || !email || !password || !phone || !address) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
 
   try {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ error: "User already exists" });
     }
 
-    const newUser = new User({ name, email, password });
-    await newUser.save();
-    res.status(201).json({ message: 'User created successfully', user: newUser });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: hashedPassword,
+      phone,
+      address,
+    });
+
+    await user.save();
+    res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating user', error });
+    console.error("Error during registration:", error);
+    res.status(500).json({ error: "Failed to register user" });
   }
 });
 
-// Add new scanned device for a user
-router.post("/devices", async (req, res) => {
-    const { userId, deviceName, ipAddress, macAddress } = req.body;
-    try {
-      const device = new ScannedDevice({ userId, deviceName, ipAddress, macAddress });
-      await device.save();
-      res.status(201).json({ message: "Device added successfully", device });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to add device" });
-    }
-  });
+// נתיב התחברות
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
 
-// Get devices for a user
-router.get("/devices/:userId", async (req, res) => {
-    const { userId } = req.params;
-    try {
-      const devices = await ScannedDevice.find({ userId });
-      res.status(200).json(devices);
-    } catch (error) {
-      res.status(500).json({ error: "Failed to fetch devices" });
-    }
-  });
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
 
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    res.status(200).json({
+        message: "Login successful",
+        user: {
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+        },
+      });
+  } catch (error) {
+    console.error("Error during login:", error);
+    res.status(500).json({ error: "Failed to log in" });
+  }
+});
 
 module.exports = router;
