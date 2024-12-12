@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 
 export default function UserForm() {
   const router = useRouter();
-  const [isRegister, setIsRegister] = useState(false); // מצב התחברות/הרשמה
+  const [isRegister, setIsRegister] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -14,6 +16,12 @@ export default function UserForm() {
     phone: "",
     address: "",
   });
+
+  const buttonScale = useSharedValue(1);
+
+  const animatedButtonStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: buttonScale.value }],
+  }));
 
   const handleInputChange = (field, value) => {
     setFormData({ ...formData, [field]: value });
@@ -47,10 +55,10 @@ export default function UserForm() {
       });
 
       if (!response.ok) throw new Error(`Failed to ${isRegister ? "register" : "login"}. Please try again.`);
-      
+
       const data = await response.json();
       Alert.alert("Success", `${isRegister ? "Registered" : "Logged in"} successfully!`);
-      router.push("/Dashboard"); // ניתוב למסך הבית
+      router.push("/Dashboard");
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -61,59 +69,87 @@ export default function UserForm() {
       <Text style={styles.title}>{isRegister ? "Register" : "Login"}</Text>
       {isRegister && (
         <>
-          <TextInput
-            style={styles.input}
-            placeholder="First Name"
-            value={formData.firstName}
-            onChangeText={(value) => handleInputChange("firstName", value)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChangeText={(value) => handleInputChange("lastName", value)}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Phone"
-            value={formData.phone}
-            onChangeText={(value) => handleInputChange("phone", value)}
-            keyboardType="phone-pad"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Address"
-            value={formData.address}
-            onChangeText={(value) => handleInputChange("address", value)}
-          />
+          <View style={styles.inputContainer}>
+            <Icon name="person" size={20} color="#777" />
+            <TextInput
+              style={styles.input}
+              placeholder="First Name"
+              value={formData.firstName}
+              onChangeText={(value) => handleInputChange("firstName", value)}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Icon name="person" size={20} color="#777" />
+            <TextInput
+              style={styles.input}
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChangeText={(value) => handleInputChange("lastName", value)}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Icon name="phone" size={20} color="#777" />
+            <TextInput
+              style={styles.input}
+              placeholder="Phone"
+              value={formData.phone}
+              onChangeText={(value) => handleInputChange("phone", value)}
+              keyboardType="phone-pad"
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <Icon name="location-on" size={20} color="#777" />
+            <TextInput
+              style={styles.input}
+              placeholder="Address"
+              value={formData.address}
+              onChangeText={(value) => handleInputChange("address", value)}
+            />
+          </View>
         </>
       )}
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        value={formData.email}
-        onChangeText={(value) => handleInputChange("email", value)}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        value={formData.password}
-        onChangeText={(value) => handleInputChange("password", value)}
-        secureTextEntry
-      />
-      {isRegister && (
+      <View style={styles.inputContainer}>
+        <Icon name="email" size={20} color="#777" />
         <TextInput
           style={styles.input}
-          placeholder="Confirm Password"
-          value={formData.confirmPassword}
-          onChangeText={(value) => handleInputChange("confirmPassword", value)}
+          placeholder="Email"
+          value={formData.email}
+          onChangeText={(value) => handleInputChange("email", value)}
+          keyboardType="email-address"
+          autoCapitalize="none"
+        />
+      </View>
+      <View style={styles.inputContainer}>
+        <Icon name="lock" size={20} color="#777" />
+        <TextInput
+          style={styles.input}
+          placeholder="Password"
+          value={formData.password}
+          onChangeText={(value) => handleInputChange("password", value)}
           secureTextEntry
         />
+      </View>
+      {isRegister && (
+        <View style={styles.inputContainer}>
+          <Icon name="lock" size={20} color="#777" />
+          <TextInput
+            style={styles.input}
+            placeholder="Confirm Password"
+            value={formData.confirmPassword}
+            onChangeText={(value) => handleInputChange("confirmPassword", value)}
+            secureTextEntry
+          />
+        </View>
       )}
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
+      <TouchableOpacity
+        style={styles.button}
+        onPressIn={() => (buttonScale.value = withSpring(0.9))}
+        onPressOut={() => (buttonScale.value = withSpring(1))}
+        onPress={handleSubmit}
+      >
+        <Animated.View style={[styles.button, animatedButtonStyle]}>
+          <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
+        </Animated.View>
       </TouchableOpacity>
       <TouchableOpacity style={styles.switchButton} onPress={() => setIsRegister(!isRegister)}>
         <Text style={styles.switchButtonText}>
@@ -129,7 +165,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#e6f7ff",
     padding: 20,
   },
   title: {
@@ -137,13 +173,20 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
-  input: {
-    width: "80%",
-    padding: 10,
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 8,
+    padding: 10,
     marginBottom: 10,
+    width: "80%",
+  },
+  input: {
+    flex: 1,
+    paddingLeft: 10,
   },
   button: {
     backgroundColor: "#007BFF",
@@ -166,3 +209,4 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 });
+
