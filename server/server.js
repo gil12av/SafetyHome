@@ -11,9 +11,14 @@ const PORT = 5001;
 app.use(cors()); // פתרון לבעיית CORS
 app.use(express.json());
 
-// Routes
+// Routes:
 const userRoutes = require("./src/routes/userRoutes");
 app.use("/api/users", userRoutes);
+
+// ScanDevice:
+const deviceRoutes = require("./src/routes/deviceRoute");
+app.use("/api/devices", deviceRoutes); // חיבור הנתיב לסריקה
+
 
 // MongoDB connection
 mongoose
