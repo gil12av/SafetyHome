@@ -23,7 +23,7 @@ export default function UserForm() {
     transform: [{ scale: buttonScale.value }],
   }));
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
@@ -60,7 +60,7 @@ export default function UserForm() {
       Alert.alert("Success", `${isRegister ? "Registered" : "Logged in"} successfully!`);
       router.push("/Dashboard");
     } catch (error) {
-      Alert.alert("Error", error.message);
+      Alert.alert("Error", (error as Error).message);
     }
   };
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
-import LottieView from "lottie-react-native";
+import axios from "axios";
 import ScreenWithBackButton from "../components/ScreenWithBackButton";
 
 export default function ScanScreen() {
@@ -11,33 +11,34 @@ export default function ScanScreen() {
   const handleScan = async () => {
     setLoading(true);
     setError(false);
-
+  
+    console.log("Initiating scan request..."); // דיבאג: תחילת הבקשה
+  
     try {
-      const response = await fetch("http://localhost:5001/api/scan-network", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: "USER_ID" }),
+      const response = await axios.post("http://localhost:5001/api/scan-network", {
+        userId: "USER_ID", // מזהה המשתמש
       });
-
-      if (!response.ok) throw new Error("Error in API call");
-
-      const data = await response.json();
-
-      if (data.scanResults && data.scanResults.length > 0) {
-        setScanResults(data.scanResults);
-      } else {
-        setScanResults([]);
-        Alert.alert("No Devices Found", "The scan did not detect any devices.");
-      }
+  
+      console.log("Scan response received:", response.data); // דיבאג: תגובת השרת
+      setScanResults(response.data.devices);
     } catch (err) {
+      console.error("Error during scan request:", err); // דיבאג: שגיאה במהלך הבקשה
       setError(true);
-      Alert.alert("Error", "There was an issue initiating the scan. This issue is under review.");
+      Alert.alert("Error", "Failed to perform the scan. Please try again.");
     } finally {
       setLoading(false);
+      console.log("Scan request finished."); // דיבאג: סיום הבקשה
     }
   };
+  
 
-  const renderItem = ({ item }) => (
+  type Device = {
+    deviceName: string;
+    ipAddress: string;
+    macAddress: string;
+  };
+  
+  const renderItem = ({ item }: { item: Device }) => (
     <View style={styles.deviceItem}>
       <Text style={styles.deviceName}>📱 {item.deviceName || "Unknown Device"}</Text>
       <Text style={styles.deviceDetails}>IP: {item.ipAddress || "N/A"}</Text>
@@ -46,54 +47,29 @@ export default function ScanScreen() {
   );
 
   return (
-    <ScreenWithBackButton title="Scan Network">
-      <View style={styles.container}>
-        {/* כותרת */}
-        <Text style={styles.title}>Scan Your Network</Text>
+    <ScreenWithBackButton title="Scan">
+    <View style={styles.container}>
+      <Text style={styles.title}>Scan Your Network</Text>
 
-        {/* חיווי טעינה */}
-        {loading && (
-          <View style={styles.loadingContainer}>
-            <LottieView
-              source={require("../assets/animations/scanning.json")}
-              autoPlay
-              loop
-              style={styles.animation}
-            />
-            <Text style={styles.loadingText}>Scanning... Please wait</Text>
-          </View>
-        )}
+      {loading ? (
+        <Text style={styles.loadingText}>Scanning... Please wait</Text>
+      ) : scanResults.length > 0 ? (
+        <FlatList
+          data={scanResults}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={renderItem}
+          contentContainerStyle={styles.resultsContainer}
+        />
+      ) : (
+        <Text style={styles.noResultsText}>
+          {error ? "An error occurred. Please try again." : "No devices found. Start a scan."}
+        </Text>
+      )}
 
-        {/* תוצאות סריקה */}
-        {!loading && scanResults.length > 0 && (
-          <FlatList
-            data={scanResults}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={renderItem}
-            contentContainerStyle={styles.resultsContainer}
-          />
-        )}
-
-        {/* הודעת fallback */}
-        {!loading && scanResults.length === 0 && (
-          <View style={styles.fallbackContainer}>
-            {error ? (
-              <Text style={styles.fallbackText}>
-                There was an error initiating the scan. This issue is under review.
-              </Text>
-            ) : (
-              <Text style={styles.fallbackText}>No devices found. Try scanning again.</Text>
-            )}
-          </View>
-        )}
-
-        {/* כפתור סריקה */}
-        {!loading && (
-          <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
-            <Text style={styles.scanButtonText}>Start Scan</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
+        <Text style={styles.scanButtonText}>Start Scan</Text>
+      </TouchableOpacity>
+    </View>
     </ScreenWithBackButton>
   );
 }
@@ -112,19 +88,14 @@ const styles = StyleSheet.create({
     color: "#333",
     marginVertical: 20,
   },
-  loadingContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  animation: {
-    width: 150,
-    height: 150,
-  },
   loadingText: {
     fontSize: 16,
     color: "#555",
-    marginTop: 10,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: "#999",
+    textAlign: "center",
   },
   resultsContainer: {
     width: "100%",
@@ -146,16 +117,6 @@ const styles = StyleSheet.create({
   deviceDetails: {
     fontSize: 14,
     color: "#666",
-  },
-  fallbackContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  fallbackText: {
-    fontSize: 16,
-    color: "#999",
-    textAlign: "center",
   },
   scanButton: {
     backgroundColor: "#FF4C4C",
