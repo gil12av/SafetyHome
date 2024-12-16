@@ -7,8 +7,8 @@ import Animated, { FadeIn, BounceIn } from "react-native-reanimated";
 export default function Dashboard() {
   const router = useRouter();
 
-  const userName = "John Doe"; // ניתן להחליף במידע מהשרת
-  const greeting = new Date().getHours() < 12 ? "Good Morning" : "Good Evening";
+ 
+  const greeting = new Date().getHours() < 12 ? "Welcome, Good Morning" : "Welcome, Good Evening Sir";
 
   const handleLogout = () => {
     Alert.alert("Logged Out", "You have successfully logged out.");
@@ -19,7 +19,7 @@ export default function Dashboard() {
     <Animated.View style={styles.container} entering={FadeIn.duration(800)}>
       {/* ברכת משתמש */}
       <Text style={styles.greeting}>
-        {greeting}, <Text style={styles.userName}>{userName}!</Text>
+        {greeting}<Text style={styles.userName}></Text>
       </Text>
 
       {/* כרטיסיות */}
