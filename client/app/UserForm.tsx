@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "reac
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
+import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 
 export default function UserForm() {
   const router = useRouter();
@@ -65,6 +66,7 @@ export default function UserForm() {
   };
 
   return (
+    <ScreenWithBackButton title=" Login">
     <View style={styles.container}>
       <Text style={styles.title}>{isRegister ? "Register" : "Login"}</Text>
       {isRegister && (
@@ -157,6 +159,7 @@ export default function UserForm() {
         </Text>
       </TouchableOpacity>
     </View>
+    </ScreenWithBackButton>
   );
 }
 
@@ -208,5 +211,17 @@ const styles = StyleSheet.create({
     color: "#007BFF",
     textDecorationLine: "underline",
   },
+  backButton: {
+    marginTop: 10,
+    padding: 10,
+    backgroundColor: "#FF5722",
+    borderRadius: 5,
+  },
+  backButtonText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  
 });
 

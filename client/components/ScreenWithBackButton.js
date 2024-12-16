@@ -1,53 +1,50 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
-export default function ScreenWithBackButton({ title, children }) {
+const ScreenWithBackButton = ({ title, children }) => {
   const router = useRouter();
 
   return (
     <View style={styles.container}>
       {/* כפתור חזרה */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Icon name="arrow-back" size={24} color="#007BFF" />
-        </TouchableOpacity>
-        <Text style={styles.title}>{title}</Text>
-      </View>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => router.back()}
+      >
+        <Icon name="arrow-back" size={24} color="#fff" />
+      </TouchableOpacity>
 
-      {/* תוכן המסך */}
-      <View style={styles.content}>
-        {children}
-      </View>
+      {/* כותרת */}
+      <Text style={styles.title}>{title}</Text>
+
+      {/* תכנים */}
+      {children}
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 20,
     backgroundColor: "#f5f5f5",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 10,
-    backgroundColor: "#fff",
-    elevation: 3,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ccc",
-  },
   backButton: {
-    marginRight: 10,
+    position: "absolute",
+    top: 10,
+    left: 10,
+    padding: 10,
+    backgroundColor: "#007BFF",
+    borderRadius: 50,
   },
   title: {
+    textAlign: "center",
     fontSize: 18,
     fontWeight: "bold",
-    color: "#333",
-  },
-  content: {
-    flex: 1,
-    padding: 20,
+    marginVertical: 20,
   },
 });
+
+export default ScreenWithBackButton;
