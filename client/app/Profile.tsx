@@ -1,32 +1,31 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import React, { useContext } from "react";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import AuthWrapper from "../components/AuthWrapper";
+import { AuthContext } from "../context/AuthContext";
 import LottieView from "lottie-react-native";
-import ScreenWithBackButton from "../components/ScreenWithBackButton";
 
 export default function Profile() {
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
+  const logout = authContext?.logout;
+
   return (
-    <ScreenWithBackButton title="Profile">
-    <View style={styles.container}>
-      {/* אנימציה */}
-      <LottieView
-        source={require("../assets/animations/under_construction.json")}
-        autoPlay
-        loop
-        style={styles.animation}
-      />
+    <AuthWrapper>
+      <View style={styles.container}>
+        <LottieView
+          source={require("../assets/animations/under_construction.json")}
+          autoPlay
+          loop
+          style={styles.animation}
+        />
+        <Text style={styles.title}>Profile Page Under Construction</Text>
+        <Text>{`Logged in as: ${user?.firstName || "Guest"}`}</Text>
 
-      {/* הודעה מרכזית */}
-      <Text style={styles.title}>Profile Page Under Construction</Text>
-      <Text style={styles.subtitle}>
-        We're working on building an amazing profile page for you. Stay tuned!
-      </Text>
-
-      {/* כפתור חזרה */}
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Back to Home</Text>
-      </TouchableOpacity>
-    </View>
-    </ScreenWithBackButton>
+        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
+    </AuthWrapper>
   );
 }
 
@@ -46,27 +45,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
     marginBottom: 10,
-    textAlign: "center",
   },
-  subtitle: {
-    fontSize: 16,
-    color: "#555",
-    marginBottom: 30,
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-  button: {
-    backgroundColor: "#007BFF",
+  logoutButton: {
+    marginTop: 30,
+    backgroundColor: "#dc3545",
     padding: 15,
     borderRadius: 8,
-    alignItems: "center",
-    width: "80%",
   },
-  buttonText: {
+  logoutText: {
     color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
   },
 });

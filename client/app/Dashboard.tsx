@@ -1,64 +1,81 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import Animated, { FadeIn, BounceIn } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
+import AuthWrapper from "../components/AuthWrapper";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Dashboard() {
   const router = useRouter();
-
- 
-  const greeting = new Date().getHours() < 12 ? "Welcome, Good Morning" : "Welcome, Good Evening Sir";
+  const authContext = useContext(AuthContext);
+  const user = authContext?.user;
+  const logout = authContext?.logout;
 
   const handleLogout = () => {
     Alert.alert("Logged Out", "You have successfully logged out.");
-    router.push("/UserForm"); // ניווט למסך התחברות
+    logout?.();
+    router.push("/UserForm");
   };
 
   return (
-    <Animated.View style={styles.container} entering={FadeIn.duration(800)}>
-      {/* ברכת משתמש */}
-      <Text style={styles.greeting}>
-        {greeting}<Text style={styles.userName}></Text>
-      </Text>
+    <AuthWrapper>
+      <Animated.View style={styles.container} entering={FadeIn.duration(800)}>
+        <Text style={styles.greeting}>{`Welcome, ${user?.firstName || "Guest"}`}</Text>
 
-      {/* כרטיסיות */}
-      <View style={styles.card}>
-        <Icon name="search" size={40} color="#007BFF" />
-        <Text style={styles.cardTitle}>Scan Devices</Text>
-        <Text style={styles.cardDescription}>Find and scan devices on your network.</Text>
-        <TouchableOpacity
-          style={styles.cardButton}
-          onPress={() => router.push("/ScanScreen")}
-        >
-          <Text style={styles.buttonText}>Go</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.cardContainer}>
+          <View style={styles.cardRow}>
+            <View style={styles.card}>
+              <Icon name="security" size={50} color="#4CAF50" />
+              <Text style={styles.cardTitle}>Security Status</Text>
+              <Text style={styles.cardDescription}>Check your home's security</Text>
+              <TouchableOpacity
+                style={styles.cardButton}
+                onPress={() => router.push("/ScanScreen")}
+              >
+                <Text style={styles.buttonText}>Scan Now</Text>
+              </TouchableOpacity>
+            </View>
 
-      <View style={styles.card}>
-        <Icon name="account-circle" size={40} color="#28a745" />
-        <Text style={styles.cardTitle}>Profile</Text>
-        <Text style={styles.cardDescription}>Manage your profile and settings.</Text>
-        <TouchableOpacity
-          style={styles.cardButton}
-          onPress={() => router.push("/Profile")}
-        >
-          <Text style={styles.buttonText}>Go</Text>
-        </TouchableOpacity>
-      </View>
+            <View style={styles.card}>
+              <Icon name="notifications" size={50} color="#FFC107" />
+              <Text style={styles.cardTitle}>Alerts</Text>
+              <Text style={styles.cardDescription}>View recent alerts</Text>
+              <TouchableOpacity style={styles.cardButton}>
+                <Text style={styles.buttonText}>View</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
 
-      <View style={styles.card}>
-        <Icon name="logout" size={40} color="#dc3545" />
-        <Text style={styles.cardTitle}>Logout</Text>
-        <Text style={styles.cardDescription}>Sign out of your account securely.</Text>
-        <TouchableOpacity
-          style={styles.cardButton}
-          onPress={handleLogout}
-        >
-          <Text style={styles.buttonText}>Logout</Text>
+          <View style={styles.cardRow}>
+            <View style={styles.card}>
+              <Icon name="devices" size={50} color="#2196F3" />
+              <Text style={styles.cardTitle}>Connected Devices</Text>
+              <Text style={styles.cardDescription}>Manage your devices</Text>
+              <TouchableOpacity style={styles.cardButton}>
+                <Text style={styles.buttonText}>Manage</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.card}>
+              <Icon name="account-circle" size={50} color="#9C27B0" />
+              <Text style={styles.cardTitle}>Profile</Text>
+              <Text style={styles.cardDescription}>View your profile</Text>
+              <TouchableOpacity
+                style={styles.cardButton}
+                onPress={() => router.push("/Profile")}
+              >
+                <Text style={styles.buttonText}>Go to Profile</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+          <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </AuthWrapper>
   );
 }
 
@@ -67,30 +84,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f0f8ff",
     padding: 20,
   },
   greeting: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    color: "#555",
     marginBottom: 20,
   },
-  userName: {
-    color: "#007BFF",
-    fontWeight: "bold",
+  cardContainer: {
+    width: "100%",
+    alignItems: "center",
+  },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "100%",
+    marginBottom: 20,
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 10,
     padding: 20,
-    margin: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 5, // הצללה
     alignItems: "center",
-    width: "90%",
+    width: "45%",
+    elevation: 5,
   },
   cardTitle: {
     fontSize: 18,
@@ -99,23 +116,29 @@ const styles = StyleSheet.create({
   },
   cardDescription: {
     fontSize: 14,
-    color: "#555",
-    textAlign: "center",
-    marginTop: 5,
+    color: "#666",
     marginBottom: 10,
+    textAlign: "center",
   },
   cardButton: {
     backgroundColor: "#007BFF",
     padding: 10,
     borderRadius: 5,
-    alignItems: "center",
     marginTop: 10,
-    width: "60%",
+    width: "80%",
+    alignItems: "center",
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+  },
+  logoutButton: {
+    marginTop: 40,
+    padding: 15,
+    backgroundColor: "#dc3545",
+    borderRadius: 8,
+  },
+  logoutText: {
+    color: "#fff",
     fontWeight: "bold",
   },
 });
-
