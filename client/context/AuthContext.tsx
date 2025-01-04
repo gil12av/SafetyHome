@@ -1,5 +1,6 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
 
+// מבנה המידע עבור AuthContext
 interface AuthContextType {
   user: any | null;
   isAuthenticated: boolean;
@@ -7,32 +8,33 @@ interface AuthContextType {
   logout: () => void;
 }
 
+// יצירת הקשר (Context)
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
+// ספק ההקשר (Provider)
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(() => {
-    const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
+  const [user, setUser] = useState<any | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  // התחברות ושמירת נתוני משתמש
   const login = (userData: any) => {
-    console.log("🔓 Login function called with:", userData);
-    const user = userData.user || userData;  // בדיקה האם userData כולל user פנימי
-    setUser(user);
+    if (!userData || !userData._id) {
+      console.error("❌ User ID not found. Aborting login.");
+      return;
+    }
+    setUser(userData);
     setIsAuthenticated(true);
-    localStorage.setItem('user', JSON.stringify(user));
-    console.log("✅ User set and authenticated:", user);
+    console.log("✅ User authenticated:", userData);
   };
-  
+
+  // התנתקות
   const logout = () => {
     setUser(null);
     setIsAuthenticated(false);
-    localStorage.removeItem('user');
     console.log("🚪 User logged out");
   };
 
@@ -43,4 +45,5 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
+// פונקציה לשימוש מהיר ב-AuthContext
 export const useAuth = () => useContext(AuthContext);

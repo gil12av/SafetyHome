@@ -8,7 +8,11 @@ const app = express();
 const PORT = 5001;
 
 // Middleware
-app.use(cors()); // פתרון לבעיית CORS
+app.use(cors({
+  origin: "*",  // ניתן להחליף בכתובת הספציפית של הלקוח
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
 // Routes:

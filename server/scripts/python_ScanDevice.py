@@ -33,4 +33,9 @@ def get_vendor(mac_address):
 if __name__ == "__main__":
     ip_range = "192.168.31.0/24"  # ניתן להחליף בכתובת דינמית
     results = scan_network(ip_range)
-    print(json.dumps(results, indent=4))  # פלט בפורמט JSON
+    
+    # במידה ואין תוצאה, הצגת הודעת שגיאה
+    if "error" in results:
+        print(json.dumps(results, indent=4))
+    else:
+        print(json.dumps(results, indent=4))

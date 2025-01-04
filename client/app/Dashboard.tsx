@@ -5,77 +5,90 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import Animated, { FadeIn } from "react-native-reanimated";
 import AuthWrapper from "../components/AuthWrapper";
 import { AuthContext } from "../context/AuthContext";
+import ScreenWithBackButton from "@/components/ScreenWithBackButton";
+import FooterComponent from "@/components/Footer";
 
 export default function Dashboard() {
   const router = useRouter();
   const authContext = useContext(AuthContext);
-  const user = authContext?.user;
-  const logout = authContext?.logout;
+  const firstName = authContext?.user?.firstName;
 
   const handleLogout = () => {
     Alert.alert("Logged Out", "You have successfully logged out.");
-    logout?.();
+    authContext?.logout();
     router.push("/UserForm");
   };
 
   return (
-    <AuthWrapper>
-      <Animated.View style={styles.container} entering={FadeIn.duration(800)}>
-        <Text style={styles.greeting}>{`Welcome, ${user?.firstName || "Guest"}`}</Text>
+    <ScreenWithBackButton>
+      <AuthWrapper>
+        <Animated.View style={styles.container} entering={FadeIn.duration(800)}>
+          <Text style={styles.greeting}>
+            {firstName ? `Welcome, ${firstName}` : "Welcome, Guest"}
+          </Text>
 
-        <View style={styles.cardContainer}>
-          <View style={styles.cardRow}>
-            <View style={styles.card}>
-              <Icon name="security" size={50} color="#4CAF50" />
-              <Text style={styles.cardTitle}>Security Status</Text>
-              <Text style={styles.cardDescription}>Check your home's security</Text>
-              <TouchableOpacity
-                style={styles.cardButton}
-                onPress={() => router.push("/ScanScreen")}
-              >
-                <Text style={styles.buttonText}>Scan Now</Text>
-              </TouchableOpacity>
+          <View style={styles.cardContainer}>
+            <View style={styles.cardRow}>
+              <View style={styles.card}>
+                <Icon name="security" size={50} color="#4CAF50" />
+                <Text style={styles.cardTitle}>Security Status</Text>
+                <Text style={styles.cardDescription}>
+                  Check your home's security
+                </Text>
+                <TouchableOpacity
+                  style={styles.cardButton}
+                  onPress={() => router.push("/ScanScreen")}
+                >
+                  <Text style={styles.buttonText}>Scan Now</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.card}>
+                <Icon name="notifications" size={50} color="#FFC107" />
+                <Text style={styles.cardTitle}>Alerts</Text>
+                <Text style={styles.cardDescription}>
+                  View recent alerts
+                </Text>
+                <TouchableOpacity style={styles.cardButton}>
+                  <Text style={styles.buttonText}>View</Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
-            <View style={styles.card}>
-              <Icon name="notifications" size={50} color="#FFC107" />
-              <Text style={styles.cardTitle}>Alerts</Text>
-              <Text style={styles.cardDescription}>View recent alerts</Text>
-              <TouchableOpacity style={styles.cardButton}>
-                <Text style={styles.buttonText}>View</Text>
-              </TouchableOpacity>
+            <View style={styles.cardRow}>
+              <View style={styles.card}>
+                <Icon name="devices" size={50} color="#2196F3" />
+                <Text style={styles.cardTitle}>Connected Devices</Text>
+                <Text style={styles.cardDescription}>
+                  Manage your devices
+                </Text>
+                <TouchableOpacity style={styles.cardButton}>
+                  <Text style={styles.buttonText}>Manage</Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.card}>
+                <Icon name="account-circle" size={50} color="#9C27B0" />
+                <Text style={styles.cardTitle}>Profile</Text>
+                <Text style={styles.cardDescription}>View your profile</Text>
+                <TouchableOpacity
+                  style={styles.cardButton}
+                  onPress={() => router.push("/Profile")}
+                >
+                  <Text style={styles.buttonText}>Go to Profile</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
 
-          <View style={styles.cardRow}>
-            <View style={styles.card}>
-              <Icon name="devices" size={50} color="#2196F3" />
-              <Text style={styles.cardTitle}>Connected Devices</Text>
-              <Text style={styles.cardDescription}>Manage your devices</Text>
-              <TouchableOpacity style={styles.cardButton}>
-                <Text style={styles.buttonText}>Manage</Text>
-              </TouchableOpacity>
-            </View>
+          <FooterComponent />
 
-            <View style={styles.card}>
-              <Icon name="account-circle" size={50} color="#9C27B0" />
-              <Text style={styles.cardTitle}>Profile</Text>
-              <Text style={styles.cardDescription}>View your profile</Text>
-              <TouchableOpacity
-                style={styles.cardButton}
-                onPress={() => router.push("/Profile")}
-              >
-                <Text style={styles.buttonText}>Go to Profile</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </AuthWrapper>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </AuthWrapper>
+    </ScreenWithBackButton>
   );
 }
 

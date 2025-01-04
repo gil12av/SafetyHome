@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import AuthWrapper from "../components/AuthWrapper";
 import { AuthContext } from "../context/AuthContext";
 import LottieView from "lottie-react-native";
+import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 
 export default function Profile() {
   const authContext = useContext(AuthContext);
@@ -10,6 +11,7 @@ export default function Profile() {
   const logout = authContext?.logout;
 
   return (
+    <ScreenWithBackButton>
     <AuthWrapper>
       <View style={styles.container}>
         <LottieView
@@ -26,6 +28,7 @@ export default function Profile() {
         </TouchableOpacity>
       </View>
     </AuthWrapper>
+    </ScreenWithBackButton>
   );
 }
 

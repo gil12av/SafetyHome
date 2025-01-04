@@ -17,7 +17,7 @@ export default function UserForm() {
     password: "",
     confirmPassword: "",
     phone: "",
-    address: "",
+    country: "",
   });
 
   const buttonScale = useSharedValue(1);
@@ -31,46 +31,91 @@ export default function UserForm() {
   };
 
   const handleSubmit = async () => {
-    const { email, password } = formData;
-  
-    if (!email || !password) {
-      Alert.alert("Error", "Please enter your email and password.");
-      return;
+    const { firstName, lastName, email, password, confirmPassword, phone, country } = formData;
+
+    if (isRegister) {
+      if (!firstName || !lastName || !email || !password || !confirmPassword || !phone || !country) {
+        Alert.alert("Error", "Please fill in all fields.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        Alert.alert("Error", "Passwords do not match.");
+        return;
+      }
+    } else {
+      if (!email || !password) {
+        Alert.alert("Error", "Please enter your email and password.");
+        return;
+      }
     }
-  
-    const endpoint = isRegister ? "register" : "login";
-    console.log("🔄 Sending request to:", endpoint);
-  
+
     try {
-      const response = await fetch(`http://localhost:5001/api/users/${endpoint}`, {
+      const endpoint = isRegister ? "register" : "login";
+      const response = await fetch(`http://192.168.31.107:5001/api/users/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(isRegister ? formData : { email, password }),
       });
-  
-      console.log("📩 Response status:", response.status);
-  
-      if (!response.ok) {
-        throw new Error("Failed to authenticate. Please try again.");
-      }
-  
+
+      if (!response.ok) throw new Error(`Failed to ${isRegister ? "register" : "login"}. Please try again.`);
+
       const data = await response.json();
-      console.log("✅ User data received:", data);
-  
-      authContext?.login(data);  // שליחת כל הנתונים ל-authContext
-      router.replace("/Dashboard");  // ניתוב לאחר התחברות
+      Alert.alert("Success", `${isRegister ? "Registered" : "Logged in"} successfully!`);
+
+      // שמירת משתמש בקונטקסט כולל שם פרטי
+      authContext?.login(data.user);
+      router.replace("/Dashboard");
+
     } catch (error) {
-      console.error("❌ Error during login:", error);
       Alert.alert("Error", (error as Error).message);
     }
   };
-  
-  
 
   return (
     <ScreenWithBackButton title={isRegister ? "Register" : "Login"}>
       <View style={styles.container}>
         <Text style={styles.title}>{isRegister ? "Register" : "Login"}</Text>
+        {isRegister && (
+          <>
+            <View style={styles.inputContainer}>
+              <Icon name="person" size={20} color="#777" />
+              <TextInput
+                style={styles.input}
+                placeholder="First Name"
+                value={formData.firstName}
+                onChangeText={(value) => handleInputChange("firstName", value)}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Icon name="person" size={20} color="#777" />
+              <TextInput
+                style={styles.input}
+                placeholder="Last Name"
+                value={formData.lastName}
+                onChangeText={(value) => handleInputChange("lastName", value)}
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Icon name="phone" size={20} color="#777" />
+              <TextInput
+                style={styles.input}
+                placeholder="Phone"
+                value={formData.phone}
+                onChangeText={(value) => handleInputChange("phone", value)}
+                keyboardType="phone-pad"
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <Icon name="location-on" size={20} color="#777" />
+              <TextInput
+                style={styles.input}
+                placeholder="Country"
+                value={formData.country}
+                onChangeText={(value) => handleInputChange("country", value)}
+              />
+            </View>
+          </>
+        )}
         <View style={styles.inputContainer}>
           <Icon name="email" size={20} color="#777" />
           <TextInput
@@ -92,6 +137,19 @@ export default function UserForm() {
             secureTextEntry
           />
         </View>
+        {isRegister && (
+          <View style={styles.inputContainer}>
+            <Icon name="lock" size={20} color="#777" />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm Password"
+              value={formData.confirmPassword}
+              onChangeText={(value) => handleInputChange("confirmPassword", value)}
+              secureTextEntry
+            />
+          </View>
+        )}
+
         <TouchableOpacity
           style={styles.button}
           onPressIn={() => (buttonScale.value = withSpring(0.9))}
@@ -102,11 +160,9 @@ export default function UserForm() {
             <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
           </Animated.View>
         </TouchableOpacity>
-        <TouchableOpacity
-          style={{ marginTop: 20 }}
-          onPress={() => setIsRegister(!isRegister)}
-        >
-          <Text style={{ color: "#007BFF" }}>
+
+        <TouchableOpacity onPress={() => setIsRegister(!isRegister)}>
+          <Text style={styles.switchText}>
             {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
           </Text>
         </TouchableOpacity>
@@ -116,6 +172,13 @@ export default function UserForm() {
 }
 
 const styles = StyleSheet.create({
+  switchText: {
+    color: "#007BFF",
+    marginTop: 20,
+    fontSize: 14,
+    textAlign: "center",
+    textDecorationLine: "underline",
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -147,7 +210,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 10,
     width: "80%",
   },
   buttonText: {

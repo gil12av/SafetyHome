@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useRouter } from "expo-router";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
@@ -26,7 +26,7 @@ const HomeScreen = () => {
   const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
       {/* לוגו */}
       <Image
         source={require("../assets/images/main_logo.png")}
@@ -63,13 +63,27 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>Start Now</Text>
         </TouchableOpacity>
       </View>
-    </View>
+
+      <View style={styles.card}>
+        <Icon name="info" size={40} color="black" />
+        <Text style={styles.cardTitle}>FAQ</Text>
+        <Text style={styles.cardDescription}>
+          Here is all the answer you need to know about this app.
+        </Text>
+        <TouchableOpacity
+          style={styles.cardButton}
+          onPress={() => router.push("./FAQscreen")}
+        >
+          <Text style={styles.buttonText}>Click here</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#e6f7ff", // צבע רקע עדין
