@@ -29,7 +29,17 @@ router.post("/register", async (req, res) => {
     });
 
     await user.save();
-    res.status(201).json({ message: "User registered successfully" });
+    
+    // החזרת נתוני המשתמש לאחר הרשמה מוצלחת
+    res.status(201).json({
+      message: "User registered successfully",
+      user: {
+        _id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: "Failed to register user" });
   }
@@ -44,7 +54,10 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("firstName lastName email password");
+    
+    // הדפסת מידע משתמש מהמסד
+    console.log("User found from DB:", user);
 
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
@@ -55,12 +68,19 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // החזרת שם פרטי כבר בתגובה
+    // הדפסת מידע לפני שליחתו ללקוח
+    console.log("User sent to client:", {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    });
+
     res.status(200).json({
       message: "Login successful",
       user: {
         _id: user._id,
-        firstName: user.firstName,
+        firstName: user.firstName || "Guest",
         lastName: user.lastName,
         email: user.email,
       },

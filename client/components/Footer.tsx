@@ -1,10 +1,24 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 
 const FooterComponent = () => {
   const authContext = useContext(AuthContext);
-  const user = authContext?.user;
+  const router = useRouter();
+  const [user, setUser] = useState(authContext?.user);
+  const isAuthenticated = authContext?.isAuthenticated;
+
+  useEffect(() => {
+    // רענון משתמש כאשר הוא משתנה ב-AuthContext
+    setUser(authContext?.user);
+  }, [authContext?.user]);
+
+  useEffect(() => {
+    if (isAuthenticated === false) {
+      router.replace("/UserForm");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <View style={styles.footer}>

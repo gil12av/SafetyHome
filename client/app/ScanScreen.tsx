@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { View, Text, StyleSheet } from "react-native";
-import AuthWrapper from "../components/AuthWrapper";
+import FooterComponent from "@/components/Footer";
+
 import { AuthContext } from "../context/AuthContext";
 import Scan from "../components/Scan";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
@@ -10,14 +11,13 @@ const ScanScreen = () => {
   const user = authContext?.user;
 
   return (
-    <ScreenWithBackButton>
-      <AuthWrapper>
+    <ScreenWithBackButton title="Scan">
         <View style={styles.container}>
           <Text style={styles.title}>Network Scan</Text>
           <Text>{`Logged in as: ${user?.firstName || "Guest"}`}</Text>
           <Scan />
         </View>
-      </AuthWrapper>
+      <FooterComponent />
     </ScreenWithBackButton>
   );
 };

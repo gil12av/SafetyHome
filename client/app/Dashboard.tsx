@@ -1,17 +1,29 @@
-import React, { useContext } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import Animated, { FadeIn } from "react-native-reanimated";
-import AuthWrapper from "../components/AuthWrapper";
+import { LinearGradient } from "expo-linear-gradient";
 import { AuthContext } from "../context/AuthContext";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 import FooterComponent from "@/components/Footer";
+
+// טיפוס לאייקון מתוך MaterialCommunityIcons
+import { ComponentProps } from "react";
+type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
 
 export default function Dashboard() {
   const router = useRouter();
   const authContext = useContext(AuthContext);
-  const firstName = authContext?.user?.firstName;
+  const [isLoading, setIsLoading] = useState(true);
+  const firstName = authContext?.user?.firstName || "Guest";
+
+  useEffect(() => {
+    if (authContext?.user) {
+      setIsLoading(false);
+    } else {
+      router.replace("/UserForm");
+    }
+  }, [authContext?.user]);
 
   const handleLogout = () => {
     Alert.alert("Logged Out", "You have successfully logged out.");
@@ -19,139 +31,137 @@ export default function Dashboard() {
     router.push("/UserForm");
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#007BFF" />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
   return (
-    <ScreenWithBackButton>
-      <AuthWrapper>
-        <Animated.View style={styles.container} entering={FadeIn.duration(800)}>
+    <ScreenWithBackButton title="Dashboard">
+      <LinearGradient
+        colors={["#4facfe", "#00f2fe"]}
+        style={styles.gradientContainer}
+      >
+        <View style={styles.container}>
           <Text style={styles.greeting}>
             {firstName ? `Welcome, ${firstName}` : "Welcome, Guest"}
           </Text>
 
-          <View style={styles.cardContainer}>
-            <View style={styles.cardRow}>
-              <View style={styles.card}>
-                <Icon name="security" size={50} color="#4CAF50" />
-                <Text style={styles.cardTitle}>Security Status</Text>
-                <Text style={styles.cardDescription}>
-                  Check your home's security
-                </Text>
-                <TouchableOpacity
-                  style={styles.cardButton}
-                  onPress={() => router.push("/ScanScreen")}
-                >
-                  <Text style={styles.buttonText}>Scan Now</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.card}>
-                <Icon name="notifications" size={50} color="#FFC107" />
-                <Text style={styles.cardTitle}>Alerts</Text>
-                <Text style={styles.cardDescription}>
-                  View recent alerts
-                </Text>
-                <TouchableOpacity style={styles.cardButton}>
-                  <Text style={styles.buttonText}>View</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            <View style={styles.cardRow}>
-              <View style={styles.card}>
-                <Icon name="devices" size={50} color="#2196F3" />
-                <Text style={styles.cardTitle}>Connected Devices</Text>
-                <Text style={styles.cardDescription}>
-                  Manage your devices
-                </Text>
-                <TouchableOpacity style={styles.cardButton}>
-                  <Text style={styles.buttonText}>Manage</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.card}>
-                <Icon name="account-circle" size={50} color="#9C27B0" />
-                <Text style={styles.cardTitle}>Profile</Text>
-                <Text style={styles.cardDescription}>View your profile</Text>
-                <TouchableOpacity
-                  style={styles.cardButton}
-                  onPress={() => router.push("/Profile")}
-                >
-                  <Text style={styles.buttonText}>Go to Profile</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+          <View style={styles.sectionContainer}>
+            <DashboardSection
+              icon="shield-check"
+              title="Security Status"
+              color="#007BFF"
+              onPress={() => router.push("/ScanScreen")}
+            />
+            <DashboardSection
+              icon="bell-alert"
+              title="Alerts"
+              color="#f39c12"
+              onPress={() => router.push("/AlertsScreen")}
+            />
+            <DashboardSection
+              icon="devices"
+              title="Connected Devices"
+              color="#27ae60"
+              onPress={() => router.push("/DevicesScreen")}
+            />
+            <DashboardSection
+              icon="account-circle"
+              title="Profile"
+              color="#9b59b6"
+              onPress={() => router.push("/Profile")}
+            />
           </View>
-
-          <FooterComponent />
 
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <Text style={styles.logoutText}>Logout</Text>
           </TouchableOpacity>
-        </Animated.View>
-      </AuthWrapper>
+        </View>
+        <FooterComponent />
+      </LinearGradient>
     </ScreenWithBackButton>
   );
 }
 
+// טיפוס מוגדר לפרופס בקומפוננטה
+interface DashboardSectionProps {
+  icon: IconName;
+  title: string;
+  color: string;
+  onPress: () => void;
+}
+
+const DashboardSection = ({ icon, title, color, onPress }: DashboardSectionProps) => (
+  <TouchableOpacity style={styles.section} onPress={onPress}>
+    <MaterialCommunityIcons name={icon} size={70} color={color} />
+    <Text style={styles.sectionTitle}>{title}</Text>
+  </TouchableOpacity>
+);
+
 const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
   },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   greeting: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: "bold",
-    marginBottom: 20,
-  },
-  cardContainer: {
-    width: "100%",
-    alignItems: "center",
-  },
-  cardRow: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    width: "100%",
-    marginBottom: 20,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    alignItems: "center",
-    width: "45%",
-    elevation: 5,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 10,
-  },
-  cardDescription: {
-    fontSize: 14,
-    color: "#666",
-    marginBottom: 10,
+    marginBottom: 40,
+    color: "#fff",
     textAlign: "center",
   },
-  cardButton: {
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
-    width: "80%",
+  sectionContainer: {
+    width: "100%",
     alignItems: "center",
+    marginVertical: 20,
   },
-  buttonText: {
-    color: "#fff",
+  section: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    width: "90%",
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  sectionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    marginLeft: 20,
+    color: "#333",
   },
   logoutButton: {
     marginTop: 40,
     padding: 15,
-    backgroundColor: "#dc3545",
-    borderRadius: 8,
+    backgroundColor: "#e74c3c",
+    borderRadius: 10,
+    width: "70%",
+    alignItems: "center",
   },
   logoutText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 18,
   },
 });

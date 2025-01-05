@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -10,6 +10,7 @@ export default function UserForm() {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const [isRegister, setIsRegister] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -31,20 +32,24 @@ export default function UserForm() {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);  // התחלת מצב טעינה
     const { firstName, lastName, email, password, confirmPassword, phone, country } = formData;
 
     if (isRegister) {
       if (!firstName || !lastName || !email || !password || !confirmPassword || !phone || !country) {
         Alert.alert("Error", "Please fill in all fields.");
+        setLoading(false);
         return;
       }
       if (password !== confirmPassword) {
         Alert.alert("Error", "Passwords do not match.");
+        setLoading(false);
         return;
       }
     } else {
       if (!email || !password) {
         Alert.alert("Error", "Please enter your email and password.");
+        setLoading(false);
         return;
       }
     }
@@ -57,17 +62,28 @@ export default function UserForm() {
         body: JSON.stringify(isRegister ? formData : { email, password }),
       });
 
-      if (!response.ok) throw new Error(`Failed to ${isRegister ? "register" : "login"}. Please try again.`);
-
       const data = await response.json();
+      console.log("🔄 Response from server:", data);
+
+      if (!response.ok) throw new Error(data.error || `Failed to ${isRegister ? "register" : "login"}. Please try again.`);
+
       Alert.alert("Success", `${isRegister ? "Registered" : "Logged in"} successfully!`);
 
       // שמירת משתמש בקונטקסט כולל שם פרטי
-      authContext?.login(data.user);
+      if (authContext && authContext.login) {
+        authContext.login(data);
+        console.log("✅ User saved to AuthContext:", data);
+      } else {
+        console.error("❌ AuthContext is not available.");
+      }
+      
       router.replace("/Dashboard");
 
     } catch (error) {
+      console.error("❌ Error during login/register:", error);
       Alert.alert("Error", (error as Error).message);
+    } finally {
+      setLoading(false);  // סיום מצב טעינה
     }
   };
 
@@ -75,101 +91,89 @@ export default function UserForm() {
     <ScreenWithBackButton title={isRegister ? "Register" : "Login"}>
       <View style={styles.container}>
         <Text style={styles.title}>{isRegister ? "Register" : "Login"}</Text>
-        {isRegister && (
+
+        {loading ? (
+          <ActivityIndicator size="large" color="#007BFF" />
+        ) : (
           <>
+            {isRegister && (
+              <>
+                <View style={styles.inputContainer}>
+                  <Icon name="person" size={20} color="#777" />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="First Name"
+                    value={formData.firstName}
+                    onChangeText={(value) => handleInputChange("firstName", value)}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Icon name="person" size={20} color="#777" />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Last Name"
+                    value={formData.lastName}
+                    onChangeText={(value) => handleInputChange("lastName", value)}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Icon name="phone" size={20} color="#777" />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Phone"
+                    value={formData.phone}
+                    onChangeText={(value) => handleInputChange("phone", value)}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <Icon name="location-on" size={20} color="#777" />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Country"
+                    value={formData.country}
+                    onChangeText={(value) => handleInputChange("country", value)}
+                  />
+                </View>
+              </>
+            )}
             <View style={styles.inputContainer}>
-              <Icon name="person" size={20} color="#777" />
+              <Icon name="email" size={20} color="#777" />
               <TextInput
                 style={styles.input}
-                placeholder="First Name"
-                value={formData.firstName}
-                onChangeText={(value) => handleInputChange("firstName", value)}
+                placeholder="Email"
+                value={formData.email}
+                onChangeText={(value) => handleInputChange("email", value)}
+                keyboardType="email-address"
+                autoCapitalize="none"
               />
             </View>
             <View style={styles.inputContainer}>
-              <Icon name="person" size={20} color="#777" />
+              <Icon name="lock" size={20} color="#777" />
               <TextInput
                 style={styles.input}
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChangeText={(value) => handleInputChange("lastName", value)}
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <Icon name="phone" size={20} color="#777" />
-              <TextInput
-                style={styles.input}
-                placeholder="Phone"
-                value={formData.phone}
-                onChangeText={(value) => handleInputChange("phone", value)}
-                keyboardType="phone-pad"
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <Icon name="location-on" size={20} color="#777" />
-              <TextInput
-                style={styles.input}
-                placeholder="Country"
-                value={formData.country}
-                onChangeText={(value) => handleInputChange("country", value)}
+                placeholder="Password"
+                value={formData.password}
+                onChangeText={(value) => handleInputChange("password", value)}
+                secureTextEntry
               />
             </View>
           </>
         )}
-        <View style={styles.inputContainer}>
-          <Icon name="email" size={20} color="#777" />
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            value={formData.email}
-            onChangeText={(value) => handleInputChange("email", value)}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
-        <View style={styles.inputContainer}>
-          <Icon name="lock" size={20} color="#777" />
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            value={formData.password}
-            onChangeText={(value) => handleInputChange("password", value)}
-            secureTextEntry
-          />
-        </View>
-        {isRegister && (
-          <View style={styles.inputContainer}>
-            <Icon name="lock" size={20} color="#777" />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm Password"
-              value={formData.confirmPassword}
-              onChangeText={(value) => handleInputChange("confirmPassword", value)}
-              secureTextEntry
-            />
-          </View>
-        )}
 
         <TouchableOpacity
           style={styles.button}
-          onPressIn={() => (buttonScale.value = withSpring(0.9))}
-          onPressOut={() => (buttonScale.value = withSpring(1))}
           onPress={handleSubmit}
         >
           <Animated.View style={[styles.button, animatedButtonStyle]}>
             <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
           </Animated.View>
         </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setIsRegister(!isRegister)}>
-          <Text style={styles.switchText}>
-            {isRegister ? "Already have an account? Login" : "Don't have an account? Register"}
-          </Text>
-        </TouchableOpacity>
       </View>
     </ScreenWithBackButton>
   );
 }
+
 
 const styles = StyleSheet.create({
   switchText: {
