@@ -47,24 +47,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   
   
   // התחברות ושמירת נתוני משתמש
-  const login = async (userData: any) => {
-    if (!userData || !userData.user || !userData.user._id) {
+  const login = async (userData: any) => {    
+    if (!userData || !userData._id) {
       console.error("❌ User data incomplete. Aborting login.");
       return;
     }
   
-    console.log("🗂️ User received in AuthContext:", userData.user);
+    console.log("🗂️ User received in AuthContext:", userData);
   
-    setUser(userData.user);
+    setUser(userData);  // עדכון המשתמש ישירות
     setIsAuthenticated(true);
   
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(userData.user));
-      console.log("✅ User saved to AsyncStorage:", userData.user);
+      await AsyncStorage.setItem('user', JSON.stringify(userData));
+      console.log("✅ User saved to AsyncStorage:", userData);
     } catch (error) {
       console.error("❌ Failed to save user to storage:", error);
     }
   };
+  
   
 
   // התנתקות

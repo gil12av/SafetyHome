@@ -3,7 +3,6 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityInd
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from "react-native-reanimated";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 
 export default function UserForm() {
@@ -21,23 +20,17 @@ export default function UserForm() {
     country: "",
   });
 
-  const buttonScale = useSharedValue(1);
-
-  const animatedButtonStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: buttonScale.value }],
-  }));
-
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
   const handleSubmit = async () => {
-    setLoading(true);  // התחלת מצב טעינה
+    setLoading(true);
     const { firstName, lastName, email, password, confirmPassword, phone, country } = formData;
 
     if (isRegister) {
       if (!firstName || !lastName || !email || !password || !confirmPassword || !phone || !country) {
-        Alert.alert("Error", "Please fill in all fields.");
+        Alert.alert("Error", "All fields are required.");
         setLoading(false);
         return;
       }
@@ -63,34 +56,23 @@ export default function UserForm() {
       });
 
       const data = await response.json();
-      console.log("🔄 Response from server:", data);
+      if (!response.ok) throw new Error(data.error || "Failed to process request.");
 
-      if (!response.ok) throw new Error(data.error || `Failed to ${isRegister ? "register" : "login"}. Please try again.`);
-
-      Alert.alert("Success", `${isRegister ? "Registered" : "Logged in"} successfully!`);
-
-      // שמירת משתמש בקונטקסט כולל שם פרטי
-      if (authContext && authContext.login) {
-        authContext.login(data);
-        console.log("✅ User saved to AuthContext:", data);
-      } else {
-        console.error("❌ AuthContext is not available.");
-      }
-      
+      Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");
+      authContext?.login(data.user);
       router.replace("/Dashboard");
 
     } catch (error) {
-      console.error("❌ Error during login/register:", error);
       Alert.alert("Error", (error as Error).message);
     } finally {
-      setLoading(false);  // סיום מצב טעינה
+      setLoading(false);
     }
   };
 
   return (
     <ScreenWithBackButton title={isRegister ? "Register" : "Login"}>
       <View style={styles.container}>
-        <Text style={styles.title}>{isRegister ? "Register" : "Login"}</Text>
+        <Text style={styles.title}>{isRegister ? "Create Account" : "Welcome Back!"}</Text>
 
         {loading ? (
           <ActivityIndicator size="large" color="#007BFF" />
@@ -137,6 +119,7 @@ export default function UserForm() {
                 </View>
               </>
             )}
+
             <View style={styles.inputContainer}>
               <Icon name="email" size={20} color="#777" />
               <TextInput
@@ -158,31 +141,37 @@ export default function UserForm() {
                 secureTextEntry
               />
             </View>
+
+            {isRegister && (
+              <View style={styles.inputContainer}>
+                <Icon name="lock" size={20} color="#777" />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Confirm Password"
+                  value={formData.confirmPassword}
+                  onChangeText={(value) => handleInputChange("confirmPassword", value)}
+                  secureTextEntry
+                />
+              </View>
+            )}
           </>
         )}
 
-        <TouchableOpacity
-          style={styles.button}
-          onPress={handleSubmit}
-        >
-          <Animated.View style={[styles.button, animatedButtonStyle]}>
-            <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
-          </Animated.View>
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => setIsRegister(!isRegister)}>
+          <Text style={styles.switchText}>
+            {isRegister ? "Already have an account? Sign In" : "Don't have an account? Register"}
+          </Text>
         </TouchableOpacity>
       </View>
     </ScreenWithBackButton>
   );
 }
 
-
 const styles = StyleSheet.create({
-  switchText: {
-    color: "#007BFF",
-    marginTop: 20,
-    fontSize: 14,
-    textAlign: "center",
-    textDecorationLine: "underline",
-  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -190,36 +179,39 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
+    marginBottom: 30,
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    borderWidth: 1,
     borderColor: "#ccc",
-    padding: 10,
-    marginBottom: 10,
-    width: "80%",
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 15,
+    width: "90%",
   },
   input: {
     flex: 1,
-    paddingLeft: 10,
+    marginLeft: 10,
   },
   button: {
     backgroundColor: "#007BFF",
-    padding: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 60,
     borderRadius: 8,
-    alignItems: "center",
-    marginTop: 10,
-    width: "80%",
+    marginTop: 20,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
+  },
+  switchText: {
+    color: "#007BFF",
+    marginTop: 20,
+    textDecorationLine: "underline",
   },
 });

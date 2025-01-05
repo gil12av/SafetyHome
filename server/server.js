@@ -21,7 +21,7 @@ app.use("/api/users", userRoutes);
 
 // ScanDevice:
 const deviceRoutes = require("./src/routes/deviceRoute");
-app.use("/api/devices", deviceRoutes); // חיבור הנתיב לסריקה
+app.use("/api", deviceRoutes); // חיבור הנתיב לסריקה
 
 
 // MongoDB connection

@@ -27,13 +27,13 @@ export const loginUser = async (credentials) => {
 };
 
 
-// i want to pass the userId.
-export const scanNetwork = async (userId) => {
+export const triggerScan = async (userId) => {
   try {
     const response = await axios.post(`${API_URL}/scan-network`, { userId });
+    console.log("📡 Scan response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error during network scan:", error.response?.data || error.message);
+    console.error("Error during scan:", error.response?.data || error.message);
     throw error;
   }
 };
