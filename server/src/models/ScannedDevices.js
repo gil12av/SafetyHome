@@ -8,4 +8,7 @@ const scannedDeviceSchema = new mongoose.Schema({
   scanDate: { type: Date, default: Date.now },
 });
 
+// הוספת אינדקס לשליפות מהירות לפי userId ותאריך
+scannedDeviceSchema.index({ userId: 1, scanDate: -1 });
+
 module.exports = mongoose.model("ScannedDevice", scannedDeviceSchema);

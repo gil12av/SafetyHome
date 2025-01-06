@@ -1,8 +1,12 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");  // נוספה ספריית jwt ליצירת טוקן
 const User = require("../models/User");
 
 const router = express.Router();
+
+// מפתח סודי ליצירת טוקן (נשלף מקובץ .env)
+const JWT_SECRET = process.env.JWT_SECRET || "defaultSecretKey";
 
 // נתיב הרשמה
 router.post("/register", async (req, res) => {
@@ -30,7 +34,8 @@ router.post("/register", async (req, res) => {
 
     await user.save();
     
-    // החזרת נתוני המשתמש לאחר הרשמה מוצלחת
+    console.log("✅ New user registered:", user);
+
     res.status(201).json({
       message: "User registered successfully",
       user: {
@@ -41,6 +46,7 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error("❌ Error registering user:", error);
     res.status(500).json({ error: "Failed to register user" });
   }
 });
@@ -68,14 +74,16 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // הדפסת מידע לפני שליחתו ללקוח
-    console.log("User sent to client:", {
-      _id: user._id,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-    });
+    // יצירת טוקן לאחר אימות המשתמש
+    const token = jwt.sign(
+      { _id: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "1h" }
+    );
 
+    console.log("🔐 JWT Token generated:", token);
+
+    // שליחת המשתמש והטוקן ללקוח (המיקום הזה נכון)
     res.status(200).json({
       message: "Login successful",
       user: {
@@ -84,8 +92,17 @@ router.post("/login", async (req, res) => {
         lastName: user.lastName,
         email: user.email,
       },
+      token,  // הוספת הטוקן לתגובה
+    });
+
+    console.log("User sent to client:", {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
     });
   } catch (error) {
+    console.error("❌ Error during login:", error);
     res.status(500).json({ error: "Failed to log in" });
   }
 });

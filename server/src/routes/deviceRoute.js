@@ -3,12 +3,13 @@ const express = require("express");
 const router = express.Router();
 const { spawn } = require("child_process");
 const ScannedDevice = require("../models/ScannedDevices");
+const { authenticate } = require('../middleware/auth');
 
+// ביצוע סריקה ושמירתה בבסיס הנתונים
 router.post("/scan-network", async (req, res) => {
   let { userId } = req.body;
   console.log("Request received for user ID:", userId);
 
-  // בדיקת תקינות userId
   if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).json({ error: "Invalid userId format" });
   }
@@ -19,12 +20,10 @@ router.post("/scan-network", async (req, res) => {
     let scanOutput = "";
     let errorOutput = "";
 
-    // איסוף נתונים מ-scanOutput
     pythonProcess.stdout.on("data", (data) => {
       scanOutput += data.toString();
     });
 
-    // איסוף שגיאות
     pythonProcess.stderr.on("data", (data) => {
       errorOutput += data.toString();
       console.error("Python Error:", data.toString());
@@ -37,13 +36,10 @@ router.post("/scan-network", async (req, res) => {
 
       try {
         const parsedOutput = JSON.parse(scanOutput);
-
-        // בדיקה אם התוצאה ריקה
         if (!parsedOutput.devices || parsedOutput.devices.length === 0) {
           return res.status(404).json({ message: "No devices found during the scan" });
         }
 
-        // שמירת המכשירים במסד נתונים
         const session = await mongoose.startSession();
         session.startTransaction();
 
@@ -78,7 +74,6 @@ router.post("/scan-network", async (req, res) => {
       }
     });
 
-    // טיפול בשגיאה כללית
     pythonProcess.on("error", (error) => {
       console.error("Failed to start Python process:", error);
       res.status(500).json({ error: "Failed to start scan process" });
@@ -88,5 +83,22 @@ router.post("/scan-network", async (req, res) => {
     res.status(500).json({ error: "An error occurred during the scan" });
   }
 });
+
+// שליפת היסטוריית הסריקות לפי userId
+router.get('/scans', authenticate, async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const scans = await ScannedDevice.find({ userId })
+      .sort({ scanDate: -1 })  // מיון לפי תאריך הסריקה מהאחרון לישן
+      .exec();
+
+    res.json(scans);
+  } catch (error) {
+    console.error("Failed to retrieve scans:", error);
+    res.status(500).json({ error: "Failed to retrieve scans." });
+  }
+});
+
 
 module.exports = router;

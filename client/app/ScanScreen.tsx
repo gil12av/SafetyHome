@@ -11,6 +11,7 @@ type Device = {
   deviceName: string;
   ipAddress: string;
   macAddress: string;
+  scanDate?: string;
 };
 
 const getDeviceIcon = (deviceName: string) => {

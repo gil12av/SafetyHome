@@ -27,7 +27,7 @@ export default function UserForm() {
   const handleSubmit = async () => {
     setLoading(true);
     const { firstName, lastName, email, password, confirmPassword, phone, country } = formData;
-
+  
     if (isRegister) {
       if (!firstName || !lastName || !email || !password || !confirmPassword || !phone || !country) {
         Alert.alert("Error", "All fields are required.");
@@ -46,7 +46,7 @@ export default function UserForm() {
         return;
       }
     }
-
+  
     try {
       const endpoint = isRegister ? "register" : "login";
       const response = await fetch(`http://192.168.31.107:5001/api/users/${endpoint}`, {
@@ -54,20 +54,28 @@ export default function UserForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(isRegister ? formData : { email, password }),
       });
-
+  
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Failed to process request.");
-
+  
       Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");
-      authContext?.login(data.user);
-      router.replace("/Dashboard");
-
+  
+      // וידוא שהטוקן נשלח
+      console.log("📥 Full response from server:", data);
+  
+      if (data.token) {
+        authContext?.login(data.user, data.token);  // שולחים user + token
+        router.replace("/Dashboard");
+      } else {
+        Alert.alert("Error", "Token not received.");
+      }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <ScreenWithBackButton title={isRegister ? "Register" : "Login"}>

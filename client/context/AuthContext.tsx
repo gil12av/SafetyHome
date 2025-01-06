@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 interface AuthContextType {
   user: any | null;
   isAuthenticated: boolean;
-  login: (userData: any) => void;
+  login: (userData: any, token: string) => void;
   logout: () => void;
 }
 
@@ -44,28 +44,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     loadUser();
   }, []);
   
-  
-  
   // התחברות ושמירת נתוני משתמש
-  const login = async (userData: any) => {    
-    if (!userData || !userData._id) {
-      console.error("❌ User data incomplete. Aborting login.");
+  const login = async (userData: any, token: string) => {    
+    if (!userData || !userData._id || !token) {
+      console.error("❌ User data incomplete. Aborting login.", userData);
       return;
     }
   
-    console.log("🗂️ User received in AuthContext:", userData);
+    // שילוב הטוקן עם המשתמש
+    const userWithToken = { ...userData, token };
+    console.log("🗂️ Saving user with token to AsyncStorage:", userWithToken);
   
-    setUser(userData);  // עדכון המשתמש ישירות
+    setUser(userWithToken);
     setIsAuthenticated(true);
   
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(userData));
-      console.log("✅ User saved to AsyncStorage:", userData);
+      await AsyncStorage.setItem('user', JSON.stringify(userWithToken));  // שמירת המשתמש והטוקן
+      console.log("✅ User + Token saved to AsyncStorage:", userWithToken);
     } catch (error) {
       console.error("❌ Failed to save user to storage:", error);
     }
   };
-  
   
 
   // התנתקות

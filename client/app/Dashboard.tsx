@@ -20,6 +20,11 @@ import FooterComponent from "@/components/Footer";
 import { ComponentProps } from "react";
 type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
 
+interface DashboardProps {
+  children: React.ReactNode;
+  onPress: () => void;
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const authContext = useContext(AuthContext);
@@ -105,7 +110,7 @@ export default function Dashboard() {
 }
 
 // אנימציה ללחיצה על כרטיסיה
-const AnimatedTouchable = ({ children, onPress }) => {
+const AnimatedTouchable = ({ children, onPress }: DashboardProps) => {
   const scaleAnim = React.useRef(new Animated.Value(1)).current;
 
   const handlePressIn = () => {
