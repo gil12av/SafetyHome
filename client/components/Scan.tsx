@@ -1,6 +1,5 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Alert } from "react-native";
-import * as Progress from 'react-native-progress';
 import { triggerScan } from "../services/api";
 import { AuthContext } from "@/context/AuthContext";
 
@@ -10,10 +9,13 @@ type Device = {
   macAddress: string;
 };
 
-export default function Scan({ onScanComplete }: { onScanComplete: (devices: Device[]) => void }) {
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [scanResults, setScanResults] = useState<Device[]>([]);
+type ScanProps = {
+  onScanComplete: (devices: Device[]) => void;
+  onProgressUpdate: (progress: number) => void;
+  onLoadingChange: (loading: boolean) => void;
+};
+
+export default function Scan({ onScanComplete, onProgressUpdate, onLoadingChange }: ScanProps) {
   const authContext = useContext(AuthContext);
   const userId = authContext?.user?._id;
 
@@ -22,29 +24,33 @@ export default function Scan({ onScanComplete }: { onScanComplete: (devices: Dev
       Alert.alert("Error", "User ID not found. Please login again.");
       return;
     }
-    setLoading(true);
-    setProgress(0);
-    try {
-      let progressInterval = setInterval(() => {
-        setProgress((oldProgress) => {
-          if (oldProgress < 0.9) return oldProgress + 0.1;
-          clearInterval(progressInterval);
-          return oldProgress;
-        });
-      }, 1000);
+    onLoadingChange(true);
+    onProgressUpdate(0);
 
+    let progress = 0;  // נוסיף משתנה לניהול progress
+
+    let progressInterval = setInterval(() => {
+      if (progress < 0.9) {
+        progress += 0.1;
+        onProgressUpdate(progress);  // עדכון ערך ישיר
+      } else {
+        clearInterval(progressInterval);
+      }
+    }, 1000);
+
+    try {
       const data = await triggerScan(userId);
       clearInterval(progressInterval);
-      setProgress(1);
-      setScanResults(data.devices || []);
+      onProgressUpdate(1);
       onScanComplete(data.devices || []);
     } catch (err) {
       console.error("Error during scan request:", err);
       Alert.alert("Error", "Failed to perform the scan.");
     } finally {
-      setLoading(false);
+      onLoadingChange(false);
+      clearInterval(progressInterval);
     }
   };
 
-  return { handleScan, loading, progress, scanResults };
+  return { handleScan };
 }

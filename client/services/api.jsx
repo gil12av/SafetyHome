@@ -21,6 +21,10 @@ export const loginUser = async (credentials) => {
     console.log("📥 API Response at Client (Login):", response.data);
     
     const { user, token } = response.data;  // שליפת המשתמש והטוקן
+    if (!token) {
+      throw new Error("Token is missing in server response.");
+    }
+
     console.log("🔑 Extracted Token at Client:", token);
 
     return { ...user, token };  // החזרת הטוקן יחד עם פרטי המשתמש

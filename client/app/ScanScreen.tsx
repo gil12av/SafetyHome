@@ -5,7 +5,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Scan from "../components/Scan";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 type Device = {
   deviceName: string;
@@ -30,9 +30,23 @@ export default function ScanScreen() {
 
   const handleScanComplete = (devices: Device[]) => {
     setScanResults(devices);
+    setLoading(false);
+    setProgress(0);
   };
 
-  const { handleScan } = Scan({ onScanComplete: handleScanComplete });
+  const handleProgressUpdate = (newProgress: number) => {
+    setProgress(newProgress);
+  };
+
+  const handleLoadingChange = (isLoading: boolean) => {
+    setLoading(isLoading);
+  };
+
+  const { handleScan } = Scan({
+    onScanComplete: handleScanComplete,
+    onProgressUpdate: handleProgressUpdate,
+    onLoadingChange: handleLoadingChange,
+  });
 
   const renderDevice = ({ item }: { item: Device }) => (
     <View style={styles.card}>
@@ -55,7 +69,7 @@ export default function ScanScreen() {
             <Progress.Bar
               progress={progress}
               width={width * 0.8}
-              color="#4A90E2"
+              color="#FF6F61"
               borderWidth={0}
               height={12}
               style={styles.progressBar}
@@ -71,7 +85,7 @@ export default function ScanScreen() {
           <Text style={styles.noDeviceText}>No devices found. Start a scan.</Text>
         )}
 
-        <TouchableOpacity style={styles.scanButton} onPress={handleScan}>
+        <TouchableOpacity style={styles.scanButton} onPress={handleScan} disabled={loading}>
           <Icon name="radar" size={50} color="#fff" />
           <Text style={styles.scanButtonText}>
             {loading ? "Scanning..." : "Start Scan"}
@@ -115,19 +129,26 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   scanButton: {
-    marginTop: 30,
-    width: width * 0.8,
-    height: 90,
-    backgroundColor: "#4A90E2",
-    borderRadius: 45,
+    position: "absolute",
+    bottom: 0,
+    width: width,
+    height: 100,
+    backgroundColor: "#FF3B30",
+    borderTopLeftRadius: 100,
+    borderTopRightRadius: 100,
     justifyContent: "center",
     alignItems: "center",
+    elevation: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 5,
   },
   scanButtonText: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
-    marginTop: 5,
+    marginTop: 10,
   },
   card: {
     backgroundColor: "#FFFFFF",

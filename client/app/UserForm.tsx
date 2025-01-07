@@ -24,28 +24,46 @@ export default function UserForm() {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const validateForm = () => {
     const { firstName, lastName, email, password, confirmPassword, phone, country } = formData;
-  
+
     if (isRegister) {
       if (!firstName || !lastName || !email || !password || !confirmPassword || !phone || !country) {
         Alert.alert("Error", "All fields are required.");
-        setLoading(false);
-        return;
+        return false;
       }
       if (password !== confirmPassword) {
         Alert.alert("Error", "Passwords do not match.");
-        setLoading(false);
-        return;
+        return false;
+      }
+      if (!/^[a-zA-Z]+$/.test(firstName)) {
+        Alert.alert("Error", "First name can only contain letters.");
+        return false;
+      }
+      if (!/^[a-zA-Z]+$/.test(lastName)) {
+        Alert.alert("Error", "Last name can only contain letters.");
+        return false;
+      }
+      if (!/\S+@\S+\.\S+/.test(email)) {
+        Alert.alert("Error", "Invalid email address.");
+        return false;
       }
     } else {
       if (!email || !password) {
         Alert.alert("Error", "Please enter your email and password.");
-        setLoading(false);
-        return;
+        return false;
       }
     }
+    return true;
+  };
+
+  const handleSubmit = async () => {
+    if (!validateForm()) {
+      return;
+    }
+  
+    setLoading(true);
+    const { email, password } = formData;
   
     try {
       const endpoint = isRegister ? "register" : "login";
@@ -56,18 +74,17 @@ export default function UserForm() {
       });
   
       const data = await response.json();
+      console.log("📥 Server Response:", data);  // לוג על התגובה מהשרת
       if (!response.ok) throw new Error(data.error || "Failed to process request.");
   
       Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");
   
-      // וידוא שהטוקן נשלח
-      console.log("📥 Full response from server:", data);
-  
       if (data.token) {
-        authContext?.login(data.user, data.token);  // שולחים user + token
+        authContext?.login(data.user || {}, data.token);  // שמירת טוקן גם אם אין משתמש מלא
         router.replace("/Dashboard");
       } else {
-        Alert.alert("Error", "Token not received.");
+        console.error("Token not received:", data);
+        Alert.alert("Error", "Token not received. Please try again.");
       }
     } catch (error) {
       Alert.alert("Error", (error as Error).message);
