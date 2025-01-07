@@ -8,19 +8,25 @@ const app = express();
 const PORT = 5001;
 
 // Middleware
-app.use(cors()); // פתרון לבעיית CORS
+app.use(cors({
+  origin: "*",  // ניתן להחליף בכתובת הספציפית של הלקוח
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
-// Routes
+// Routes:
 const userRoutes = require("./src/routes/userRoutes");
 app.use("/api/users", userRoutes);
 
+// ScanDevice:
+const deviceRoutes = require("./src/routes/deviceRoute");
+app.use("/api", deviceRoutes); // חיבור הנתיב לסריקה
+
+
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("✅ Successfully connected to MongoDB!");
     app.listen(PORT, () => {
