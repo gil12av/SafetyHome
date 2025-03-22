@@ -6,16 +6,19 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ComponentProps } from "react";
+import globalStyles from "@/styles/globalStyles";
+
+const { width } = Dimensions.get("window");
 
 type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
 
-// טקסטים מתחלפים עם עיצוב כרטיסיה
 const RotatingMessage = () => {
   const [currentMessage, setCurrentMessage] = React.useState(0);
   const messages: { text: string; icon: IconName }[] = [
@@ -38,9 +41,7 @@ const RotatingMessage = () => {
         size={40}
         color="#4A90E2"
       />
-      <Text style={styles.messageText}>
-        {messages[currentMessage].text}
-      </Text>
+      <Text style={styles.messageText}>{messages[currentMessage].text}</Text>
     </View>
   );
 };
@@ -49,7 +50,7 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={globalStyles.screenContainer}>
       <LinearGradient
         colors={["#ffffff", "#e6f7ff"]}
         style={styles.gradientContainer}
@@ -62,7 +63,7 @@ export default function HomeScreen() {
           <Text style={styles.welcomeText}>Welcome to SafetyHome</Text>
           <RotatingMessage />
 
-          <View style={styles.cardContainer}>
+          <View style={styles.cardGrid}>
             <HomeCard
               icon="login"
               title="Sign In / Register"
@@ -96,7 +97,6 @@ export default function HomeScreen() {
   );
 }
 
-// הגדרת הטיפוסים עבור HomeCard
 interface HomeCardProps {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   title: string;
@@ -106,17 +106,10 @@ interface HomeCardProps {
   onPress: () => void;
 }
 
-const HomeCard = ({
-  icon,
-  title,
-  description,
-  buttonLabel,
-  color,
-  onPress,
-}: HomeCardProps) => (
-  <View style={styles.card}>
-    <MaterialCommunityIcons name={icon} size={60} color={color} />
-    <Text style={styles.cardTitle}>{title}</Text>
+const HomeCard = ({ icon, title, description, buttonLabel, color, onPress }: HomeCardProps) => (
+  <TouchableOpacity style={[styles.card, { borderColor: color }]} onPress={onPress}>
+    <MaterialCommunityIcons name={icon} size={40} color={color} />
+    <Text style={[styles.cardTitle, { color }]}>{title}</Text>
     <Text style={styles.cardDescription}>{description}</Text>
     <TouchableOpacity
       style={[styles.cardButton, { backgroundColor: color }]}
@@ -124,7 +117,7 @@ const HomeCard = ({
     >
       <Text style={styles.buttonText}>{buttonLabel}</Text>
     </TouchableOpacity>
-  </View>
+  </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
@@ -132,10 +125,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
     padding: 20,
+    alignItems: "center",
   },
   logo: {
     width: 130,
@@ -166,46 +157,44 @@ const styles = StyleSheet.create({
     marginLeft: 15,
     color: "#333",
   },
-  cardContainer: {
+  cardGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
     width: "100%",
-    alignItems: "center",
-    marginTop: 10,
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 25,
-    marginVertical: 15,
-    width: "90%",
+    borderRadius: 15,
+    borderWidth: 2,
+    padding: 20,
+    marginBottom: 20,
+    width: width * 0.42,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 8,
+    elevation: 5,
   },
   cardTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginTop: 15,
-    color: "#333",
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "600",
   },
   cardDescription: {
     fontSize: 14,
     color: "#555",
     textAlign: "center",
-    marginTop: 10,
-    marginBottom: 20,
+    marginVertical: 10,
   },
   cardButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    borderRadius: 10,
-    width: "70%",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    width: "100%",
     alignItems: "center",
+    marginTop: 5,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
   },
 });

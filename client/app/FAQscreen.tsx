@@ -1,9 +1,10 @@
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, LayoutAnimation, UIManager, Platform } from "react-native";
+import { View, Text, FlatList, TouchableOpacity, LayoutAnimation, UIManager, Platform, StyleSheet } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Animated, { LightSpeedInRight } from "react-native-reanimated";
 import ScreenWithBackButton from "../components/ScreenWithBackButton";
+import globalStyles from "@/styles/globalStyles";
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -38,8 +39,8 @@ const FAQScreen = () => {
   );
 
   return (
-    <ScreenWithBackButton title="שאלות נפוצות">
-      <View style={styles.container}>
+    <ScreenWithBackButton title="שאלות נפוצות" style={globalStyles.screenContainer}>
+      <View style={globalStyles.screenContainer}>
         <FlatList
           data={faqs}
           keyExtractor={(item, index) => index.toString()}
@@ -51,11 +52,6 @@ const FAQScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#e6f7ff",
-  },
   faqItem: {
     marginBottom: 15,
     backgroundColor: "#fff",

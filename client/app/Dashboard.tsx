@@ -1,12 +1,23 @@
 import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Animated, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  ScrollView,
+  Dimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FooterComponent from "@/components/Footer";
+import globalStyles from "@/styles/globalStyles";
 
+const { width } = Dimensions.get("window");
 
 const Dashboard = () => {
   const router = useRouter();
@@ -30,7 +41,7 @@ const Dashboard = () => {
 
   if (isLoading) {
     return (
-      <SafeAreaView style={styles.loadingContainer}>
+      <SafeAreaView style={globalStyles.loadingContainer}>
         <ActivityIndicator size="large" color="#007BFF" />
         <Text>Loading...</Text>
       </SafeAreaView>
@@ -38,30 +49,39 @@ const Dashboard = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={globalStyles.fullScreen}>
       <LinearGradient
         colors={["#ffffff", "#f0f4f8"]}
-        style={styles.gradientContainer}
+        style={globalStyles.gradientContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Text style={styles.greeting}>Welcome, {firstName}</Text>
 
-          <View style={styles.sectionContainer}>
-            <TouchableOpacity onPress={() => router.push("/ScanScreen")}>
-              <DashboardSection icon="security" title="Network Scan" color="#6DD5FA" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => router.push("/AlertsScreen")}>
-              <DashboardSection icon="alert-octagon" title="Security Alerts" color="#FF512F" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => router.push("/DevicesScreen")}>
-              <DashboardSection icon="router-network" title="Connected Devices" color="#4CAF50" />
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => router.push("/Profile")}>
-              <DashboardSection icon="account-cog" title="User Profile" color="#8E2DE2" />
-            </TouchableOpacity>
+          <View style={styles.cardGrid}>
+            <DashboardCard
+              icon="security"
+              title="Network Scan"
+              color="#6DD5FA"
+              onPress={() => router.push("/ScanScreen")}
+            />
+            <DashboardCard
+              icon="alert-octagon"
+              title="Security Alerts"
+              color="#FF512F"
+              onPress={() => router.push("/AlertsScreen")}
+            />
+            <DashboardCard
+              icon="router-network"
+              title="Connected Devices"
+              color="#4CAF50"
+              onPress={() => router.push("/DevicesScreen")}
+            />
+            <DashboardCard
+              icon="account-cog"
+              title="User Profile"
+              color="#8E2DE2"
+              onPress={() => router.push("/Profile")}
+            />
           </View>
 
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -74,72 +94,59 @@ const Dashboard = () => {
   );
 };
 
-interface DashboardSectionProps {
+interface DashboardCardProps {
   icon: keyof typeof MaterialCommunityIcons.glyphMap;
   title: string;
   color: string;
+  onPress: () => void;
 }
 
-const DashboardSection: React.FC<DashboardSectionProps> = ({ icon, title, color }) => (
-  <View style={[styles.section, { borderColor: color }]}>
-    <MaterialCommunityIcons name={icon} size={65} color={color} />
-    <Text style={styles.sectionTitle}>{title}</Text>
-  </View>
+const DashboardCard = ({ icon, title, color, onPress }: DashboardCardProps) => (
+  <TouchableOpacity style={[styles.card, { borderColor: color }]} onPress={onPress}>
+    <MaterialCommunityIcons name={icon} size={40} color={color} />
+    <Text style={[styles.cardTitle, { color }]}>{title}</Text>
+  </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
-  gradientContainer: {
-    flex: 1,
-  },
   scrollContainer: {
     flexGrow: 1,
-    justifyContent: "center",
     alignItems: "center",
     padding: 20,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   greeting: {
     fontSize: 30,
     fontWeight: "bold",
     color: "#333",
-    marginBottom: 40,
+    marginVertical: 20,
   },
-  sectionContainer: {
-    width: "100%",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  section: {
+  cardGrid: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "85%",
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 30,
-    marginVertical: 15,
-    borderWidth: 1.5,
-    elevation: 10,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    width: "100%",
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginLeft: 15,
-    color: "#333",
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    borderWidth: 2,
+    padding: 25,
+    marginBottom: 20,
+    width: width * 0.42,
+    alignItems: "center",
+    elevation: 5,
+  },
+  cardTitle: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "600",
   },
   logoutButton: {
-    marginTop: 40,
+    marginTop: 30,
     backgroundColor: "#e74c3c",
     padding: 15,
     borderRadius: 10,
-    width: "60%",
+    width: "70%",
     alignItems: "center",
   },
   logoutText: {

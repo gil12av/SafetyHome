@@ -1,11 +1,20 @@
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
-import { API_URL } from "@/services/api"; // ודא שה-API_URL מוגדר נכון
+import { API_URL } from "@/services/api";
 import axios from "axios";
+import globalStyles from "@/styles/globalStyles";
 
 export default function UserForm() {
   const router = useRouter();
@@ -64,45 +73,27 @@ export default function UserForm() {
     setLoading(true);
     const { email, password } = formData;
     const endpoint = isRegister ? "register" : "login";
-  
+
     try {
-      console.log(`📤 Sending Request to: ${API_URL}/users/${endpoint}`);
-      console.log("📦 Payload:", JSON.stringify(isRegister ? formData : { email, password }));
-  
-      const response = await axios.post(`${API_URL}/users/${endpoint}`, isRegister ? formData : { email, password }, {
-        withCredentials: true,
-        headers: { "Content-Type": "application/json" },
-      });
-  
-      console.log("📥 Raw Response:", response.data);
-  
+      const response = await axios.post(
+        `${API_URL}/users/${endpoint}`,
+        isRegister ? formData : { email, password },
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
       if (!response.data || response.status >= 400) {
         throw new Error(response.data?.error || "Failed to process request.");
       }
-  
-      Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");
-  
-      // 🔍 בדיקה אם ה-Session נשמר
-      console.log(`🔍 Checking session at: ${API_URL}/users/me`);
-      const sessionResponse = await axios.get(`${API_URL}/users/me`, {
-        withCredentials: true,
-      });
-  
-      console.log("📥 Session Response Headers:", sessionResponse.headers);
-      console.log("✅ User Data from Session:", sessionResponse.data);
-  
-      // 📌 שמירת המשתמש באובייקט `authContext`
 
-      await authContext?.login(email, password); 
-      
-  
-      // 🔍 הדפסת המשתמש לפני הניווט
-      console.log("📌 authContext User Before Navigation:", authContext?.user);
-      
-      router.replace("/Dashboard"); // ✅ ניווט קדימה
+      Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");
+
+      await authContext?.login(email, password);
+      router.replace("/Dashboard");
     } catch (error) {
       const axiosError = error as any;
-      console.error("❌ Login/Register Error:", axiosError.response?.data || axiosError.message);
       Alert.alert("Error", axiosError.response?.data?.error || "An unexpected error occurred.");
     } finally {
       setLoading(false);
@@ -110,8 +101,8 @@ export default function UserForm() {
   };
 
   return (
-    <ScreenWithBackButton title={isRegister ? "Register" : "Login"}>
-      <View style={styles.container}>
+    <ScreenWithBackButton title={isRegister ? "Register" : "Login"} style={globalStyles.screenContainer}>
+      <View style={styles.innerContainer}>
         <Text style={styles.title}>{isRegister ? "Create Account" : "Welcome Back!"}</Text>
 
         {loading ? (
@@ -120,116 +111,80 @@ export default function UserForm() {
           <>
             {isRegister && (
               <>
-                <View style={styles.inputContainer}>
-                  <Icon name="person" size={20} color="#777" />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="First Name"
-                    value={formData.firstName}
-                    onChangeText={(value) => handleInputChange("firstName", value)}
-                  />
-                </View>
-                <View style={styles.inputContainer}>
-                  <Icon name="person" size={20} color="#777" />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Last Name"
-                    value={formData.lastName}
-                    onChangeText={(value) => handleInputChange("lastName", value)}
-                  />
-                </View>
-                <View style={styles.inputContainer}>
-                  <Icon name="phone" size={20} color="#777" />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Phone"
-                    value={formData.phone}
-                    onChangeText={(value) => handleInputChange("phone", value)}
-                    keyboardType="phone-pad"
-                  />
-                </View>
-                <View style={styles.inputContainer}>
-                  <Icon name="location-on" size={20} color="#777" />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Country"
-                    value={formData.country}
-                    onChangeText={(value) => handleInputChange("country", value)}
-                  />
-                </View>
+                <InputField icon="person" placeholder="First Name" value={formData.firstName} onChangeText={(v: string) => handleInputChange("firstName", v)} />
+                <InputField icon="person" placeholder="Last Name" value={formData.lastName} onChangeText={(v: string) => handleInputChange("lastName", v)} />
+                <InputField icon="phone" placeholder="Phone" value={formData.phone} onChangeText={(v: string) => handleInputChange("phone", v)} keyboardType="phone-pad" />
+                <InputField icon="location-on" placeholder="Country" value={formData.country} onChangeText={(v: string) => handleInputChange("country", v)} />
               </>
             )}
 
-            <View style={styles.inputContainer}>
-              <Icon name="email" size={20} color="#777" />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={formData.email}
-                onChangeText={(value) => handleInputChange("email", value)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <Icon name="lock" size={20} color="#777" />
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                value={formData.password}
-                onChangeText={(value) => handleInputChange("password", value)}
-                secureTextEntry
-              />
-            </View>
+            <InputField icon="email" placeholder="Email" value={formData.email} onChangeText={(v: string) => handleInputChange("email", v)} keyboardType="email-address" />
+            <InputField icon="lock" placeholder="Password" value={formData.password} onChangeText={(v: string) => handleInputChange("password", v)} secureTextEntry />
+
+            {isRegister && (
+              <InputField icon="lock" placeholder="Confirm Password" value={formData.confirmPassword} onChangeText={(v: string) => handleInputChange("confirmPassword", v)} secureTextEntry />
+            )}
+
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setIsRegister(!isRegister)}>
+              <Text style={styles.switchText}>
+                {isRegister ? "Already have an account? Sign In" : "Don't have an account? Register"}
+              </Text>
+            </TouchableOpacity>
           </>
         )}
-
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={() => setIsRegister(!isRegister)}>
-          <Text style={styles.switchText}>
-            {isRegister ? "Already have an account? Sign In" : "Don't have an account? Register"}
-          </Text>
-        </TouchableOpacity>
       </View>
     </ScreenWithBackButton>
   );
 }
 
+const InputField = ({ icon, ...props }: { icon: string } & any) => (
+  <View style={styles.inputContainer}>
+    <Icon name={icon} size={20} color="#777" />
+    <TextInput style={styles.input} placeholderTextColor="#999" {...props} />
+  </View>
+);
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
+  innerContainer: {
+    width: "100%",
     alignItems: "center",
-    padding: 20,
+    paddingTop: 30,
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 30,
+    color: "#4A90E2",
+    marginBottom: 20,
+    textAlign: "center",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderColor: "#ccc",
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     padding: 12,
     marginBottom: 15,
     width: "90%",
+    backgroundColor: "#fff",
   },
   input: {
     flex: 1,
     marginLeft: 10,
+    color: "#333",
   },
   button: {
-    backgroundColor: "#007BFF",
-    paddingVertical: 15,
+    backgroundColor: "#4A90E2",
+    paddingVertical: 14,
     paddingHorizontal: 60,
-    borderRadius: 8,
+    borderRadius: 10,
     marginTop: 20,
+    width: "90%",
+    alignItems: "center",
   },
   buttonText: {
     color: "#fff",
@@ -239,7 +194,7 @@ const styles = StyleSheet.create({
   switchText: {
     color: "#007BFF",
     marginTop: 20,
+    fontSize: 14,
     textDecorationLine: "underline",
   },
 });
-

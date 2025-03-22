@@ -4,38 +4,43 @@ import FooterComponent from "@/components/Footer";
 import { useAuth } from "../context/AuthContext";
 import LottieView from "lottie-react-native";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
+import globalStyles from "@/styles/globalStyles";
 
 export default function Profile() {
   const { user, logout } = useAuth();
 
   return (
-    <ScreenWithBackButton title="Profile">
-      <View style={styles.container}>
-        <LottieView
-          source={require("../assets/animations/under_construction.json")}
-          autoPlay
-          loop
-          style={styles.animation}
-        />
-        <Text style={styles.title}>Profile Page Under Construction</Text>
-        <Text>{`Logged in as: ${user?.firstName || "Guest"}`}</Text>
+    <>
+      <ScreenWithBackButton title="Profile" style={globalStyles.screenContainer}>
+        <View style={styles.content}>
+          <LottieView
+            source={require("../assets/animations/under_construction.json")}
+            autoPlay
+            loop
+            style={styles.animation}
+          />
+          <Text style={styles.title}>Profile Page Under Construction</Text>
+          <Text style={styles.subText}>
+            {`Logged in as: ${user?.firstName || "Guest"}`}
+          </Text>
 
-        <TouchableOpacity style={styles.logoutButton} onPress={logout}>
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity style={styles.logoutButton} onPress={logout}>
+            <Text style={styles.logoutText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </ScreenWithBackButton>
+
       <FooterComponent />
-    </ScreenWithBackButton>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  content: {
     flex: 1,
-    justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f5f5f5",
     padding: 20,
+    justifyContent: "center",
   },
   animation: {
     width: 200,
@@ -43,17 +48,26 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
+    color: "#4A90E2",
     marginBottom: 10,
   },
+  subText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 30,
+  },
   logoutButton: {
-    marginTop: 30,
-    backgroundColor: "#dc3545",
-    padding: 15,
-    borderRadius: 8,
+    backgroundColor: "#FF3B30",
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    elevation: 3,
   },
   logoutText: {
     color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });
