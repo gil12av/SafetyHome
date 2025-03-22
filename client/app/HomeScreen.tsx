@@ -209,3 +209,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+function handleLoginClear() {
+  throw new Error("Function not implemented.");
+}

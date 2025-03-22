@@ -1,47 +1,30 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  Animated,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, Animated, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FooterComponent from "@/components/Footer";
 
-// טיפוס לאייקון מתוך MaterialCommunityIcons
-import { ComponentProps } from "react";
-type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
 
-interface DashboardProps {
-  children: React.ReactNode;
-  onPress: () => void;
-}
-
-export default function Dashboard() {
+const Dashboard = () => {
   const router = useRouter();
-  const authContext = useContext(AuthContext);
+  const { user, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
-  const firstName = authContext?.user?.firstName || "Guest";
+  const firstName = user?.firstName || "Guest";
 
   useEffect(() => {
-    if (authContext?.user) {
+    if (user) {
       setIsLoading(false);
     } else {
       router.replace("/UserForm");
     }
-  }, [authContext?.user]);
+  }, [user]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     Alert.alert("Logged Out", "You have successfully logged out.");
-    authContext?.logout();
     router.push("/UserForm");
   };
 
@@ -61,42 +44,24 @@ export default function Dashboard() {
         style={styles.gradientContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.greeting}>
-            Welcome, {firstName}
-          </Text>
+          <Text style={styles.greeting}>Welcome, {firstName}</Text>
 
           <View style={styles.sectionContainer}>
-            <AnimatedTouchable onPress={() => router.push("/ScanScreen")}>
-              <DashboardSection
-                icon="security"
-                title="Network Scan"
-                color="#6DD5FA"
-              />
-            </AnimatedTouchable>
+            <TouchableOpacity onPress={() => router.push("/ScanScreen")}>
+              <DashboardSection icon="security" title="Network Scan" color="#6DD5FA" />
+            </TouchableOpacity>
 
-            <AnimatedTouchable onPress={() => router.push("/AlertsScreen")}>
-              <DashboardSection
-                icon="alert-octagon"
-                title="Security Alerts"
-                color="#FF512F"
-              />
-            </AnimatedTouchable>
+            <TouchableOpacity onPress={() => router.push("/AlertsScreen")}>
+              <DashboardSection icon="alert-octagon" title="Security Alerts" color="#FF512F" />
+            </TouchableOpacity>
 
-            <AnimatedTouchable onPress={() => router.push("/DevicesScreen")}>
-              <DashboardSection
-                icon="router-network"
-                title="Connected Devices"
-                color="#4CAF50"
-              />
-            </AnimatedTouchable>
+            <TouchableOpacity onPress={() => router.push("/DevicesScreen")}>
+              <DashboardSection icon="router-network" title="Connected Devices" color="#4CAF50" />
+            </TouchableOpacity>
 
-            <AnimatedTouchable onPress={() => router.push("/Profile")}>
-              <DashboardSection
-                icon="account-cog"
-                title="User Profile"
-                color="#8E2DE2"
-              />
-            </AnimatedTouchable>
+            <TouchableOpacity onPress={() => router.push("/Profile")}>
+              <DashboardSection icon="account-cog" title="User Profile" color="#8E2DE2" />
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -107,45 +72,15 @@ export default function Dashboard() {
       </LinearGradient>
     </SafeAreaView>
   );
-}
-
-// אנימציה ללחיצה על כרטיסיה
-const AnimatedTouchable = ({ children, onPress }: DashboardProps) => {
-  const scaleAnim = React.useRef(new Animated.Value(1)).current;
-
-  const handlePressIn = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 0.97,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scaleAnim, {
-      toValue: 1,
-      friction: 3,
-      tension: 40,
-      useNativeDriver: true,
-    }).start(() => onPress());
-  };
-
-  return (
-    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-      <TouchableOpacity onPressIn={handlePressIn} onPressOut={handlePressOut}>
-        {children}
-      </TouchableOpacity>
-    </Animated.View>
-  );
 };
 
-// טיפוסים של כרטיסיות
 interface DashboardSectionProps {
-  icon: IconName;
+  icon: keyof typeof MaterialCommunityIcons.glyphMap;
   title: string;
   color: string;
 }
 
-const DashboardSection = ({ icon, title, color }: DashboardSectionProps) => (
+const DashboardSection: React.FC<DashboardSectionProps> = ({ icon, title, color }) => (
   <View style={[styles.section, { borderColor: color }]}>
     <MaterialCommunityIcons name={icon} size={65} color={color} />
     <Text style={styles.sectionTitle}>{title}</Text>
@@ -213,3 +148,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default Dashboard;

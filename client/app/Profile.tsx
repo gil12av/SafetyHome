@@ -1,18 +1,15 @@
 import React, { useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import FooterComponent from "@/components/Footer";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 import LottieView from "lottie-react-native";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 
 export default function Profile() {
-  const authContext = useContext(AuthContext);
-  const user = authContext?.user;
-  const logout = authContext?.logout;
+  const { user, logout } = useAuth();
 
   return (
     <ScreenWithBackButton title="Profile">
-    
       <View style={styles.container}>
         <LottieView
           source={require("../assets/animations/under_construction.json")}
