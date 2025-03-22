@@ -92,7 +92,9 @@ export default function UserForm() {
       console.log("✅ User Data from Session:", sessionResponse.data);
   
       // 📌 שמירת המשתמש באובייקט `authContext`
-      await authContext?.login(email, password); // 📌 שים לב שהוספתי `await`
+
+      await authContext?.login(email, password); 
+      
   
       // 🔍 הדפסת המשתמש לפני הניווט
       console.log("📌 authContext User Before Navigation:", authContext?.user);

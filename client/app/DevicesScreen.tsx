@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, FlatList, ActivityIndicator } from "react-native";
 import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 import { API_URL } from "../services/api";
 
@@ -19,22 +18,12 @@ export default function DevicesScreen() {
   useEffect(() => {
     const fetchScanHistory = async () => {
       try {
-        const user = await AsyncStorage.getItem('user');
-        const token = user ? JSON.parse(user).token : null;
-
-        if (!token) {
-          console.error("No token found in storage.");
-          return;
-        }
-
         const response = await axios.get(`${API_URL}/scans`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
+          withCredentials: true, // חובה כדי לשלוח session cookie
         });
         setScanHistory(response.data);
       } catch (error) {
-        console.error("Failed to fetch scan history:", error);
+        console.error("❌ Failed to fetch scan history:", error);
       } finally {
         setLoading(false);
       }
@@ -48,7 +37,7 @@ export default function DevicesScreen() {
       <Text style={styles.cardText}>Name: {item.deviceName}</Text>
       <Text style={styles.cardText}>IP: {item.ipAddress}</Text>
       <Text style={styles.cardText}>MAC: {item.macAddress || "N/A"}</Text>
-      <Text style={styles.cardText}>Scanned At: {item.scanDate ? new Date(item.scanDate).toLocaleString() : "N/A"}</Text>
+      <Text style={styles.cardText}>Scanned At: {item.scanDate || "N/A"}</Text>
     </View>
   );
 

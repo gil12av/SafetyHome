@@ -5,15 +5,15 @@ const { spawn } = require("child_process");
 const ScannedDevice = require("../models/ScannedDevices");
 const { authenticate } = require('../middleware/auth');
 
-// ביצוע סריקה ושמירתה בבסיס הנתונים
 router.post("/scan-network", async (req, res) => {
-  let { userId } = req.body;
-  console.log("Request received for user ID:", userId);
+  const sessionUser = req.session?.user;
 
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).json({ error: "Invalid userId format" });
+  if (!sessionUser || !mongoose.Types.ObjectId.isValid(sessionUser._id)) {
+    return res.status(401).json({ error: "Unauthorized. Please login again." });
   }
-  userId = new mongoose.Types.ObjectId(userId);
+
+  const userId = new mongoose.Types.ObjectId(sessionUser._id);
+  console.log("📡 Scan request received for user:", userId);
 
   try {
     const pythonProcess = spawn("python3", ["./scripts/python_ScanDevice.py"]);
@@ -26,7 +26,7 @@ router.post("/scan-network", async (req, res) => {
 
     pythonProcess.stderr.on("data", (data) => {
       errorOutput += data.toString();
-      console.error("Python Error:", data.toString());
+      console.error("🐍 Python Error:", data.toString());
     });
 
     pythonProcess.on("close", async (code) => {
@@ -44,24 +44,35 @@ router.post("/scan-network", async (req, res) => {
         session.startTransaction();
 
         try {
-          const savedDevices = await Promise.all(
-            parsedOutput.devices.map(async (device) => {
-              return await ScannedDevice.create(
-                [{
-                  userId,
-                  deviceName: device.Hostname || "Unknown Device",
-                  ipAddress: device.IP,
-                  macAddress: device.MAC,
-                }],
-                { session }
-              );
-            })
-          );
+          const savedDevices = [];
+
+          for (const device of parsedOutput.devices) {
+            const existing = await ScannedDevice.findOne({
+              userId,
+              ipAddress: device.IP,
+            });
+
+            if (existing) {
+              console.log(`🔁 Skipping existing device: ${device.IP}`);
+              continue;
+            }
+
+            const newDevice = new ScannedDevice({
+              userId,
+              deviceName: device.Hostname || "Unknown Device",
+              ipAddress: device.IP,
+              macAddress: device.MAC || undefined,
+              
+            });
+
+            const saved = await newDevice.save({ session });
+            savedDevices.push(saved);
+          }
 
           await session.commitTransaction();
           session.endSession();
 
-          res.status(200).json({ message: "Scan completed successfully", devices: savedDevices.flat() });
+          res.status(200).json({ message: "Scan completed successfully", devices: savedDevices });
         } catch (saveError) {
           console.error("❌ Error saving devices:", saveError);
           await session.abortTransaction();
@@ -78,19 +89,25 @@ router.post("/scan-network", async (req, res) => {
       console.error("Failed to start Python process:", error);
       res.status(500).json({ error: "Failed to start scan process" });
     });
+
   } catch (error) {
     console.error("Unexpected server error:", error);
     res.status(500).json({ error: "An error occurred during the scan" });
   }
 });
 
-// שליפת היסטוריית הסריקות לפי userId
-router.get('/scans', authenticate, async (req, res) => {
-  const userId = req.user._id;
+router.get('/scans', async (req, res) => {
+  const sessionUser = req.session?.user;
+
+  if (!sessionUser || !mongoose.Types.ObjectId.isValid(sessionUser._id)) {
+    return res.status(401).json({ error: "Unauthorized. Please login again." });
+  }
+
+  const userId = new mongoose.Types.ObjectId(sessionUser._id);
 
   try {
     const scans = await ScannedDevice.find({ userId })
-      .sort({ scanDate: -1 })  // מיון לפי תאריך הסריקה מהאחרון לישן
+      .sort({ scanDate: -1 })
       .exec();
 
     res.json(scans);
@@ -99,6 +116,5 @@ router.get('/scans', authenticate, async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve scans." });
   }
 });
-
 
 module.exports = router;

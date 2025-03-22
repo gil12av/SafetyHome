@@ -74,16 +74,16 @@ export const logoutUser = async () => {
 };
 
 // טריגר לסריקת רשת
-export const triggerScan = async (userId) => {
+export const triggerScan = async () => {
   try {
-    console.log(`📡 Initiating scan for user: ${userId}`);
-    const response = await axiosInstance.post("/scan-network", { userId });
+    console.log("📡 Initiating scan (via session)");
+    const response = await axiosInstance.post("/scan-network"); 
     console.log("📡 Scan response:", response.data);
     return response.data;
   } catch (error) {
     handleError(error, "network scan");
   }
-};
+}
 
 // שליפת היסטוריית סריקות
 export const fetchScanHistory = async () => {

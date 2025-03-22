@@ -66,19 +66,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         credentials: "include",
         body: JSON.stringify({ email, password }),
       });
-
+  
       if (!response.ok) {
         throw new Error("Login failed.");
       }
-
-      const userData: UserType = await response.json();
+  
+      const data = await response.json(); // 🆕
+      const userData: UserType = data.user; // 🆕
       console.log("✅ Login successful:", userData);
-
-      await setUser(userData);
+  
+      setUser(userData);
       setIsAuthenticated(true);
-
+  
       console.log("📌 Updated AuthContext User:", userData);
-      console.log("📌 AuthContext Updated. Navigating now...");
     } catch (error) {
       console.error("❌ Login error:", error);
       throw error;
