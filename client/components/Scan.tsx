@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Alert } from "react-native";
 import { triggerScan } from "../services/api";
-import { AuthContext } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 
 type Device = {
   deviceName: string;
@@ -16,8 +16,8 @@ type ScanProps = {
 };
 
 export default function Scan({ onScanComplete, onProgressUpdate, onLoadingChange }: ScanProps) {
-  const authContext = useContext(AuthContext);
-  const userId = authContext?.user?._id;
+  const { user } = useAuth();
+  const userId = user?._id;
 
   const handleScan = async () => {
     if (!userId) {
@@ -27,12 +27,12 @@ export default function Scan({ onScanComplete, onProgressUpdate, onLoadingChange
     onLoadingChange(true);
     onProgressUpdate(0);
 
-    let progress = 0;  // נוסיף משתנה לניהול progress
+    let progress = 0; // נוסיף משתנה לניהול progress
 
     let progressInterval = setInterval(() => {
       if (progress < 0.9) {
         progress += 0.1;
-        onProgressUpdate(progress);  // עדכון ערך ישיר
+        onProgressUpdate(progress); // עדכון ערך ישיר
       } else {
         clearInterval(progressInterval);
       }

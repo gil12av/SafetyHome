@@ -44,19 +44,24 @@ router.post("/scan-network", async (req, res) => {
         session.startTransaction();
 
         try {
-          const devicesToSave = parsedOutput.devices.map((device) => ({
-            userId,
-            deviceName: device.Hostname || "Unknown Device",
-            ipAddress: device.IP,
-            macAddress: device.MAC,
-          }));
-
-          const savedDevices = await ScannedDevice.insertMany(devicesToSave, { session });
+          const savedDevices = await Promise.all(
+            parsedOutput.devices.map(async (device) => {
+              return await ScannedDevice.create(
+                [{
+                  userId,
+                  deviceName: device.Hostname || "Unknown Device",
+                  ipAddress: device.IP,
+                  macAddress: device.MAC,
+                }],
+                { session }
+              );
+            })
+          );
 
           await session.commitTransaction();
           session.endSession();
 
-          res.status(200).json({ message: "Scan completed successfully", devices: savedDevices });
+          res.status(200).json({ message: "Scan completed successfully", devices: savedDevices.flat() });
         } catch (saveError) {
           console.error("❌ Error saving devices:", saveError);
           await session.abortTransaction();
@@ -94,5 +99,6 @@ router.get('/scans', authenticate, async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve scans." });
   }
 });
+
 
 module.exports = router;

@@ -1,89 +1,98 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_URL = "http://192.168.31.107:5001/api";
+export const API_URL = "http://192.168.31.68:5001/api";
+
+// יצירת אינסטנס של axios עם הגדרות ברירת מחדל
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  withCredentials: true, // חשוב כדי לשמור ולשלוח Cookies
+  headers: {
+    "Content-Type": "application/json",
+    "Accept": "application/json",
+  },
+});
+
+// פונקציה לניהול שגיאות בצורה אחידה
+const handleError = (error, action) => {
+  console.error(`❌ Error during ${action}:`, error.response?.data || error.message);
+  throw error;
+};
 
 // הרשמת משתמש
 export const registerUser = async (userData) => {
   try {
-    const response = await axios.post(`${API_URL}/users`, userData);
+    console.log("📤 Sending Register Request:", userData);
+    const response = await axiosInstance.post("/users/register", userData);
+    console.log("📥 Server Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error registering user:", error);
-    throw error;
+    handleError(error, "registration");
   }
 };
 
-// התחברות משתמש ושמירת טוקן
+// התחברות משתמש ושמירת סשן
 export const loginUser = async (credentials) => {
   try {
-    const response = await axios.post(`${API_URL}/users/login`, credentials);
+    console.log("📤 Sending Login Request:", credentials);
+    const response = await axiosInstance.post("/users/login", credentials);
     console.log("📥 API Response at Client (Login):", response.data);
-    
-    const { user, token } = response.data;  // שליפת המשתמש והטוקן
-    if (!token) {
-      throw new Error("Token is missing in server response.");
+
+    const { user } = response.data;
+    if (!user) {
+      throw new Error("User data missing in server response.");
     }
-
-    console.log("🔑 Extracted Token at Client:", token);
-
-    return { ...user, token };  // החזרת הטוקן יחד עם פרטי המשתמש
+    console.log("✅ Login successful. User:", user);
+    return user;
   } catch (error) {
-    console.error("❌ Error logging in:", error.response?.data || error.message);
-    throw error;
+    handleError(error, "login");
   }
 };
 
+// בדיקת סטטוס המשתמש (האם מחובר)
+export const checkAuthStatus = async () => {
+  try {
+    console.log("🔍 Checking user session...");
+    const response = await axiosInstance.get("/users/me");
+    console.log("✅ Auth Check Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.warn("🚫 User not authenticated.");
+    return null;
+  }
+};
 
+// התנתקות
+export const logoutUser = async () => {
+  try {
+    console.log("📤 Sending Logout Request...");
+    await axiosInstance.post("/users/logout");
+    console.log("🚪 Logged out successfully.");
+  } catch (error) {
+    handleError(error, "logout");
+  }
+};
 
 // טריגר לסריקת רשת
 export const triggerScan = async (userId) => {
   try {
-    const storedUser = await AsyncStorage.getItem('user');
-    const token = storedUser ? JSON.parse(storedUser).token : null;
-
-    if (!token) {
-      throw new Error("No token found. Please login again.");
-    }
-
-    const response = await axios.post(`${API_URL}/scan-network`, 
-      { userId },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
+    console.log(`📡 Initiating scan for user: ${userId}`);
+    const response = await axiosInstance.post("/scan-network", { userId });
     console.log("📡 Scan response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error during scan request:", error.response?.data || error.message);
-    throw error;
+    handleError(error, "network scan");
   }
 };
 
 // שליפת היסטוריית סריקות
 export const fetchScanHistory = async () => {
   try {
-    const storedUser = await AsyncStorage.getItem('user');
-    console.log("🔍 Retrieved user from AsyncStorage (Scan History):", storedUser);
-
-    const token = storedUser ? JSON.parse(storedUser).token : null;
-    console.log("🔑 Token extracted for Scan History:", token);
-
-    if (!token) {
-      throw new Error("No token found. Please login again.");
-    }
-
-    const response = await axios.get(`${API_URL}/scans`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    console.log("🔍 Fetching scan history...");
+    const response = await axiosInstance.get("/scans");
     console.log("📜 Scan history received:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Failed to fetch scan history:", error.response?.data || error.message);
-    throw error;
+    handleError(error, "fetching scan history");
   }
 };

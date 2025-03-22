@@ -1,15 +1,22 @@
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL } from "@/services/api";
+import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
+
+interface UserType {
+  _id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
 
 // מבנה המידע עבור AuthContext
 interface AuthContextType {
-  user: any | null;
+  user: UserType | null;
   isAuthenticated: boolean;
-  login: (userData: any, token: string) => void;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
-// יצירת הקשר (Context)
+// יצירת הקשר (Context) עם ערך ברירת מחדל
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 interface AuthProviderProps {
@@ -18,65 +25,80 @@ interface AuthProviderProps {
 
 // ספק ההקשר (Provider)
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<UserType | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // טוען משתמש מהזיכרון בעת טעינת האפליקציה
   useEffect(() => {
-    const loadUser = async () => {
+    const checkAuthStatus = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('user');
-        console.log("🔑 Raw user from AsyncStorage:", storedUser);
-        
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          console.log("✅ Parsed user from AsyncStorage:", parsedUser);
-          setUser(parsedUser);
-          setIsAuthenticated(true);
-        } else {
-          console.log("❌ No user found in AsyncStorage");
+        console.log(`🔍 Checking session at: ${API_URL}/users/me`);
+        const response = await fetch(`${API_URL}/users/me`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        console.log("📥 Session Response Headers:", response.headers);
+
+        if (!response.ok) {
+          console.warn("🚫 User not authenticated.");
+          setIsAuthenticated(false);
+          return;
         }
+
+        const userData = await response.json();
+        console.log("✅ User Data from Session:", userData);
+        setUser(userData);
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error("Failed to load user from storage:", error);
+        console.error("❌ Error checking user session:", error);
       }
     };
-  
-    loadUser();
+
+    checkAuthStatus();
   }, []);
-  
-  // התחברות ושמירת נתוני משתמש
-  const login = async (userData: any, token: string) => {    
-    if (!userData || !userData._id || !token) {
-      console.error("❌ User data incomplete. Aborting login.", userData);
-      return;
-    }
-  
-    // שילוב הטוקן עם המשתמש
-    const userWithToken = { ...userData, token };
-    console.log("🗂️ Saving user with token to AsyncStorage:", userWithToken);
-  
-    setUser(userWithToken);
-    setIsAuthenticated(true);
-  
+
+  const login = async (email: string, password: string) => {
     try {
-      await AsyncStorage.setItem('user', JSON.stringify(userWithToken));  // שמירת המשתמש והטוקן
-      console.log("✅ User + Token saved to AsyncStorage:", userWithToken);
+      console.log("📤 Sending login request...");
+      const response = await fetch(`${API_URL}/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Login failed.");
+      }
+
+      const userData: UserType = await response.json();
+      console.log("✅ Login successful:", userData);
+
+      await setUser(userData);
+      setIsAuthenticated(true);
+
+      console.log("📌 Updated AuthContext User:", userData);
+      console.log("📌 AuthContext Updated. Navigating now...");
     } catch (error) {
-      console.error("❌ Failed to save user to storage:", error);
+      console.error("❌ Login error:", error);
+      throw error;
     }
   };
-  
 
-  // התנתקות
   const logout = async () => {
-    setUser(null);
-    setIsAuthenticated(false);
     try {
-      await AsyncStorage.removeItem('user');
+      console.log("📤 Sending logout request...");
+      await fetch(`${API_URL}/users/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      console.log("🚪 Logout successful.");
+      setUser(null);
+      setIsAuthenticated(false);
     } catch (error) {
-      console.error("Failed to remove user from storage:", error);
+      console.error("❌ Logout error:", error);
     }
-    console.log("🚪 User logged out");
   };
 
   return (
@@ -87,4 +109,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 };
 
 // פונקציה לשימוש מהיר ב-AuthContext
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

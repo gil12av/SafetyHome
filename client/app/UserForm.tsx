@@ -4,6 +4,8 @@ import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
+import { API_URL } from "@/services/api"; // ודא שה-API_URL מוגדר נכון
+import axios from "axios";
 
 export default function UserForm() {
   const router = useRouter();
@@ -58,41 +60,52 @@ export default function UserForm() {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
-  
+    if (!validateForm()) return;
     setLoading(true);
     const { email, password } = formData;
+    const endpoint = isRegister ? "register" : "login";
   
     try {
-      const endpoint = isRegister ? "register" : "login";
-      const response = await fetch(`http://192.168.31.107:5001/api/users/${endpoint}`, {
-        method: "POST",
+      console.log(`📤 Sending Request to: ${API_URL}/users/${endpoint}`);
+      console.log("📦 Payload:", JSON.stringify(isRegister ? formData : { email, password }));
+  
+      const response = await axios.post(`${API_URL}/users/${endpoint}`, isRegister ? formData : { email, password }, {
+        withCredentials: true,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(isRegister ? formData : { email, password }),
       });
   
-      const data = await response.json();
-      console.log("📥 Server Response:", data);  // לוג על התגובה מהשרת
-      if (!response.ok) throw new Error(data.error || "Failed to process request.");
+      console.log("📥 Raw Response:", response.data);
+  
+      if (!response.data || response.status >= 400) {
+        throw new Error(response.data?.error || "Failed to process request.");
+      }
   
       Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");
   
-      if (data.token) {
-        authContext?.login(data.user || {}, data.token);  // שמירת טוקן גם אם אין משתמש מלא
-        router.replace("/Dashboard");
-      } else {
-        console.error("Token not received:", data);
-        Alert.alert("Error", "Token not received. Please try again.");
-      }
+      // 🔍 בדיקה אם ה-Session נשמר
+      console.log(`🔍 Checking session at: ${API_URL}/users/me`);
+      const sessionResponse = await axios.get(`${API_URL}/users/me`, {
+        withCredentials: true,
+      });
+  
+      console.log("📥 Session Response Headers:", sessionResponse.headers);
+      console.log("✅ User Data from Session:", sessionResponse.data);
+  
+      // 📌 שמירת המשתמש באובייקט `authContext`
+      await authContext?.login(email, password); // 📌 שים לב שהוספתי `await`
+  
+      // 🔍 הדפסת המשתמש לפני הניווט
+      console.log("📌 authContext User Before Navigation:", authContext?.user);
+      
+      router.replace("/Dashboard"); // ✅ ניווט קדימה
     } catch (error) {
-      Alert.alert("Error", (error as Error).message);
+      const axiosError = error as any;
+      console.error("❌ Login/Register Error:", axiosError.response?.data || axiosError.message);
+      Alert.alert("Error", axiosError.response?.data?.error || "An unexpected error occurred.");
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <ScreenWithBackButton title={isRegister ? "Register" : "Login"}>
@@ -166,19 +179,6 @@ export default function UserForm() {
                 secureTextEntry
               />
             </View>
-
-            {isRegister && (
-              <View style={styles.inputContainer}>
-                <Icon name="lock" size={20} color="#777" />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Confirm Password"
-                  value={formData.confirmPassword}
-                  onChangeText={(value) => handleInputChange("confirmPassword", value)}
-                  secureTextEntry
-                />
-              </View>
-            )}
           </>
         )}
 
@@ -240,3 +240,4 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
 });
+

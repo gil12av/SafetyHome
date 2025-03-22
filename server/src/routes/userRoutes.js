@@ -1,32 +1,24 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");  // נוספה ספריית jwt ליצירת טוקן
 const User = require("../models/User");
 
 const router = express.Router();
 
-// מפתח סודי ליצירת טוקן (נשלף מקובץ .env)
-const JWT_SECRET = process.env.JWT_SECRET || "defaultSecretKey";
-
 // נתיב הרשמה
 router.post("/register", async (req, res) => {
+  console.log("📥 Received Register Request:", req.body);
   const { firstName, lastName, email, password, phone, country } = req.body;
 
-  // בדיקה שכל השדות מלאים
   if (!firstName || !lastName || !email || !password || !phone || !country) {
-    console.log("⚠️ Missing fields during registration");
     return res.status(400).json({ error: "All fields are required" });
   }
 
   try {
-    // בדיקה אם המשתמש כבר קיים
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      console.log("⚠️ User already exists:", existingUser.email);
       return res.status(400).json({ error: "User already exists" });
     }
 
-    // הצפנת הסיסמה
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       firstName,
@@ -37,47 +29,27 @@ router.post("/register", async (req, res) => {
       country,
     });
 
-    // שמירת המשתמש למסד הנתונים
     await user.save();
     console.log("✅ New user registered:", user);
 
-    // יצירת טוקן עבור המשתמש
-    const payload = {
-      user: {
-        id: user._id,
-      },
+    // שמירת המשתמש בסשן
+    req.session.user = {
+      _id: user._id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
     };
 
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: "30d" },  // תוקף של 30 יום
-      (err, token) => {
-        if (err) {
-          console.error("❌ Error generating token:", err);
-          return res.status(500).json({ error: "Failed to generate token" });
-        }
-        
-        // החזרת תגובה עם המשתמש והטוקן
-        console.log("📤 Response sent with token:", { user, token });
-        res.status(201).json({
-          message: "User registered successfully",
-          user: {
-            _id: user._id,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-          },
-          token,
-        });
-      }
-    );
+    res.status(201).json({
+      message: "User registered successfully",
+      user: req.session.user,
+    });
+
   } catch (error) {
     console.error("❌ Error registering user:", error);
     res.status(500).json({ error: "Failed to register user" });
   }
 });
-
 module.exports = router;
 
 // נתיב התחברות
@@ -90,9 +62,6 @@ router.post("/login", async (req, res) => {
 
   try {
     const user = await User.findOne({ email }).select("firstName lastName email password");
-    
-    // הדפסת מידע משתמש מהמסד
-    console.log("User found from DB:", user);
 
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
@@ -103,37 +72,40 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    // יצירת טוקן לאחר אימות המשתמש
-    const token = jwt.sign(
-      { _id: user._id, email: user.email },
-      JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    console.log("🔐 JWT Token generated:", token);
-
-    // שליחת המשתמש והטוקן ללקוח (המיקום הזה נכון)
-    res.status(200).json({
-      message: "Login successful",
-      user: {
-        _id: user._id,
-        firstName: user.firstName || "Guest",
-        lastName: user.lastName,
-        email: user.email,
-      },
-      token,  // הוספת הטוקן לתגובה
-    });
-
-    console.log("User sent to client:", {
+    // שמירת המשתמש בסשן
+    req.session.user = {
       _id: user._id,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+    };
+    console.log("✅ Session Store Connected:", req.session);
+
+    res.status(200).json({
+      message: "Login successful",
+      user: req.session.user,
     });
+
   } catch (error) {
     console.error("❌ Error during login:", error);
     res.status(500).json({ error: "Failed to log in" });
   }
 });
 
-module.exports = router;
+// נתיב לבדיקה האם המשתמש מחובר
+router.get("/me", (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ error: "Not authenticated" });
+  }
+  res.json(req.session.user);
+});
+
+// נתיב להתנקתות
+router.post("/logout", (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: "Failed to log out" });
+    }
+    res.json({ message: "Logged out successfully" });
+  });
+});
