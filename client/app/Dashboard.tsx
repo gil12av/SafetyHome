@@ -1,14 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  ScrollView,
-  Dimensions,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { useAuth } from "../context/AuthContext";
@@ -24,6 +15,7 @@ const Dashboard = () => {
   const { user, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const firstName = user?.firstName || "Guest";
+  const [showSurveyPrompt, setShowSurveyPrompt ] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -32,6 +24,15 @@ const Dashboard = () => {
       router.replace("/UserForm");
     }
   }, [user]);
+
+  // ----- For Survey ----- //
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSurveyPrompt(true);
+    }, 2000);
+  
+    return () => clearTimeout(timer); // ניקוי טיימר
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -55,6 +56,27 @@ const Dashboard = () => {
         style={globalStyles.gradientContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
+        {showSurveyPrompt && (
+           <View style={styles.surveyPrompt}>
+             <Text style={styles.surveyText}>
+             רוצה לשפר את האבטחה שלך? ענה על שאלון קצר שייתן לך המלצות מותאמות אישית.
+             </Text>
+             <View style={styles.surveyButtons}>
+                <TouchableOpacity
+                  style={[styles.surveyButton, { backgroundColor: "#4CAF50" }]}
+                  onPress={() => router.push("/SurveyScreen")}
+                  >
+            <Text style={styles.surveyButtonText}>כן, אשמח</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+             style={[styles.surveyButton, { backgroundColor: "#ccc" }]}
+             onPress={() => setShowSurveyPrompt(false)}
+           >
+             <Text style={styles.surveyButtonText}>אולי מאוחר יותר</Text>
+           </TouchableOpacity>
+        </View>
+     </View>
+)}
           <Text style={styles.greeting}>Welcome, {firstName}</Text>
 
           <View style={styles.cardGrid}>
@@ -154,6 +176,38 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
   },
+
+  // -- For Survey pop in user Screen -- //
+  surveyPrompt: {
+    backgroundColor: "#f9f9f9",
+    borderRadius: 10,
+    padding: 20,
+    marginBottom: 20,
+    borderColor: "#4CAF50",
+    borderWidth: 1.5,
+    width: "100%",
+  },
+  surveyText: {
+    fontSize: 16,
+    color: "#333",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  surveyButtons: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+  },
+  surveyButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  surveyButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  
 });
 
 export default Dashboard;
