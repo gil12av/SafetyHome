@@ -94,5 +94,18 @@ export const fetchScanHistory = async () => {
     return response.data;
   } catch (error) {
     handleError(error, "fetching scan history");
+  }  
+};
+
+// עבור בדיקת CVE:
+export const fetchCVEsForDevice = async (keyword) => {
+  try {
+    const response = await axios.get(`${API_URL}/cve/${keyword}`);
+    console.log("🛡️ CVEs for device:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Failed to fetch CVEs:", error.message);
+    return [];
   }
 };
+

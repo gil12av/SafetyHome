@@ -38,13 +38,17 @@ app.use(session({
   },
 }));
 
-// Routes:
+// Routes :
 const userRoutes = require("./src/routes/userRoutes");
 app.use("/api/users", userRoutes);
 
-// ScanDevice:
+// ScanDevice :
 const deviceRoutes = require("./src/routes/deviceRoute");
 app.use("/api", deviceRoutes);
+
+// CVE :
+const cveRoute = require("./src/routes/cveRoute");
+app.use("/api/cve", cveRoute);
 
 // MongoDB connection
 mongoose

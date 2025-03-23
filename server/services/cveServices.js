@@ -1,24 +1,30 @@
 const axios = require("axios");
 
-const CVE_API_BASE_URL = "https://www.cve.org/api/cve/search";
-const CVE_API_KEY = process.env.CVE_API_KEY;
+// כתובת ה-API הנכונה של NVD
+const NVD_API_BASE_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0";
+
+// משיכת מפתח מהסביבה
+const NVD_API_KEY = process.env.CVE_API_KEY;
 
 const fetchCVEsByKeyword = async (keyword) => {
   try {
-    const response = await axios.get(`${CVE_API_BASE_URL}?keyword=${keyword}`, {
+    const response = await axios.get(`${NVD_API_BASE_URL}?keywordSearch=${keyword}`, {
       headers: {
-        Authorization: `APIKey ${CVE_API_KEY}`,
+        "apiKey": NVD_API_KEY,
       },
     });
 
-    const vulnerabilities = response.data.vulnerabilities || [];
-    return vulnerabilities.map((vuln) => ({
-      id: vuln.cve.id,
-      severity: vuln.cve.metrics?.cvssV31?.baseSeverity || "Unknown",
-      description: vuln.cve.descriptions?.[0]?.value || "No description available",
+    console.log("✅ NVD Raw Response:", JSON.stringify(response.data, null, 2));
+
+    const cveItems = response.data.vulnerabilities || [];
+
+    return cveItems.map((item) => ({
+      id: item.cve.id,
+      severity: item.cve.metrics?.cvssMetricV31?.[0]?.cvssData?.baseSeverity || "Unknown",
+      description: item.cve.descriptions?.[0]?.value || "No description provided.",
     }));
   } catch (error) {
-    console.error("❌ CVE API error:", error.message);
+    console.error("❌ NVD API Error:", error.message);
     return [];
   }
 };
