@@ -1,24 +1,17 @@
 import React from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Dimensions,
-} from "react-native";
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ComponentProps } from "react";
 import globalStyles from "@/styles/globalStyles";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 const { width } = Dimensions.get("window");
 
-type IconName = ComponentProps<typeof MaterialCommunityIcons>["name"];
+type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
+// ------ הודעות מתחלפות במסך הבית ------ //
 const RotatingMessage = () => {
   const [currentMessage, setCurrentMessage] = React.useState(0);
   const messages: { text: string; icon: IconName }[] = [
@@ -30,36 +23,50 @@ const RotatingMessage = () => {
   React.useEffect(() => {
     const interval = setInterval(() => {
       setCurrentMessage((prev) => (prev + 1) % messages.length);
-    }, 3000);
+    }, 3500);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <View style={styles.messageCard}>
+    <Animated.View
+      entering={FadeIn}
+      exiting={FadeOut}
+      key={currentMessage}
+      style={styles.animatedCard}
+    >
       <MaterialCommunityIcons
         name={messages[currentMessage].icon}
-        size={40}
+        size={30}
         color="#4A90E2"
       />
-      <Text style={styles.messageText}>{messages[currentMessage].text}</Text>
-    </View>
+      <Text style={styles.animatedText}>{messages[currentMessage].text}</Text>
+    </Animated.View>
   );
+};
+// ------ סיום הודעות מתחלפות במסך הבית ------ //
+
+const getTimeGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good Morning ☀️";
+  if (hour < 18) return "Good Afternoon 🌤️";
+  return "Good Evening 🌙";
 };
 
 export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={globalStyles.screenContainer}>
+    <SafeAreaView style={globalStyles.fullScreen}>
       <LinearGradient
-        colors={["#ffffff", "#e6f7ff"]}
-        style={styles.gradientContainer}
+        colors={["#ffffff", "#dbefff"]}
+        style={globalStyles.gradientContainer}
       >
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Image
-            source={require("../assets/images/main_logo.png")}
+            source={require("../assets/images/smart_home_logo_vibrant.png")}
             style={styles.logo}
           />
+          <Text style={styles.greeting}>{getTimeGreeting()}</Text>
           <Text style={styles.welcomeText}>Welcome to SafetyHome</Text>
           <RotatingMessage />
 
@@ -98,7 +105,7 @@ export default function HomeScreen() {
 }
 
 interface HomeCardProps {
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
+  icon: IconName;
   title: string;
   description: string;
   buttonLabel: string;
@@ -111,94 +118,125 @@ const HomeCard = ({ icon, title, description, buttonLabel, color, onPress }: Hom
     <MaterialCommunityIcons name={icon} size={40} color={color} />
     <Text style={[styles.cardTitle, { color }]}>{title}</Text>
     <Text style={styles.cardDescription}>{description}</Text>
-    <TouchableOpacity
-      style={[styles.cardButton, { backgroundColor: color }]}
-      onPress={onPress}
-    >
+    <TouchableOpacity style={[styles.cardButton, { backgroundColor: color }]} onPress={onPress}>
       <Text style={styles.buttonText}>{buttonLabel}</Text>
     </TouchableOpacity>
   </TouchableOpacity>
 );
 
 const styles = StyleSheet.create({
-  gradientContainer: {
-    flex: 1,
-  },
   scrollContainer: {
-    padding: 20,
+    flexGrow: 1,
     alignItems: "center",
+    paddingVertical: 50,
+    paddingHorizontal: 20,
+    justifyContent: "flex-start",
   },
   logo: {
-    width: 130,
-    height: 130,
-    marginBottom: 10,
-    borderRadius: 65,
-    borderWidth: 2,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginBottom: 15,
+    borderWidth: 3,
     borderColor: "#4A90E2",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: "#2C3E50",
+    marginBottom: 5,
   },
   welcomeText: {
-    fontSize: 24,
-    color: "#4A90E2",
+    fontSize: 30,
     fontWeight: "bold",
-    marginBottom: 20,
+    color: "#4A90E2",
+    marginBottom: 25,
+    textAlign: "center",
   },
   messageCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f0f4f8",
-    padding: 20,
-    borderRadius: 15,
-    width: "90%",
-    marginBottom: 30,
-    elevation: 5,
+    backgroundColor: "#eef6fb",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 35,
+    width: width * 0.9,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
   messageText: {
-    fontSize: 18,
-    marginLeft: 15,
+    fontSize: 16,
+    marginLeft: 10,
     color: "#333",
   },
   cardGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
-    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    marginTop: 10,
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 15,
-    borderWidth: 2,
-    padding: 20,
-    marginBottom: 20,
+    padding: 22,
+    margin: 12,
     width: width * 0.42,
     alignItems: "center",
-    elevation: 5,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    borderWidth: 1.5,
   },
   cardTitle: {
-    marginTop: 10,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "600",
+    marginTop: 12,
   },
   cardDescription: {
-    fontSize: 14,
+    fontSize: 13,
     color: "#555",
     textAlign: "center",
     marginVertical: 10,
   },
   cardButton: {
     paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
     borderRadius: 8,
-    width: "100%",
-    alignItems: "center",
-    marginTop: 5,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
     fontWeight: "bold",
   },
+  animatedCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    borderRadius: 20,
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    marginBottom: 35,
+    width: width * 0.9,
+    borderWidth: 1,
+    borderColor: "#4A90E2",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  animatedText: {
+    fontSize: 17,
+    marginLeft: 15,
+    color: "#2C3E50",
+    fontWeight: "500",
+  },
+  
 });
-
-function handleLoginClear() {
-  throw new Error("Function not implemented.");
-}
