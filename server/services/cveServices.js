@@ -14,7 +14,10 @@ const fetchCVEsByKeyword = async (keyword) => {
       },
     });
 
-    console.log("✅ NVD Raw Response:", JSON.stringify(response.data, null, 2));
+    console.log(`✅ NVD Response: received ${response.data.vulnerabilities?.length || 0} vulnerabilities for keyword "${keyword}"`);
+    if (response.data.vulnerabilities?.length > 0) {
+    console.log("📌 First CVE ID:", response.data.vulnerabilities[0]?.cve?.id);
+    }
 
     const cveItems = response.data.vulnerabilities || [];
 

@@ -101,11 +101,24 @@ export const fetchScanHistory = async () => {
 export const fetchCVEsForDevice = async (keyword) => {
   try {
     const response = await axios.get(`${API_URL}/cve/${keyword}`);
-    console.log("🛡️ CVEs for device:", response.data);
+    console.log("🛡️ CVEs for device:", response.data.length);
     return response.data;
   } catch (error) {
     console.error("❌ Failed to fetch CVEs:", error.message);
     return [];
   }
 };
+
+// שמירת פגיעויות בבסיס הנתונים
+export const saveSecurityAlerts = async (alerts) => {
+  try {
+    const response = await axios.post(`${API_URL}/alerts`, alerts, {
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ Failed to save alerts:", error.message);
+  }
+};
+
 

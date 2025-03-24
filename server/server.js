@@ -50,6 +50,11 @@ app.use("/api", deviceRoutes);
 const cveRoute = require("./src/routes/cveRoute");
 app.use("/api/cve", cveRoute);
 
+// For saving Alert in dataBase
+const alertRoutes = require("./src/routes/alertRoute");
+app.use("/api/alerts", alertRoutes); 
+
+
 // MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI)
