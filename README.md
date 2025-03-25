@@ -10,7 +10,7 @@ The application is built for everyday users, especially those without a technica
 ---
 
 ## 🛠️ Technologies Used
-- **Frontend:** React Native (JavaScript)
+- **Frontend:** React Native (TypeScript/JavaScript)
 - **Backend:** Node.js + Express
 - **Database:** MongoDB
 - **Network Scanning:** Python + Nmap
