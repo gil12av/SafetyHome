@@ -1,61 +1,48 @@
 # SafetyHome 🏠🔐
 
-Smart Home Network Scanner & Security Advisor
+Smart Home Network Vulnerability Detection App
 
 ## 📋 Overview
-SafetyHome is a mobile application designed to help users improve the security of their smart home network. It identifies devices connected to the local network and detects known vulnerabilities using real-time integration with the NVD (CVE) database.
+SafetyHome is a mobile security application developed as part of a final project in Software Engineering. Its main purpose is to scan smart home devices connected to the local network and detect known vulnerabilities, helping users better protect their digital home environment.
 
-The app is designed for non-technical users, offering a friendly interface, visual alerts, and practical recommendations for improving network security.
-
----
-
-## 🚀 Features
-- ✅ **User Authentication** – Register and login with secure session handling
-- ✅ **Network Scan** – Scan home network using Python + Nmap
-- ✅ **Device Identification** – Show connected devices (name, IP, MAC, scan date)
-- ✅ **Vulnerability Detection** – Integrate with NVD API to fetch CVEs
-- ✅ **Security Alerts Screen** – Display vulnerabilities and recommendations
-- ✅ **Scan History** – Store and display scan history per user
-- ✅ **FAQ & Support UI** – Help section for non-technical users
-- 🟡 **Planned:**
-  - Direct device actions (firmware update, password reset)
-  - Scheduled scans
-  - AI-driven threat analysis
-  - Smart support chatbot
+The application is built for everyday users, especially those without a technical background, offering intuitive UI, simple alerts, and meaningful security recommendations.
 
 ---
 
-## 🛠️ Technologies
-- **Frontend:** React Native + Expo
+## 🛠️ Technologies Used
+- **Frontend:** React Native (JavaScript)
 - **Backend:** Node.js + Express
 - **Database:** MongoDB
-- **Scanner:** Python with Nmap
-- **APIs:** CVE/NVD API, Axios-based client
+- **Network Scanning:** Python + Nmap
+- **Security API Integration:** CVE/NVD API
 
 ---
 
-## 📁 Project Structure
-- `/components` – Reusable UI components
-- `/screens` – Home, Dashboard, Scan, Devices, Alerts, FAQ
-- `/context` – AuthContext for session management
-- `/services/api.jsx` – API integration (scan, login, CVE fetch)
-- `/server` – Node.js server, Express routes, Python scanner bridge
+## ⚙️ Key Functionalities
+1. **Device Scanning** – Automatically scans the home network and identifies all connected devices (e.g., sensors, routers, lights).
+2. **Device Classification** – Categorizes detected devices by type using heuristics and visual icons.
+3. **Vulnerability Detection** – Matches detected devices with known CVEs from the official National Vulnerability Database (NVD).
+4. **Security Alerts** – Displays vulnerabilities found per device along with severity and suggested action.
+5. **User Management** – Enables registration, login, and session handling with encrypted password storage.
+6. **Scan History** – Stores and displays past scan results for each user.
 
 ---
 
-## 🧪 Security
-- Passwords are encrypted
-- Tokens are stored securely in AsyncStorage
-- Network access uses Bearer Token Authentication
-- Devices are not controlled – only analyzed for now
+## 🎯 Project Goal
+To improve smart home cybersecurity by providing a user-friendly mobile application that detects threats and informs the user in a clear, actionable manner.
 
 ---
 
-## 📊 Status
-Project is in working MVP stage with full scan-to-alert pipeline completed. Passive security recommendations are implemented. Further development planned for real-time actions and smart automation.
+## 👨‍💻 Developed By
+- Gil Avraham 
+- Aviad Turgeman 
+
+Supervisor: Dr. Karim Abu Afash, 
+
+Software Engineering Department, SCE College
 
 ---
 
-## 📬 Contact
-For academic or development inquiries, please contact via project maintainers.
+## 📄 Based On
+This README is based on the official project documentation and planning submitted as part of the final project requirements.
 
