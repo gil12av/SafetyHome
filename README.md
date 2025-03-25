@@ -1,50 +1,61 @@
-# Welcome to your Expo app 👋
+# SafetyHome 🏠🔐
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Smart Home Network Scanner & Security Advisor
 
-## Get started
+## 📋 Overview
+SafetyHome is a mobile application designed to help users improve the security of their smart home network. It identifies devices connected to the local network and detects known vulnerabilities using real-time integration with the NVD (CVE) database.
 
-1. Install dependencies
+The app is designed for non-technical users, offering a friendly interface, visual alerts, and practical recommendations for improving network security.
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 🚀 Features
+- ✅ **User Authentication** – Register and login with secure session handling
+- ✅ **Network Scan** – Scan home network using Python + Nmap
+- ✅ **Device Identification** – Show connected devices (name, IP, MAC, scan date)
+- ✅ **Vulnerability Detection** – Integrate with NVD API to fetch CVEs
+- ✅ **Security Alerts Screen** – Display vulnerabilities and recommendations
+- ✅ **Scan History** – Store and display scan history per user
+- ✅ **FAQ & Support UI** – Help section for non-technical users
+- 🟡 **Planned:**
+  - Direct device actions (firmware update, password reset)
+  - Scheduled scans
+  - AI-driven threat analysis
+  - Smart support chatbot
 
-   ```bash
-    npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## 🛠️ Technologies
+- **Frontend:** React Native + Expo
+- **Backend:** Node.js + Express
+- **Database:** MongoDB
+- **Scanner:** Python with Nmap
+- **APIs:** CVE/NVD API, Axios-based client
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 📁 Project Structure
+- `/components` – Reusable UI components
+- `/screens` – Home, Dashboard, Scan, Devices, Alerts, FAQ
+- `/context` – AuthContext for session management
+- `/services/api.jsx` – API integration (scan, login, CVE fetch)
+- `/server` – Node.js server, Express routes, Python scanner bridge
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## 🧪 Security
+- Passwords are encrypted
+- Tokens are stored securely in AsyncStorage
+- Network access uses Bearer Token Authentication
+- Devices are not controlled – only analyzed for now
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 📊 Status
+Project is in working MVP stage with full scan-to-alert pipeline completed. Passive security recommendations are implemented. Further development planned for real-time actions and smart automation.
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📬 Contact
+For academic or development inquiries, please contact via project maintainers.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
