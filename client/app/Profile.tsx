@@ -4,7 +4,7 @@ import FooterComponent from "@/components/Footer";
 import { useAuth } from "../context/AuthContext";
 import LottieView from "lottie-react-native";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
-import globalStyles from "@/styles/globalStyles";
+import globalStyles from "../styles/globalStyles";
 
 export default function Profile() {
   const { user, logout } = useAuth();

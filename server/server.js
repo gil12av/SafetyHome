@@ -25,6 +25,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
+
 // הגדרת Session
 app.use(session({
   secret: process.env.SESSION_SECRET || "defaultSecretKey",
@@ -32,19 +33,28 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: {
-    secure: false, // אם אתה משתמש ב-HTTPS, שנה ל-true
+    secure: false, 
     httpOnly: false,
     maxAge: 1000 * 60 * 60 * 24, // יום אחד
   },
 }));
 
-// Routes:
+// Routes :
 const userRoutes = require("./src/routes/userRoutes");
 app.use("/api/users", userRoutes);
 
-// ScanDevice:
+// ScanDevice :
 const deviceRoutes = require("./src/routes/deviceRoute");
 app.use("/api", deviceRoutes);
+
+// CVE :
+const cveRoute = require("./src/routes/cveRoute");
+app.use("/api/cve", cveRoute);
+
+// For saving Alert in dataBase
+const alertRoutes = require("./src/routes/alertRoute");
+app.use("/api/alerts", alertRoutes); 
+
 
 // MongoDB connection
 mongoose

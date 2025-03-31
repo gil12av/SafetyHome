@@ -1,20 +1,12 @@
 import React, { useState, useContext } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 import { API_URL } from "@/services/api";
 import axios from "axios";
-import globalStyles from "@/styles/globalStyles";
+import globalStyles from "../styles/globalStyles";
 
 export default function UserForm() {
   const router = useRouter();

@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet } from "react-nativ
 import axios from "axios";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 import { API_URL } from "../services/api";
-import globalStyles from "@/styles/globalStyles";
+import globalStyles from "../styles/globalStyles";
 
 type Device = {
   deviceName: string;

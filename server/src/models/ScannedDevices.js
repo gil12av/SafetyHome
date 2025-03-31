@@ -1,3 +1,4 @@
+// מודל זה שומר את הרכיבים שנסרקו לאחר הפעלת פונקציית הסריקה
 const mongoose = require("mongoose");
 
 const scannedDeviceSchema = new mongoose.Schema({

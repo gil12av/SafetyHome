@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import FooterComponent from "@/components/Footer";
-import globalStyles from "@/styles/globalStyles";
+import globalStyles from "../styles/globalStyles";
 
 const { width } = Dimensions.get("window");
 
