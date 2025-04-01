@@ -5,23 +5,15 @@ const { spawn } = require("child_process");
 const ScannedDevice = require("../models/ScannedDevices");
 const { authenticate } = require('../middleware/auth');
 
-router.post("/scan-network", async (req, res) => {
-  const sessionUser = req.session?.user;
-
-  if (!sessionUser || !mongoose.Types.ObjectId.isValid(sessionUser._id)) {
-    return res.status(401).json({ error: "Unauthorized. Please login again." });
-  }
-
-  const userId = new mongoose.Types.ObjectId(sessionUser._id);
-  console.log("📡 Scan request received for user:", userId);
-
+async function runPythonScan(scriptPath, userId, res, deepScan = false) {
   try {
-    const pythonProcess = spawn("python3", ["./scripts/python_ScanDevice.py"]);
+    const pythonProcess = spawn("python3", [scriptPath]);
     let scanOutput = "";
     let errorOutput = "";
 
     pythonProcess.stdout.on("data", (data) => {
       scanOutput += data.toString();
+      console.log("📦 Scan Output:", scanOutput);
     });
 
     pythonProcess.stderr.on("data", (data) => {
@@ -62,7 +54,8 @@ router.post("/scan-network", async (req, res) => {
               deviceName: device.Hostname || "Unknown Device",
               ipAddress: device.IP,
               macAddress: device.MAC || undefined,
-              
+              operatingSystem: deepScan ? device.OperatingSystem || null : null,
+              openPorts: deepScan ? device.OpenPorts || [] : []
             });
 
             const saved = await newDevice.save({ session });
@@ -94,22 +87,40 @@ router.post("/scan-network", async (req, res) => {
     console.error("Unexpected server error:", error);
     res.status(500).json({ error: "An error occurred during the scan" });
   }
+}
+
+function validateSession(req) {
+  const sessionUser = req.session?.user;
+  if (!sessionUser || !mongoose.Types.ObjectId.isValid(sessionUser._id)) {
+    return null;
+  }
+  return new mongoose.Types.ObjectId(sessionUser._id);
+}
+
+// סריקה רגילה (מהירה)
+router.post("/scan-network", async (req, res) => {
+  const userId = validateSession(req);
+  if (!userId) return res.status(401).json({ error: "Unauthorized. Please login again." });
+
+  console.log("📡 Quick Scan request received for user:", userId);
+  await runPythonScan("./scripts/python_ScanDevice.py", userId, res);
+});
+
+// סריקה עמוקה
+router.post("/deep-scan", async (req, res) => {
+  const userId = validateSession(req);
+  if (!userId) return res.status(401).json({ error: "Unauthorized. Please login again." });
+
+  console.log("📡 Deep Scan request received for user:", userId);
+  await runPythonScan("./scripts/advance_Scan.py", userId, res, true);
 });
 
 router.get('/scans', async (req, res) => {
-  const sessionUser = req.session?.user;
-
-  if (!sessionUser || !mongoose.Types.ObjectId.isValid(sessionUser._id)) {
-    return res.status(401).json({ error: "Unauthorized. Please login again." });
-  }
-
-  const userId = new mongoose.Types.ObjectId(sessionUser._id);
+  const userId = validateSession(req);
+  if (!userId) return res.status(401).json({ error: "Unauthorized. Please login again." });
 
   try {
-    const scans = await ScannedDevice.find({ userId })
-      .sort({ scanDate: -1 })
-      .exec();
-
+    const scans = await ScannedDevice.find({ userId }).sort({ scanDate: -1 }).exec();
     res.json(scans);
   } catch (error) {
     console.error("Failed to retrieve scans:", error);

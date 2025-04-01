@@ -5,7 +5,9 @@ const scannedDeviceSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   deviceName: { type: String, required: true },
   ipAddress: { type: String, required: true },
-  macAddress: { type: String }, // לא חובה ולא ייחודי
+  macAddress: { type: String }, 
+  
+  // Show better template of Date.
   scanDate: {
     type: String,
     default: () =>
@@ -18,6 +20,18 @@ const scannedDeviceSchema = new mongoose.Schema({
         second: "2-digit",
       }),
   },
+  operatingSystem: {  // 🆕 מערכת הפעלה שזוהתה בסריקה עמוקה
+    type: String,
+    default: null
+  },
+  openPorts: [        // 🆕 פורטים פתוחים שזוהו בסריקה עמוקה
+    {
+      port: Number,
+      service: String,
+      product: String,
+      version: String
+    }
+  ]
 });
 
 // אינדקס לשליפה מהירה לפי משתמש ותאריך

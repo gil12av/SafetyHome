@@ -11,7 +11,6 @@ def get_local_ip_range():
         ip_range = f"{ip_parts[0]}.{ip_parts[1]}.{ip_parts[2]}.0/24"
         return ip_range
     except Exception as e:
-        print("❌ Failed to determine local IP range:", e)
         return "192.168.1.0/24"
 
 def get_vendor(mac_address):
@@ -46,7 +45,6 @@ def scan_network(ip_range):
     devices = []
 
     try:
-        print(f"🔍 Deep scan on range: {ip_range}")
         nm.scan(hosts=ip_range, arguments='-O -sS -sV -Pn')
     except Exception as e:
         return {"error": f"Failed to scan network: {str(e)}"}
@@ -62,7 +60,6 @@ def scan_network(ip_range):
                 'OperatingSystem': extract_os(nm[host]),
                 'OpenPorts': extract_open_ports(nm[host]),
             }
-            print(f"✅ Device found: {device_info['IP']} | OS: {device_info['OperatingSystem']} | Ports: {len(device_info['OpenPorts'])}")
             devices.append(device_info)
 
     return {"devices": devices}
@@ -70,5 +67,4 @@ def scan_network(ip_range):
 if __name__ == "__main__":
     ip_range = get_local_ip_range()
     results = scan_network(ip_range)
-    print("\n📦 Final scan result:")
-    print(json.dumps(results, indent=4))
+    print(json.dumps(results)) 

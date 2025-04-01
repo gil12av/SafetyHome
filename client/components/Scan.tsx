@@ -1,11 +1,18 @@
 import React from "react";
 import { Alert } from "react-native";
-import { triggerScan } from "../services/api";
+import { triggerScan, triggerDeepScan } from "../services/api";
 
 type Device = {
   deviceName: string;
   ipAddress: string;
   macAddress: string;
+  operatingSystem?: string;   // 🆕 For deep Scan
+  openPorts?: {               // 🆕 For deep Scan
+    port: number;
+    service: string;
+    product: string;
+    version: string;
+  }[];
 };
 
 type ScanProps = {
@@ -15,7 +22,7 @@ type ScanProps = {
 };
 
 export default function Scan({ onScanComplete, onProgressUpdate, onLoadingChange }: ScanProps) {
-  const handleScan = async () => {
+  const handleScan = async (isDeepScan = false) => {  // בחירת שני סוגי הסריקה
     onLoadingChange(true);
     onProgressUpdate(0);
 
@@ -31,7 +38,7 @@ export default function Scan({ onScanComplete, onProgressUpdate, onLoadingChange
     }, 1000);
 
     try {
-      const data = await triggerScan(); // 🆕 ללא userId
+      const data = isDeepScan ? await triggerDeepScan() : await triggerScan();  // בחירת שני סוגי הסריקה
       clearInterval(progressInterval);
       onProgressUpdate(1);
       onScanComplete(data.devices || []);

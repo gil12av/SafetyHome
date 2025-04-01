@@ -7,6 +7,7 @@ import {
   FlatList,
   Dimensions,
   Animated,
+  Alert,
 } from "react-native";
 import * as Progress from "react-native-progress";
 import LottieView from "lottie-react-native";
@@ -22,16 +23,8 @@ type Device = {
   ipAddress: string;
   macAddress: string;
   scanDate?: string;
-};
-
-const getDeviceIcon = (deviceName: string) => {
-  const name = deviceName.toLowerCase();
-  if (name.includes("router")) return "router-network";
-  if (name.includes("light")) return "lightbulb-on-outline";
-  if (name.includes("hub")) return "home-automation";
-  if (name.includes("sensor")) return "motion-sensor";
-  if (name.includes("camera")) return "cctv";
-  return "devices";
+  operatingSystem?: string;
+  openPorts?: { port: number; service: string; product: string; version: string }[];
 };
 
 export default function ScanScreen() {
@@ -44,16 +37,8 @@ export default function ScanScreen() {
     if (loading) {
       Animated.loop(
         Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.5,
-            duration: 1200,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1200,
-            useNativeDriver: true,
-          }),
+          Animated.timing(pulseAnim, { toValue: 1.5, duration: 1200, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
         ])
       ).start();
     } else {
@@ -83,12 +68,24 @@ export default function ScanScreen() {
 
   const renderDevice = ({ item }: { item: Device }) => (
     <View style={styles.card}>
-      <Icon name={getDeviceIcon(item.deviceName)} size={50} color="#4A90E2" />
       <Text style={styles.cardText}>Name: {item.deviceName}</Text>
       <Text style={styles.cardText}>IP: {item.ipAddress}</Text>
       <Text style={styles.cardText}>MAC: {item.macAddress || "N/A"}</Text>
+      {item.operatingSystem && <Text style={styles.cardText}>OS: {item.operatingSystem}</Text>}
+      {item.openPorts && item.openPorts.length > 0 && (
+        <Text style={styles.cardText}>Open Ports: {item.openPorts.length}</Text>
+      )}
     </View>
   );
+
+  const showScanInfo = () => {
+    Alert.alert(
+      "Information",
+      "Quick Scan: Fast but limited to identifying basic device information.\n\n" +
+      "Deep Scan: Takes longer but provides detailed information about the devices, including OS and open ports.",
+      [{ text: "OK" }]
+    );
+  };
 
   return (
     <LinearGradient colors={["#0f2027", "#203a43", "#2c5364"]} style={styles.container}>
@@ -97,128 +94,50 @@ export default function ScanScreen() {
 
         {loading ? (
           <View style={styles.loadingContainer}>
-            <Animated.View style={[styles.pulseCircle, { transform: [{ scale: pulseAnim }] }]} />
             <LottieView
               source={require("../assets/animations/scan.json")}
               autoPlay
               loop
               style={styles.radar}
             />
-            <Text style={styles.loadingText}>Scanning the network...</Text>
-            <Progress.Bar
-              progress={progress}
-              width={width * 0.8}
-              color="#FF6F61"
-              borderWidth={0}
-              height={12}
-              unfilledColor="#ffffff33"
-              style={styles.progressBar}
-            />
+            <Progress.Bar progress={progress} width={width * 0.8} color="#FF6F61" />
           </View>
-        ) : scanResults.length > 0 ? (
-          <FlatList
-            data={scanResults}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={renderDevice}
-          />
         ) : (
-          <Text style={styles.noDeviceText}>No devices found. Start a scan.</Text>
+          <>
+            <TouchableOpacity onPress={showScanInfo} style={styles.infoButton}>
+              <Icon name="information-outline" size={28} color="#fff" />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleScan(false)} style={styles.scanButton}>
+              <Text style={styles.scanButtonText}>Quick Scan</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleScan(true)} style={styles.scanButtonDeep}>
+              <Text style={styles.scanButtonText}>Deep Scan</Text>
+            </TouchableOpacity>
+          </>
         )}
 
-        {!loading && (
-          <TouchableOpacity onPress={handleScan} style={styles.scanButton}>
-            <LinearGradient
-              colors={["#00c6ff", "#0072ff"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.scanButtonGradient}
-            >
-              <Icon name="radar" size={28} color="#fff" />
-              <Text style={styles.scanButtonText}>Start Scan</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        )}
+        <FlatList data={scanResults} keyExtractor={(item, index) => index.toString()} renderItem={renderDevice} />
       </ScreenWithBackButton>
     </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
-    marginTop: 20,
-  },
-  loadingContainer: {
-    marginVertical: 30,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pulseCircle: {
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: "rgba(255, 255, 255, 0.07)",
-    position: "absolute",
-  },
+  container: { flex: 1 },
+  title: { fontSize: 30, fontWeight: "bold", color: "#fff", textAlign: "center", marginTop: 20 },
+  loadingContainer: { marginVertical: 30, alignItems: "center", justifyContent: "center" },
+  infoButton: { position: "absolute", top: 20, right: 20 },
+  scanButton: { backgroundColor: "#4CAF50", padding: 15, borderRadius: 10, margin: 10, alignItems: "center" },
+  scanButtonDeep: { backgroundColor: "#FF5722", padding: 15, borderRadius: 10, margin: 10, alignItems: "center" },
+  scanButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
+  card: { backgroundColor: "#fff", borderRadius: 10, padding: 10, marginVertical: 5, width: width * 0.9 },
+  cardText: { fontSize: 16, color: "#333" },
   radar: {
     width: 220,
     height: 220,
-  },
-  loadingText: {
-    fontSize: 16,
-    color: "#ffffffcc",
-    marginTop: 240,
-  },
-  progressBar: {
-    marginTop: 20,
     alignSelf: "center",
-  },
-  noDeviceText: {
-    fontSize: 16,
-    color: "#ffffffcc",
     marginVertical: 20,
-    textAlign: "center",
-  },
-  scanButton: {
-    position: "absolute",
-    bottom: 0,
-    width: "100%",
-    height: 100,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scanButtonGradient: {
-    width: "70%",
-    paddingVertical: 14,
-    borderRadius: 50,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 10,
-    elevation: 6,
-  },
-  scanButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 15,
-    padding: 20,
-    marginVertical: 10,
-    width: width * 0.9,
-    alignItems: "center",
-    elevation: 5,
-  },
-  cardText: {
-    fontSize: 16,
-    color: "#333333",
-  },
+  }
 });

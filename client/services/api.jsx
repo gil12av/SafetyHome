@@ -73,7 +73,7 @@ export const logoutUser = async () => {
   }
 };
 
-// טריגר לסריקת רשת
+// טריגר לסריקת רשת מהירה
 export const triggerScan = async () => {
   try {
     console.log("📡 Initiating scan (via session)");
@@ -83,7 +83,20 @@ export const triggerScan = async () => {
   } catch (error) {
     handleError(error, "network scan");
   }
-}
+};
+
+// טריגר לסריקה עמוקה של הרשת
+export const triggerDeepScan = async () => {
+  try {
+    console.log("📡 Initiating deep scan (via session)");
+    const response = await axiosInstance.post("/deep-scan");  
+    console.log("📡 Deep Scan response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error during deep network scan:", error.response?.data || error.message);
+    throw error;
+  }
+};
 
 // שליפת היסטוריית סריקות
 export const fetchScanHistory = async () => {
