@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({
-  origin: ["http://localhost:8081", "http://192.168.31.68:8081"], // הכתובת של Expo
+  origin: ["http://localhost:8081", "http://192.168.31.52:8081"], // הכתובת של Expo
   credentials: true, 
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"],

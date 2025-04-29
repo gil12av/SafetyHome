@@ -83,25 +83,25 @@ const Dashboard = () => {
             <DashboardCard
               icon="security"
               title="Network Scan"
-              color="#6DD5FA"
+              color = "blue"
               onPress={() => router.push("/ScanScreen")}
             />
             <DashboardCard
               icon="alert-octagon"
               title="Security Alerts"
-              color="#FF512F"
+              color="red"
               onPress={() => router.push("/AlertsScreen")}
             />
             <DashboardCard
               icon="router-network"
               title="Connected Devices"
-              color="#4CAF50"
+              color="green"
               onPress={() => router.push("/DevicesScreen")}
             />
             <DashboardCard
               icon="account-cog"
               title="User Profile"
-              color="#8E2DE2"
+              color="purple"
               onPress={() => router.push("/Profile")}
             />
           </View>

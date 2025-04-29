@@ -43,21 +43,37 @@ async function runPythonScan(scriptPath, userId, res, deepScan = false) {
               userId,
               ipAddress: device.IP,
             });
-
+          
             if (existing) {
-              console.log(`🔁 Skipping existing device: ${device.IP}`);
+              if (existing.scanType === "quick" && deepScan) {
+                // we want to exchange the poor data from scan to the deep scan value.
+                existing.deviceName = device.Hostname || existing.deviceName;
+                existing.macAddress = device.MAC || existing.macAddress;
+                existing.operatingSystem = device.OperatingSystem || existing.operatingSystem;
+                existing.openPorts = device.OpenPorts?.length ? device.OpenPorts : existing.openPorts;
+                existing.scanDate = new Date();
+                existing.scanType = "deep"; // עדכון סוג סריקה
+                await existing.save({ session });
+                console.log(`✅ Updated device to deep scan: ${device.IP}`);
+                savedDevices.push(existing);
+              } else {
+                console.log(`🔁 Skipping existing device: ${device.IP}`);
+              }
               continue;
             }
-
+          
+            // ✨ אם אין בכלל - יוצרים חדש
             const newDevice = new ScannedDevice({
               userId,
               deviceName: device.Hostname || "Unknown Device",
               ipAddress: device.IP,
               macAddress: device.MAC || undefined,
               operatingSystem: deepScan ? device.OperatingSystem || null : null,
-              openPorts: deepScan ? device.OpenPorts || [] : []
+              openPorts: deepScan ? device.OpenPorts || [] : [],
+              scanType: deepScan ? "deep" : "quick",  // distinguish between Deep and Quick Scan.
+              scanDate: new Date(),
             });
-
+          
             const saved = await newDevice.save({ session });
             savedDevices.push(saved);
           }

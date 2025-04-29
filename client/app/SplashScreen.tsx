@@ -1,3 +1,4 @@
+// מסך טעינה של האפליקציה
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet, Image, Text } from "react-native";
 import * as Progress from "react-native-progress";
@@ -8,7 +9,7 @@ export default function SplashScreen() {
   const [progress, setProgress] = useState(0);
   const [dots, setDots] = useState(".");
 
-  // אפקט להוספת Loading... מונפש
+  // loading effect .
   useEffect(() => {
     const dotInterval = setInterval(() => {
       setDots((prev) => (prev.length >= 3 ? "." : prev + "."));

@@ -1,7 +1,7 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_URL = "http://192.168.31.68:5001/api";
+export const API_URL = "http://192.168.31.52:5001/api";
 
 // יצירת אינסטנס של axios עם הגדרות ברירת מחדל
 const axiosInstance = axios.create({
