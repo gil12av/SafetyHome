@@ -6,6 +6,7 @@ interface UserType {
   email: string;
   firstName: string;
   lastName: string;
+  role: 'user' | 'admin'; // setup new Admin User.
 }
 
 // מבנה המידע עבור AuthContext

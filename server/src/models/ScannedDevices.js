@@ -24,4 +24,7 @@ const scannedDeviceSchema = new mongoose.Schema({
 // אינדקס לשליפה מהירה לפי משתמש ותאריך
 scannedDeviceSchema.index({ userId: 1, scanDate: -1 });
 
+// אינדקס ייחודי למניעת כפילויות של אותו רכיב לאותו משתמש
+scannedDeviceSchema.index({ userId: 1, ipAddress: 1 }, { unique: true });
+
 module.exports = mongoose.model("ScannedDevice", scannedDeviceSchema);

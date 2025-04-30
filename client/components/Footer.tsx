@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 const FooterComponent = () => {
   const authContext = useContext(AuthContext);
@@ -10,7 +11,6 @@ const FooterComponent = () => {
   const isAuthenticated = authContext?.isAuthenticated;
 
   useEffect(() => {
-    // רענון משתמש כאשר הוא משתנה ב-AuthContext
     setUser(authContext?.user);
   }, [authContext?.user]);
 
@@ -22,9 +22,21 @@ const FooterComponent = () => {
 
   return (
     <View style={styles.footer}>
-      <Text style={styles.footerText}>
-        {user ? `Connected as: ${user.firstName}` : "Not connected"}
-      </Text>
+      {user ? (
+        <View style={styles.userInfoContainer}>
+          <Icon
+            name={user.role === "admin" ? "shield-account" : "account-circle"}
+            size={22}
+            color="#fff"
+            style={styles.icon}
+          />
+          <Text style={styles.footerText}>
+            {`${user.firstName} • ${user.role === "admin" ? "Admin" : "User"}`}
+          </Text>
+        </View>
+      ) : (
+        <Text style={styles.footerText}>Not connected</Text>
+      )}
     </View>
   );
 };
@@ -38,7 +50,15 @@ const styles = StyleSheet.create({
   },
   footerText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 15,
+    fontWeight: "500",
+  },
+  userInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  icon: {
+    marginRight: 8,
   },
 });
 

@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 22,
     margin: 12,
-    width: width * 0.42,
+    width: width * 0.90,
     alignItems: "center",
     elevation: 6,
     shadowColor: "#000",

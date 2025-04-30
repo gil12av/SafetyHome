@@ -1,6 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
+const ScanDevices = require("../models/ScannedDevices");
+const { requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -27,6 +29,7 @@ router.post("/register", async (req, res) => {
       password: hashedPassword,
       phone,
       country,
+      role: 'user', // To add defualt to user -- admin setup new user
     });
 
     await user.save();
@@ -38,6 +41,7 @@ router.post("/register", async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role: user.role, // -- admin setup new user
     };
 
     res.status(201).json({
@@ -61,7 +65,7 @@ router.post("/login", async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email }).select("firstName lastName email password");
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password" });
@@ -78,6 +82,7 @@ router.post("/login", async (req, res) => {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      role: user.role,
     };
     console.log("✅ Session Store Connected:", req.session);
 
@@ -109,3 +114,59 @@ router.post("/logout", (req, res) => {
     res.json({ message: "Logged out successfully" });
   });
 });
+
+
+// -------------------- For Admin only ----------------- //
+// מחזיר את כל המשתמשים – מיועד לאדמין בלבד
+router.get("/", requireAdmin, async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    res.json(users);
+  } catch (error) {
+    console.error("❌ Failed to fetch users:", error);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+// שינוי תפקיד של משתמש (רק אדמין)
+router.put("/:id/role", requireAdmin, async (req, res) => {
+  try {
+    const { role } = req.body;
+    const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
+    res.json(user);
+  } catch (error) {
+    console.error("❌ Failed to update role:", error);
+    res.status(500).json({ error: "Failed to update role" });
+  }
+});
+
+// מחיקת משתמש לפי ID (רק אדמין)
+router.delete("/:id", requireAdmin, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("❌ Failed to delete user:", error);
+    res.status(500).json({ error: "Failed to delete user" });
+  }
+});
+
+// collect stats to show it on AdminScreen
+router.get("/admin/stats", requireAdmin, async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const adminCount = await User.countDocuments({ role: "admin" });
+    const scanCount = await ScannedDevice.countDocuments();
+
+    res.json({
+      totalUsers,
+      adminCount,
+      userCount: totalUsers - adminCount,
+      scanCount,
+    });
+  } catch (error) {
+    console.error("❌ Failed to fetch admin stats:", error);
+    res.status(500).json({ error: "Failed to get admin stats" });
+  }
+});
+

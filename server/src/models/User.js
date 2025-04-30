@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   phone: { type: String, required: true },
   country: { type: String, required: true },
+  role: { type: String, enum: [ "user", "admin" ], default: "user" },  // Add to Admin User
   createdAt: { type: Date, default: Date.now },
 });
 

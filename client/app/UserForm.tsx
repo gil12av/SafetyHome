@@ -83,6 +83,7 @@ export default function UserForm() {
       Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");
 
       await authContext?.login(email, password);
+      console.log("📌 Logged in user role (from AuthContext):", authContext?.user?.role);
       router.replace("/Dashboard");
     } catch (error) {
       const axiosError = error as any;

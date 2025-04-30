@@ -135,3 +135,49 @@ export const saveSecurityAlerts = async (alerts) => {
 };
 
 
+// ---- For admin only - make more functionality ----- //
+
+// שליפת כל המשתמשים (לשימוש אדמין)
+export const fetchAllUsers = async () => {
+  try {
+    const response = await axiosInstance.get("/users");
+    console.log("👥 All users fetched:", response.data.length);
+    return response.data;
+  } catch (error) {
+    handleError(error, "fetching all users");
+  }
+};
+
+// שינוי תפקיד משתמש (user/admin)
+export const updateUserRole = async (userId, newRole) => {
+  try {
+    const response = await axiosInstance.put(`/users/${userId}/role`, { role: newRole });
+    console.log("🔄 Role updated:", response.data);
+    return response.data;
+  } catch (error) {
+    handleError(error, "updating user role");
+  }
+};
+
+// מחיקת משתמש
+export const deleteUser = async (userId) => {
+  try {
+    const response = await axiosInstance.delete(`/users/${userId}`);
+    console.log("🗑️ User deleted:", response.data);
+    return response.data;
+  } catch (error) {
+    handleError(error, "deleting user");
+  }
+};
+
+// שליפת סטטיסטיקות לאדמין
+export const fetchAdminStats = async () => {
+  try {
+    const response = await axiosInstance.get("/users/admin/stats");
+    console.log("📊 Admin stats:", response.data);
+    return response.data;
+  } catch (error) {
+    handleError(error, "fetching admin stats");
+  }
+};
+

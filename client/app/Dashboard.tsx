@@ -83,7 +83,7 @@ const Dashboard = () => {
             <DashboardCard
               icon="security"
               title="Network Scan"
-              color = "blue"
+              color="blue"
               onPress={() => router.push("/ScanScreen")}
             />
             <DashboardCard
@@ -104,6 +104,14 @@ const Dashboard = () => {
               color="purple"
               onPress={() => router.push("/Profile")}
             />
+            {user?.role === "admin" && (
+              <DashboardCard
+                icon="cog-outline"
+                title="App Management"
+                color="#F39C12"
+                onPress={() => router.push("/AdminScreen")}
+              />
+            )}
           </View>
 
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -143,20 +151,22 @@ const styles = StyleSheet.create({
     marginVertical: 20,
   },
   cardGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 15,
     width: "100%",
   },
   card: {
     backgroundColor: "#fff",
-    borderRadius: 15,
+    borderRadius: 18,
     borderWidth: 2,
     padding: 25,
-    marginBottom: 20,
-    width: width * 0.42,
+    width: "95%",
     alignItems: "center",
-    elevation: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
   },
   cardTitle: {
     marginTop: 10,
