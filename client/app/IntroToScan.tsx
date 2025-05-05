@@ -8,41 +8,41 @@ const IntroToSecurityScreen = () => {
   const router = useRouter();
 
   const openVideo = () => {
-    Linking.openURL("https://www.youtube.com/watch?v=eY4uYwC4ZLE");  // לאביעד - תבחר לינק ותחליף
+    Linking.openURL("https://www.youtube.com/watch?v=eY4uYwC4ZLE");
   };
 
   return (
-    <ScreenWithBackButton title="למה חשוב לסרוק?">
+    <ScreenWithBackButton title="Why Scanning Matters">
       <ScrollView contentContainerStyle={styles.container}>
-      <LottieView
-        source={require('../assets/animations/IntroToScan.json')}
-            autoPlay
-            loop
-            style={{ width: 250, height: 250, marginBottom: 20 }}
+        <LottieView
+          source={require("../assets/animations/IntroToScan.json")}
+          autoPlay
+          loop
+          style={{ width: 250, height: 250, marginBottom: 20 }}
         />
-        <Text style={styles.header}>אבטחת הבית החכם שלך מתחילה כאן</Text>
+        <Text style={styles.header}>Your Smart Home Security Starts Here</Text>
 
         <Text style={styles.paragraph}>
-          בעולם של היום, מכשירים חכמים כמו ראוטרים, מצלמות, ואפילו שואבי אבק חכמים עלולים להיפרץ בקלות אם לא נוקטים אמצעי זהירות.
+          In today’s world, smart devices like routers, cameras, and even robotic vacuums can be easily hacked if proper precautions are not taken.
         </Text>
 
         <Text style={styles.paragraph}>
-          אחת הדרכים הנפוצות לפריצה היא שימוש בסיסמאות ברירת מחדל או גרסאות תוכנה לא מעודכנות.
+          One of the most common ways hackers get in is through default passwords or outdated software versions.
         </Text>
 
         <Text style={styles.paragraph}>
-          בעזרת סריקה פשוטה תוכל לדעת אילו מכשירים מחוברים לרשת שלך, ומהי רמת הסיכון שלהם.
+          With a simple scan, you can find out which devices are connected to your network and what their risk level is.
         </Text>
 
         <TouchableOpacity style={styles.linkButton} onPress={openVideo}>
-          <Text style={styles.linkButtonText}>🎬 צפה בסרטון הסברה קצר</Text>
+          <Text style={styles.linkButtonText}>🎬 Watch a short introduction video</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
           style={styles.startButton}
           onPress={() => router.push("/ScanScreen")}
         >
-          <Text style={styles.startButtonText}>התחל סריקה ראשונה עכשיו</Text>
+          <Text style={styles.startButtonText}>Start Your First Scan</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWithBackButton>

@@ -59,20 +59,20 @@ const Dashboard = () => {
         {showSurveyPrompt && (
            <View style={styles.surveyPrompt}>
              <Text style={styles.surveyText}>
-             רוצה לשפר את האבטחה שלך? ענה על שאלון קצר שייתן לך המלצות מותאמות אישית.
+             Want to improve your security? Answer a short questionnaire to get personalized recommendations.
              </Text>
              <View style={styles.surveyButtons}>
                 <TouchableOpacity
                   style={[styles.surveyButton, { backgroundColor: "#4CAF50" }]}
                   onPress={() => router.push("/SurveyScreen")}
                   >
-            <Text style={styles.surveyButtonText}>כן, אשמח</Text>
+            <Text style={styles.surveyButtonText}>Take me to survey</Text>
           </TouchableOpacity>
           <TouchableOpacity
              style={[styles.surveyButton, { backgroundColor: "#ccc" }]}
              onPress={() => setShowSurveyPrompt(false)}
            >
-             <Text style={styles.surveyButtonText}>אולי מאוחר יותר</Text>
+             <Text style={styles.surveyButtonText}>Maybe later</Text>
            </TouchableOpacity>
         </View>
      </View>

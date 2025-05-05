@@ -1,65 +1,81 @@
-import React, { useContext, useState, useEffect } from "react";
-import { View, Text, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
-import { AuthContext } from "../context/AuthContext";
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, Switch, TouchableOpacity } from "react-native";
+import { FontAwesome5 } from "@expo/vector-icons";
 
-const FooterComponent = () => {
-  const authContext = useContext(AuthContext);
-  const router = useRouter();
-  const [user, setUser] = useState(authContext?.user);
-  const isAuthenticated = authContext?.isAuthenticated;
+export default function FooterComponent() {
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
-  useEffect(() => {
-    setUser(authContext?.user);
-  }, [authContext?.user]);
-
-  useEffect(() => {
-    if (isAuthenticated === false) {
-      router.replace("/UserForm");
-    }
-  }, [isAuthenticated, router]);
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
+  };
 
   return (
-    <View style={styles.footer}>
-      {user ? (
-        <View style={styles.userInfoContainer}>
-          <Icon
-            name={user.role === "admin" ? "shield-account" : "account-circle"}
-            size={22}
-            color="#fff"
-            style={styles.icon}
+    <View style={[styles.footerContainer, isDarkMode && styles.footerDark]}>
+      <View style={styles.rowTop}>
+        <TouchableOpacity onPress={toggleDarkMode} style={styles.darkModeToggle}>
+          <FontAwesome5
+            name={isDarkMode ? "moon" : "sun"}
+            size={18}
+            color={isDarkMode ? "#FFD700" : "#333"}
+            style={{ marginRight: 8 }}
           />
-          <Text style={styles.footerText}>
-            {`${user.firstName} • ${user.role === "admin" ? "Admin" : "User"}`}
-          </Text>
-        </View>
-      ) : (
-        <Text style={styles.footerText}>Not connected</Text>
-      )}
+          <Text style={styles.toggleText}>{isDarkMode ? "Dark Mode" : "Light Mode"}</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.divider} />
+
+      <View style={styles.rowBottom}>
+        <Text style={styles.footerText}>© 2025 SafetyHome - All rights reserved</Text>
+        <Text style={styles.footerText}>🛠️ Beta version - Bugs may occur</Text>
+      </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
-  footer: {
+  footerContainer: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: "#f0f0f0",
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
+    position: "absolute",
+    bottom: 0,
     width: "100%",
-    padding: 10,
-    backgroundColor: "#333",
+    alignItems: "center",
+  },
+  footerDark: {
+    backgroundColor: "#222",
+  },
+  rowTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  darkModeToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#e6e6e6",
+    padding: 8,
+    borderRadius: 10,
+  },
+  toggleText: {
+    fontSize: 14,
+    color: "#333",
+    fontWeight: "bold",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#ccc",
+    width: "100%",
+    marginVertical: 8,
+  },
+  rowBottom: {
     alignItems: "center",
   },
   footerText: {
-    color: "#fff",
-    fontSize: 15,
-    fontWeight: "500",
-  },
-  userInfoContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  icon: {
-    marginRight: 8,
+    fontSize: 12,
+    color: "#666",
   },
 });
-
-export default FooterComponent;

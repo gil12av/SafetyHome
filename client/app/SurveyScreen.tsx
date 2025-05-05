@@ -6,21 +6,21 @@ import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 const questions = [
   {
     id: 1,
-    question: "האם שינית אי פעם את סיסמת הראוטר שלך?",
+    question: "Have you ever changed your router password?",
     type: "yesno",
   },
   {
     id: 2,
-    question: "האם אתה יודע אילו מכשירים מחוברים לרשת הביתית שלך?",
+    question: "Do you know which devices are connected to your home network?",
     type: "yesno",
   },
   {
     id: 3,
-    question: "עד כמה אתה מרגיש בטוח מבחינת אבטחת הרשת?",
+    question: "How secure do you feel about your network security?",
     type: "scale",
     scaleMin: 1,
     scaleMax: 5,
-    labels: ["לא בטוח בכלל", "מאוד בטוח"],
+    labels: ["Not secure at all", "Very secure"],
   },
 ];
 
@@ -33,12 +33,12 @@ const SurveyScreen = () => {
   };
 
   const handleSubmit = () => {
-    console.log("📋 תשובות שהוזנו:", answers);
+    console.log("📋 Submitted Answers:", answers);
     router.push("/IntroToScan");
   };
 
   return (
-    <ScreenWithBackButton title="שאלון אבטחה">
+    <ScreenWithBackButton title="Security Survey">
       <ScrollView contentContainerStyle={styles.container}>
         {questions.map((q) => (
           <View key={q.id} style={styles.questionCard}>
@@ -48,20 +48,20 @@ const SurveyScreen = () => {
                 <TouchableOpacity
                   style={[
                     styles.optionButton,
-                    answers[q.id] === "כן" && styles.selectedButton,
+                    answers[q.id] === "Yes" && styles.selectedButton,
                   ]}
-                  onPress={() => handleAnswer(q.id, "כן")}
+                  onPress={() => handleAnswer(q.id, "Yes")}
                 >
-                  <Text style={styles.optionText}>כן</Text>
+                  <Text style={styles.optionText}>Yes</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
                     styles.optionButton,
-                    answers[q.id] === "לא" && styles.selectedButton,
+                    answers[q.id] === "No" && styles.selectedButton,
                   ]}
-                  onPress={() => handleAnswer(q.id, "לא")}
+                  onPress={() => handleAnswer(q.id, "No")}
                 >
-                  <Text style={styles.optionText}>לא</Text>
+                  <Text style={styles.optionText}>No</Text>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -88,7 +88,7 @@ const SurveyScreen = () => {
           onPress={handleSubmit}
           disabled={Object.keys(answers).length !== questions.length}
         >
-          <Text style={styles.submitButtonText}>סיים והמשך</Text>
+          <Text style={styles.submitButtonText}>Finish and Continue</Text>
         </TouchableOpacity>
       </ScrollView>
     </ScreenWithBackButton>

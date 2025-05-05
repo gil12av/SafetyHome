@@ -13,7 +13,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import ScreenWithBackButton from "../components/ScreenWithBackButton";
-import { useRouter } from "expo-router"; // ✅ חדש
+import { useRouter } from "expo-router";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -21,32 +21,32 @@ if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental
 
 const FAQScreen = () => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const router = useRouter(); // ✅ חדש
+  const router = useRouter();
 
   const faqs = [
     {
-      question: "מהי מטרת האפליקציה?",
-      answer: "האפליקציה מספקת סריקה מתקדמת לרשת הביתית שלך ומזהה מכשירים לא מאובטחים.",
+      question: "What is the purpose of the app?",
+      answer: "The app provides an advanced scan of your home network and detects unsecured devices.",
       icon: "shield-lock-outline",
     },
     {
-      question: "איך אני סורק את הרשת שלי?",
-      answer: "לחץ על כפתור 'סריקה' בדף הבית – ותקבל דו״ח אבטחה מידי.",
+      question: "How do I scan my network?",
+      answer: "Press the 'Scan' button on the home page – and get an immediate security report.",
       icon: "radar",
     },
     {
-      question: "האם הפרטים האישיים שלי נשמרים?",
-      answer: "הנתונים שלך נשמרים בצורה מוצפנת ואינם מועברים לצד שלישי.",
+      question: "Are my personal details stored?",
+      answer: "Your data is stored securely and is not shared with third parties.",
       icon: "lock-check-outline",
     },
     {
-      question: "מה קורה אם מתגלה בעיה באבטחה?",
-      answer: "תקבל התראה עם הסבר על הבעיה והצעות לפתרון מיידי.",
+      question: "What happens if a security issue is found?",
+      answer: "You will receive an alert with an explanation and suggestions for immediate action.",
       icon: "alert-decagram-outline",
     },
     {
-      question: "איך אפשר ליצור קשר?",
-      answer: "בעתיד תתווסף אופציה לפנייה ישירה מתוך האפליקציה.",
+      question: "How can I contact support?",
+      answer: "A contact feature will be added to the app in the near future.",
       icon: "email-outline",
     },
   ];
@@ -77,15 +77,15 @@ const FAQScreen = () => {
   );
 
   const openPrivacyPolicy = () => {
-    router.push("/TermsScreen"); // ✅ שינוי לניווט פנימי
+    router.push("/TermsScreen");
   };
 
   return (
-    <ScreenWithBackButton title="שאלות נפוצות">
+    <ScreenWithBackButton title="Frequently Asked Questions">
       <LinearGradient colors={["#e0f7fa", "#ffffff"]} style={styles.container}>
         <View style={styles.headerBox}>
           <Icon name="comment-question-outline" size={36} color="#007BFF" />
-          <Text style={styles.headerTitle}>מידע חשוב על האפליקציה</Text>
+          <Text style={styles.headerTitle}>Important Information About the App</Text>
         </View>
 
         <FlatList
@@ -98,12 +98,12 @@ const FAQScreen = () => {
 
         <View style={styles.termsBox}>
           <Icon name="file-document-outline" size={30} color="#007BFF" />
-          <Text style={styles.termsTitle}>תנאי שימוש</Text>
+          <Text style={styles.termsTitle}>Terms of Use</Text>
           <Text style={styles.termsText}>
-            השימוש באפליקציה מהווה הסכמה לתנאים שלנו. אנו מתחייבים לשמירה על פרטיותך ואבטחת המידע שלך.
+            Using the app constitutes acceptance of our terms. We are committed to protecting your privacy and data.
           </Text>
           <TouchableOpacity onPress={openPrivacyPolicy}>
-            <Text style={styles.termsLink}>למד עוד</Text>
+            <Text style={styles.termsLink}>Learn more</Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>

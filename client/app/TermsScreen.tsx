@@ -5,38 +5,39 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 
+
 const sections = [
   {
-    title: "שמירה על פרטיות",
-    text: "אנו מתחייבים לאיסוף ושמירה של הנתונים שלך באופן מאובטח. המידע לא יועבר לגורמים שלישיים ללא אישורך.",
+    title: "Privacy Policy",
+    text: "We commit to collecting and storing your data securely. Your information will not be shared with third parties without your consent.",
     icon: "lock-outline",
   },
   {
-    title: "שימוש הוגן",
-    text: "אין להשתמש באפליקציה למטרות מזיקות או בלתי חוקיות. כל שימוש לרעה יוביל לחסימה.",
+    title: "Fair Use",
+    text: "The app must not be used for harmful or illegal purposes. Misuse will result in a ban.",
     icon: "scale-balance",
   },
   {
-    title: "אחריות מוגבלת",
-    text: "המפתחים אינם אחראים לכל נזק ישיר או עקיף כתוצאה משימוש באפליקציה או מהמידע שמופק דרכה.",
+    title: "Limited Liability",
+    text: "The developers are not responsible for any direct or indirect damages resulting from using the app or information derived from it.",
     icon: "alert-circle-outline",
   },
   {
-    title: "עדכונים עתידיים",
-    text: "ייתכנו שינויים בתנאים אלו. כל שינוי יפורסם וייכנס לתוקף מיידית.",
+    title: "Future Updates",
+    text: "These terms may change. Any update will be published and take effect immediately.",
     icon: "update",
   },
 ];
 
 export default function TermsScreen() {
   return (
-    <ScreenWithBackButton title="תנאי שימוש">
+    <ScreenWithBackButton title="Terms of Use">
       <LinearGradient colors={["#e0f7fa", "#ffffff"]} style={styles.container}>
         <ScrollView contentContainerStyle={styles.scroll}>
           <View style={styles.headerBox}>
             <Icon name="file-document-multiple-outline" size={44} color="#007BFF" />
-            <Text style={styles.headerText}>תנאי שימוש באפליקציה</Text>
-            <Text style={styles.subText}>עודכן לאחרונה: מרץ 2025</Text>
+            <Text style={styles.headerText}>Application Terms of Use</Text>
+            <Text style={styles.subText}>Last updated: March 2025</Text>
           </View>
 
           {sections.map((section, index) => (

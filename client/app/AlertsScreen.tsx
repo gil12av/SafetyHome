@@ -22,7 +22,7 @@ const fallbackVendors = ["Apple", "Samsung", "Xiaomi", "Aqara", "Yeelight", "TP-
 export default function AlertsScreen() {
   const [alerts, setAlerts] = useState<AlertItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [loadingMessage, setLoadingMessage] = useState("אנא המתן בזמן שרשימת הרכיבים נטענת...");
+  const [loadingMessage, setLoadingMessage] = useState("Please wait while the list of components loads...");
   const [vendors, setVendors] = useState<string[]>([]);
   const [showVendorDropdown, setShowVendorDropdown] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export default function AlertsScreen() {
 
   useEffect(() => {
     const loadAlerts = async () => {
-      console.log("🔍 התחלת טעינת מכשירים וסריקת CVE...");
+      console.log("🔍 starting to Load CVE..");
       try {
         const scannedDevices = await fetchScanHistory();
         console.log("📜 Scan history received:", scannedDevices);
@@ -43,7 +43,7 @@ export default function AlertsScreen() {
           scannedDevices.map(async (device: any) => {
             const { _id: deviceId, deviceName, macAddress, userId } = device;
             const vendor = detectVendor({ macAddress, deviceName });
-            console.log("🏷️ זוהה יצרן:", vendor);
+            console.log("🏷️ vendor detected: ", vendor);
 
             if (!vendor || ["unknown", "not available", "null"].includes(vendor.toLowerCase())) {
               console.log("🚫 Vendor invalid for device:", deviceName);
@@ -51,7 +51,7 @@ export default function AlertsScreen() {
             }
 
             const cves = await fetchCVEsForDevice(vendor);
-            console.log("🛡️ פגיעויות עבור", vendor, ":", cves.length);
+            console.log("🛡️ CVE for:", vendor, ":", cves.length);
             if (cves.length === 0) return null;
 
             const relevantCVEs = cves.filter((cve: CVE) => {
@@ -87,9 +87,9 @@ export default function AlertsScreen() {
 
         if (alertsToSave.length > 0) await saveSecurityAlerts(alertsToSave);
         setAlerts(allAlerts.filter(Boolean));
-        setTimeout(() => setLoadingMessage("מתבצעת בדיקה מול מאגרי הפגיעויות ..."), 1000);
+        setTimeout(() => setLoadingMessage("Checking vulnerabilities in public databases..."), 1000);
       } catch (error) {
-        console.error("🔴 שגיאה ב-loadAlerts:", error);
+        console.error("Error loading alerts:", error);
       } finally {
         setTimeout(() => setLoading(false), 2500);
       }
@@ -131,7 +131,7 @@ export default function AlertsScreen() {
       }).slice(0, 3);
       setGeneralCVEs(sortedCVEs);
     } catch (error) {
-      console.error("❌ שגיאה בעת שליפת CVEs כלליים:", error);
+      console.error("Error fetching general CVEs:", error);
     }
   };
 
@@ -153,12 +153,12 @@ export default function AlertsScreen() {
 
   const getSuggestion = (description: string): string => {
     const desc = description.toLowerCase();
-    if (desc.includes("default password")) return "החלף סיסמה מיידית";
-    if (desc.includes("remote")) return "שקול לכבות שליטה מרחוק";
-    if (desc.includes("firmware") || desc.includes("update")) return "עדכן גרסה חדשה";
-    if (desc.includes("unauthorized") || desc.includes("unauthenticated")) return "הפעל אימות דו-שלבי";
-    if (desc.includes("denial of service")) return "הגבל גישה לרשת";
-    return "בדוק הגדרות אבטחה או פנה לתמיכה";
+    if (desc.includes("default password")) return "Change default password";
+    if (desc.includes("remote")) return "Disable remote access";
+    if (desc.includes("firmware") || desc.includes("update")) return "Update device firmware";
+    if (desc.includes("unauthorized") || desc.includes("unauthenticated")) return  "Enable two-factor authentication";
+    if (desc.includes("denial of service")) return "Restrict network access";
+    return "Check security settings or contact support";
   };
 
   const getSeverityColor = (severity: string) =>
@@ -168,16 +168,16 @@ export default function AlertsScreen() {
 
 
   return (
-    <ScreenWithBackButton title="התראות אבטחה" style={globalStyles.screenContainer}>
+    <ScreenWithBackButton title="Security Alerts" style={globalStyles.screenContainer}>
       <ScrollView contentContainerStyle={styles.container}>
 
         {/* פתיח קבוע לכל משתמש */}
         {!loading && (
           <View style={styles.successBox}>
-            <Text style={styles.successText}>👋 ברוך הבא למסך בדיקת פגיעויות!</Text>
-            <Text style={styles.subText}>באמצעות סריקת הרשת הביתית נבדוק האם הרכיבים שלך חשופים לפגיעויות אבטחה מוכרות.</Text>
-            <Text style={styles.subText}>אם תתגלה פגיעות – נציג מידע עם סיכום והמלצה לפעולה.</Text>
-            <Text style={styles.subText}>אם הכל תקין – תראה הודעה שכל הרכיבים מוגנים 🔒</Text>
+            <Text style={styles.successText}>👋 Welcome to the Vulnerability Check Screen </Text>
+            <Text style={styles.subText}>We will check if your smart home devices are exposed to known vulnerabilities.</Text>
+            <Text style={styles.subText}>If vulnerabilities are found, we will show a summary and recommended action.</Text>
+            <Text style={styles.subText}>If everything is secure, you'll see a confirmation message.🔒</Text>
           </View>
         )}
 
@@ -192,13 +192,13 @@ export default function AlertsScreen() {
             {/* אם התגלו פגיעויות – נציג כל אחת בצורה נגישה */}
             {alerts.length > 0 && alerts.map((alert, idx) => (
               <View key={idx} style={styles.card}>
-                <Text style={styles.deviceTitle}>📡 לאחר סריקה של הרכיב {alert.deviceName}, זוהו פגיעויות הבאות:</Text>
-                <Text style={styles.vendorLabel}>🔍 יצרן: {alert.vendor}</Text>
+                <Text style={styles.deviceTitle}>📡 After scan {alert.deviceName}, We detected the following vulnerabilities:</Text>
+                <Text style={styles.vendorLabel}>🔍 vendor: {alert.vendor}</Text>
                 {alert.cves.map((cve, i) => (
                   <View key={i} style={[styles.cveBox, { borderLeftColor: getSeverityColor(cve.severity) }]}>
                     <Text style={styles.cveTitle}>{cve.id} ({cve.severity})</Text>
                     <Text style={styles.cveDesc}>{cve.description}</Text>
-                    <Text style={styles.suggestionText}>💡 העצה שלנו: {getSuggestion(cve.description)}</Text>
+                    <Text style={styles.suggestionText}>💡 Our advice: {getSuggestion(cve.description)}</Text>
                   </View>
                 ))}
               </View>
@@ -207,14 +207,14 @@ export default function AlertsScreen() {
             {/* אם לא התגלו פגיעויות כלל */}
             {alerts.length === 0 && (
               <View style={styles.successBox}>
-                <Text style={styles.successText}>✔️ כל הרכיבים נסרקו ולא נמצאו פגיעויות</Text>
-                <Text style={styles.subText}>🔒 הרכיבים שלך מוגנים</Text>
+                <Text style={styles.successText}>✔️ All components were scanned and no vulnerabilities were found.</Text>
+                <Text style={styles.subText}>🔒 Your components are protected</Text>
               </View>
             )}
 
             {/* הצעה תמידית לבדוק רכיבים נפוצים */}
             <View style={styles.successBox}>
-              <Text style={styles.subText}>📚 תרצה לבדוק פגיעויות שכיחות לפי יצרנים נפוצים?</Text>
+              <Text style={styles.subText}>📚 Would you like to check for common vulnerabilities by popular manufacturers?</Text>
               <View style={styles.buttonRow}>
                 <Animated.View style={{ transform: [{ scale: buttonScale }] }}>
                   <TouchableOpacity
@@ -226,11 +226,11 @@ export default function AlertsScreen() {
                     style={styles.primaryButton}
                     activeOpacity={0.8}
                   >
-                    <Text style={styles.primaryButtonText}>כן, הצג לי</Text>
+                    <Text style={styles.primaryButtonText}>Yes, show me</Text>
                   </TouchableOpacity>
                 </Animated.View>
                 <TouchableOpacity onPress={() => console.log("🙅‍♂️ המשתמש ויתר על הצגה כללית")} style={styles.secondaryButton} activeOpacity={0.8}>
-                  <Text style={styles.secondaryButtonText}>לא תודה</Text>
+                  <Text style={styles.secondaryButtonText}>No thanks</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -251,7 +251,7 @@ export default function AlertsScreen() {
             {/* תוצאה של פגיעויות כלליות לפי יצרן */}
             {selectedVendor && generalCVEs.length > 0 && (
               <View style={styles.generalCVEsBox}>
-                <Text style={styles.generalCVEsTitle}>⚡ פגיעויות עבור {selectedVendor}</Text>
+                <Text style={styles.generalCVEsTitle}>⚡ CVE's for: {selectedVendor}</Text>
                 {generalCVEs.map((cve, idx) => (
                   <View key={idx} style={[styles.cveBox, { borderLeftColor: getSeverityColor(cve.severity) }]}>
                     <Text style={styles.cveTitle}>{cve.id} ({cve.severity})</Text>
@@ -264,7 +264,7 @@ export default function AlertsScreen() {
 
             {/* טקסט סיום */}
             <Text style={[styles.subText, { marginTop: 20, textAlign: 'center' }]}>
-              ✅ סיימנו לסרוק. מומלץ לטפל בפגיעויות שהתגלו כדי לשמור על רשת בטוחה.
+            ✅ We have finished scanning. It is recommended to address the vulnerabilities discovered to maintain a secure network.
             </Text>
           </>
         )}
