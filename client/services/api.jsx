@@ -1,6 +1,7 @@
 import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// ipconfig getifaddr en0
 export const API_URL = "http://192.168.31.59:5001/api";
 
 // יצירת אינסטנס של axios עם הגדרות ברירת מחדל
@@ -19,6 +20,9 @@ const handleError = (error, action) => {
   throw error;
 };
 
+// ==================================================================== //
+// ======================USER MANAGEMENT=============================== //
+// ==================================================================== //
 // הרשמת משתמש
 export const registerUser = async (userData) => {
   try {
@@ -73,6 +77,10 @@ export const logoutUser = async () => {
   }
 };
 
+// ==================================================================== //
+// ======================SCAN SCREEN AND DEEP SCAN===================== //
+// ==================================================================== //
+
 // טריגר לסריקת רשת מהירה
 export const triggerScan = async () => {
   try {
@@ -98,6 +106,48 @@ export const triggerDeepScan = async () => {
   }
 };
 
+/**
+ * Schedule a future network scan
+ * @param {string} scheduledDateTime ISO string של התאריך והשעה לסריקה
+ * @returns {Promise<Object>} הנתונים שהשרת מחזיר
+ */
+ export const scheduleScan = async (scheduledDateTime) => {
+  console.log("📅 scheduleScan: scheduling for", scheduledDateTime);
+  try {
+    const response = await axiosInstance.post("/scans/schedule", {
+      scheduledDateTime,
+    });
+    console.log("✅ scheduleScan success:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ scheduleScan error:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Fetch the currently scheduled scan (if any)
+ * @returns {Promise<Object|null>} אובייקט עם scheduledDateTime או null
+ */
+export const fetchScheduledScan = async () => {
+  console.log("🔍 fetchScheduledScan: fetching current schedule");
+  try {
+    const response = await axiosInstance.get("/scans/schedule");
+    console.log("✅ fetchScheduledScan success:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ fetchScheduledScan error:",
+      error.response?.data || error.message
+    );
+    // אם אין שיגור, נחזיר null כדי לא לקרוס בלקוח
+    return null;
+  }
+};
+
 // שליפת היסטוריית סריקות
 export const fetchScanHistory = async () => {
   try {
@@ -110,6 +160,9 @@ export const fetchScanHistory = async () => {
   }  
 };
 
+// ==================================================================== //
+// ======================CVE INTEGRATION=============================== //
+// ==================================================================== //
 // עבור בדיקת CVE:
 export const fetchCVEsForDevice = async (keyword) => {
   try {
@@ -135,7 +188,9 @@ export const saveSecurityAlerts = async (alerts) => {
 };
 
 
-// ---- For admin only - make more functionality ----- //
+// ==================================================================== //
+// ========================ADMIN ONLY!!================================ //
+// ==================================================================== //
 
 // שליפת כל המשתמשים (לשימוש אדמין)
 export const fetchAllUsers = async () => {

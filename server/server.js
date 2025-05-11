@@ -55,6 +55,11 @@ app.use("/api/cve", cveRoute);
 const alertRoutes = require("./src/routes/alertRoute");
 app.use("/api/alerts", alertRoutes); 
 
+// For schedule scan later: 
+const scanScheduleRoute = require("./src/routes/scanScheduleRoute");
+app.use("/api", scanScheduleRoute);
+
+
 
 // MongoDB connection
 mongoose
