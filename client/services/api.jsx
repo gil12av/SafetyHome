@@ -161,6 +161,37 @@ export const fetchScanHistory = async () => {
 };
 
 // ==================================================================== //
+// ==================UPDATE/DELETED/CREATE DEVICES===================== //
+// ==================================================================== //
+
+// Delete
+export const deleteDevice = async (id) => {
+  console.log("🗑 Deleting device", id);
+  const res = await axiosInstance.delete(`/devices/${id}`);
+  console.log("✅ Deleted:", res.data);
+  return res.data;
+};
+
+// Update
+export const updateDevice = async (id, data) => {
+  console.log("✏️ Updating device", id, data);
+  const res = await axiosInstance.put(`/devices/${id}`, data);
+  console.log("✅ Updated:", res.data);
+  return res.data;
+};
+
+// Create manual
+export const createDevice = async (data) => {
+  console.log("➕ Creating device", data);
+  const res = await axiosInstance.post(`/devices`, data);
+  console.log("✅ Created:", res.data);
+  return res.data;
+};
+
+
+
+
+// ==================================================================== //
 // ======================CVE INTEGRATION=============================== //
 // ==================================================================== //
 // עבור בדיקת CVE:

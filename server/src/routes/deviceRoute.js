@@ -1,3 +1,4 @@
+// this is route for device managment, such a scanning' update manually and delete devices after scan .
 const mongoose = require("mongoose");
 const express = require("express");
 const router = express.Router();
@@ -143,5 +144,72 @@ router.get('/scans', async (req, res) => {
     res.status(500).json({ error: "Failed to retrieve scans." });
   }
 });
+
+//==================================================== //
+// new routes for update and manage devices after scan:
+
+// DELETE /api/devices/:id
+router.delete("/devices/:id", async (req, res) => {
+  try {
+    await ScannedDevice.findByIdAndDelete(req.params.id);
+    res.json({ deletedId: req.params.id });
+  } catch (err) {
+    console.error("DELETE DEVICE error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// PUT /api/devices/:id
+router.put("/devices/:id", async (req, res) => {
+  try {
+    const { deviceName, ipAddress, macAddress, vendor, version } = req.body;
+
+    const updated = await ScannedDevice.findByIdAndUpdate(
+      req.params.id,
+      {
+        deviceName,
+        ipAddress,
+        macAddress,
+        vendor,
+        version,
+        scanType: "manual",      
+        source: "ManualScan"     
+      },
+      { new: true }
+    );
+
+    res.json(updated);
+  } catch (err) {
+    console.error("UPDATE DEVICE error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// POST /api/devices
+router.post("/devices", async (req, res) => {
+  try {
+    const userId = req.session?.user?._id;
+    if (!userId) 
+      return res.status(401).json({ message: "Unauthorized" });
+
+    const { deviceName, ipAddress, macAddress, vendor, version } = req.body;
+    const newDevice = await ScannedDevice.create({
+      deviceName,
+      ipAddress,
+      macAddress,
+      vendor,
+      version,
+      userId,              // ← חובה
+      scanType: "manual",  // ← חובה – דיפולט של רכיב ידני
+      source: "ManualScan",
+    });
+    return res.json(newDevice);
+  } catch (err) {
+    console.error("CREATE DEVICE error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 module.exports = router;

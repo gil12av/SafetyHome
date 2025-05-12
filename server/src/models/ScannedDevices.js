@@ -2,10 +2,10 @@
 const mongoose = require("mongoose");
 
 const scannedDeviceSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  deviceName: { type: String, required: true },
-  ipAddress: { type: String, required: true },
-  macAddress: { type: String },
+  userId:          { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  deviceName:      { type: String, required: true },
+  ipAddress:       { type: String, required: true },
+  macAddress:      { type: String },
   operatingSystem: { type: String },
   openPorts: [
     {
@@ -15,9 +15,12 @@ const scannedDeviceSchema = new mongoose.Schema({
       version: String,
     },
   ],
+  version:  { type: String, default: "unknown"},
+  vendor:   { type: String, default: "unknown"},
   scanDate: { type: Date, default: Date.now },
   // 🆕 הוספה:
-  scanType: { type: String, enum: ["quick", "deep"], required: true },
+  scanType: { type: String, enum: ["quick", "deep", "manual"], required: true },
+  source:   { type: String, enum:["AutoScan", "ManualScan"], default: "AutoScan" },
 });
 
 
