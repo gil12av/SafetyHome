@@ -41,7 +41,15 @@ export default function DevicesScreen() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [sortType, setSortType] = useState<'name'|'date'>('name');
   const [sortAsc, setSortAsc] = useState(true);
-  const [errors, setErrors] = useState({});
+ 
+  type FormErrors = {
+    deviceName?: string;
+    ipAddress?: string;
+    macAddress?: string;
+    vendor?: string;
+    version?: string;
+  }; 
+  const [errors, setErrors] = useState<FormErrors>({});
 
   useEffect(() => {
     loadDevices();
@@ -87,12 +95,34 @@ export default function DevicesScreen() {
   };
 
   // validate for insert new user device: 
+  const validateForm = () => {
+    const newErrors: any = {};
+  
+    if (!form.deviceName || form.deviceName.length < 3) {
+      newErrors.deviceName = "Enter at least 3 characters";
+    }
+  
+    if (!form.macAddress || form.macAddress.length < 11) {
+      newErrors.macAddress = "Enter full MAC address";
+    }
+  
+    if (!form.vendor || form.vendor.length < 2) {
+      newErrors.vendor = "Enter at least 2 characters";
+    }
+  
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+// end of validate to the manual insert device details.  
   
   const handleSave = async () => {
-    const { deviceName, ipAddress, macAddress, vendor, version } = form;
-    if (!deviceName || !ipAddress || !macAddress) {
-      return alert("Please enter name, IP and MAC address");
+    console.log("▶️ handleSave triggered");
+    if (!validateForm()) {
+      console.log("Hey this is response from the if (!validateForm)");
+      return; // this is validate from the function above. 
     }
+    const { deviceName, ipAddress, macAddress, vendor, version } = form;
+    
     try {
       if (editingDevice) {
         const updated = await updateDevice(editingDevice._id, { deviceName, ipAddress, macAddress, vendor, version });
@@ -102,8 +132,8 @@ export default function DevicesScreen() {
         setDevices((prev) => [created, ...prev]);
       }
       setModalVisible(false);
-    } catch (err) {
-      console.error("Save failed:", err);
+    } catch (err: any) {
+      console.error("Save failed:", err?.response?.data || err.message || err);
     }
   };
 
@@ -197,52 +227,77 @@ export default function DevicesScreen() {
         </View>
 
         <Modal visible={modalVisible} transparent animationType="slide">
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>{editingDevice ? "Edit Device" : "Add Device"}</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Device Name"
-                value={form.deviceName}
-                onChangeText={(t) => setForm({ ...form, deviceName: t })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="IP Address"
-                value={form.ipAddress}
-                onChangeText={(t) => setForm({ ...form, ipAddress: t })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="MAC Address"
-                value={form.macAddress}
-                onChangeText={(t) => setForm({ ...form, macAddress: t })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Vendor"
-                value={form.vendor}
-                onChangeText={(t) => setForm({ ...form, vendor: t })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Version"
-                value={form.version}
-                onChangeText={(t) => setForm({ ...form, version: t })}
-              />
-              <View style={styles.modalActions}>
-                <TouchableOpacity style={[styles.modalBtn, styles.cancelBtn]} onPress={() => setModalVisible(false)}>
-                  <Text style={styles.modalBtnText}>Cancel</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.modalBtn, styles.saveBtn]} onPress={handleSave}>
-                  <Text style={[styles.modalBtnText, { color: "#fff" }]}>
-                    {editingDevice ? "Update" : "Create"}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalContent}>
+      <Text style={styles.modalTitle}>{editingDevice ? "Edit Device" : "Add Device"}</Text>
+
+      <View style={{ marginBottom: 10 }}>
+        <Text style={styles.inputLabel}>Device Name (required)</Text>
+         <TextInput
+          style={[styles.input, errors.deviceName && { borderColor: "red" }]}
+          placeholder="e.g. Bedroom Light"
+          value={form.deviceName}
+          onChangeText={(t) => setForm({ ...form, deviceName: t })}
+        />
+        {errors.deviceName && <Text style={styles.errorText}>{errors.deviceName}</Text>}
+      </View>
+
+      <View style={{ marginBottom: 10 }}>
+        <Text style={styles.inputLabel}>IP Address (optional)</Text>
+         <TextInput
+          style={[styles.input, errors.ipAddress && { borderColor: "red" }]}
+          placeholder="e.g. 192.168.0.20"
+          value={form.ipAddress}
+          onChangeText={(t) => setForm({ ...form, ipAddress: t })}
+        />
+      </View>
+
+      <View style={{ marginBottom: 10 }}>
+        <Text style={styles.inputLabel}>MAC Address (required)</Text>
+         <TextInput
+          style={[styles.input, errors.macAddress && { borderColor: "red" }]}
+          placeholder="e.g. AA:BB:CC:DD:EE:FF"
+          value={form.macAddress}
+          onChangeText={(t) => setForm({ ...form, macAddress: t })}
+        />
+        {errors.macAddress && <Text style={styles.errorText}>{errors.macAddress}</Text>}
+      </View>
+
+      <View style={{ marginBottom: 10 }}>
+        <Text style={styles.inputLabel}>Vendor (required)</Text>
+         <TextInput
+          style={[styles.input, errors.vendor && { borderColor: "red" }]}
+          placeholder="e.g. TP-Link"
+          value={form.vendor}
+          onChangeText={(t) => setForm({ ...form, vendor: t })}
+        />
+        {errors.vendor && <Text style={styles.errorText}>{errors.vendor}</Text>}
+      </View>
+
+      <View style={{ marginBottom: 10 }}>
+        <Text style={styles.inputLabel}>Version (optional)</Text>
+          <TextInput
+          style={styles.input}
+          placeholder="e.g. 1.0.0"
+          value={form.version}
+          onChangeText={(t) => setForm({ ...form, version: t })}
+          />
+      </View>
+
+      <View style={styles.modalActions}>
+        <TouchableOpacity style={[styles.modalBtn, styles.cancelBtn]} onPress={() => setModalVisible(false)}>
+          <Text style={styles.modalBtnText}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.modalBtn, styles.saveBtn]} onPress={handleSave}>
+        <Text style={[styles.modalBtnText, { color: "#fff" }]}>
+            {editingDevice ? "Update" : "Create"}
+            </Text>
+          </TouchableOpacity>
           </View>
-        </Modal>
+         </View>
+        </View>
+       </Modal>
+
       </View>
     </ScreenWithBackButton>
   );
@@ -278,4 +333,8 @@ const styles = StyleSheet.create({
   saveBtn: { backgroundColor: "#4A90E2" },
   modalBtnText: { fontSize: 14, fontWeight: "500", color: "#333" },
   loader: { flex: 1, justifyContent: "center" },
+  hintText: { fontSize: 12, color: "#666", marginTop: 4, marginLeft: 2 },
+  errorText: { fontSize: 12, color: "red", marginTop: 2, marginLeft: 2 },
+  inputLabel: { fontSize: 14, fontWeight: "500", color: "#444", marginBottom: 4 },
+
 });
