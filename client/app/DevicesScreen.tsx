@@ -11,7 +11,8 @@ import {
 } from "react-native";
 import { SwipeListView } from "react-native-swipe-list-view";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import ScreenWithBackButton from "@/components/ScreenWithBackButton";
+import AppScreen from "@/components/AppScreen";
+import { colors } from "@/styles/theme";
 import {
   fetchScanHistory,
   deleteDevice,
@@ -187,8 +188,8 @@ export default function DevicesScreen() {
   );
 
   return (
-    <ScreenWithBackButton title="Devices">
-      <View style={styles.container}>
+    <AppScreen title="Devices" showBackButton>
+    <View style={styles.container}>
         <View style={styles.headerRow}>
           <Text style={styles.headerText}>Manage Devices</Text>
           <View style={styles.headerActions}>
@@ -299,12 +300,12 @@ export default function DevicesScreen() {
        </Modal>
 
       </View>
-    </ScreenWithBackButton>
+      </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f5f5f5" },
+  container: { flex: 1, backgroundColor: colors.background },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16 },
   headerText: { fontSize: 20, fontWeight: "bold", color: "#333" },
   headerActions: { flexDirection: "row", alignItems: "center" },

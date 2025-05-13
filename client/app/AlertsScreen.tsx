@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, ScrollView, StyleSheet, Linking, TouchableOpacity, Animated, Easing, ActivityIndicator } from "react-native";
-import ScreenWithBackButton from "@/components/ScreenWithBackButton";
-import globalStyles from "../styles/globalStyles";
+import AppScreen from "@/components/AppScreen";
 import { fetchScanHistory, fetchCVEsForDevice, saveSecurityAlerts } from "../services/api";
 import { detectVendor } from "../services/detectVendor";
 
@@ -168,7 +167,7 @@ export default function AlertsScreen() {
 
 
   return (
-    <ScreenWithBackButton title="Security Alerts" style={globalStyles.screenContainer}>
+    <AppScreen title="Security Alerts" showBackButton>
       <ScrollView contentContainerStyle={styles.container}>
 
         {/* פתיח קבוע לכל משתמש */}
@@ -269,7 +268,7 @@ export default function AlertsScreen() {
           </>
         )}
       </ScrollView>
-    </ScreenWithBackButton>
+    </AppScreen>
   );
 }
 

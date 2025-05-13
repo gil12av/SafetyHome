@@ -1,12 +1,14 @@
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from "react-native";
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 import { API_URL } from "@/services/api";
 import axios from "axios";
-import globalStyles from "../styles/globalStyles";
+import AppScreen from "@/components/AppScreen";
+import { colors } from "@/styles/theme";
+
+
 
 export default function UserForm() {
   const router = useRouter();
@@ -94,8 +96,8 @@ export default function UserForm() {
   };
 
   return (
-    <ScreenWithBackButton title={isRegister ? "Register" : "Login"} style={globalStyles.screenContainer}>
-      <View style={styles.innerContainer}>
+    <AppScreen title={isRegister ? "Register" : "Login"} showBackButton>
+      <ScrollView contentContainerStyle={styles.innerContainer}>
         <Text style={styles.title}>{isRegister ? "Create Account" : "Welcome Back!"}</Text>
 
         {loading ? (
@@ -129,8 +131,8 @@ export default function UserForm() {
             </TouchableOpacity>
           </>
         )}
-      </View>
-    </ScreenWithBackButton>
+      </ScrollView>
+   </AppScreen>
   );
 }
 

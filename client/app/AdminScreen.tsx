@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+/* import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   ActivityIndicator,
@@ -243,6 +243,210 @@ const styles = StyleSheet.create({
     flex: 1,
     marginLeft: 10,
     gap: 3,
+  },
+  actions: {
+    flexDirection: "row",
+  },
+  actionButton: {
+    marginLeft: 10,
+  },
+});
+*/
+
+import React, { useEffect, useState } from "react";
+import {
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+  View,
+  Text,
+} from "react-native";
+import { useRouter } from "expo-router";
+import {
+  fetchAllUsers,
+  updateUserRole,
+  deleteUser,
+  fetchScanHistory,
+} from "@/services/api";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import AppScreen from "@/components/AppScreen";
+import { colors } from "@/styles/theme";
+
+const { width } = Dimensions.get("window");
+
+export default function AdminScreen() {
+  const router = useRouter();
+
+  type User = {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'admin' | 'user';
+  };
+  
+  const [users, setUsers] = useState<User[]>([]);
+  const [scanCount, setScanCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const loadStats = async () => {
+    setLoading(true);
+    try {
+      const userData = await fetchAllUsers();
+      const scanData = await fetchScanHistory();
+      setUsers(userData);
+      setScanCount(scanData.length);
+    } catch (err) {
+      Alert.alert("Error", "Failed to load stats.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const handleDelete = async (userId: string) => {
+    Alert.alert("Confirm", "Delete user?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Delete",
+        onPress: async () => {
+          try {
+            await deleteUser(userId);
+            loadStats();
+          } catch {
+            Alert.alert("Error", "Delete failed.");
+          }
+        },
+        style: "destructive",
+      },
+    ]);
+  };
+
+  const handleToggleRole = async (userId: string, currentRole: string) => {
+    const newRole = currentRole === "admin" ? "user" : "admin";
+    try {
+      await updateUserRole(userId, newRole);
+      loadStats();
+    } catch {
+      Alert.alert("Error", "Role update failed.");
+    }
+  };
+
+  const totalUsers = users.length;
+  const adminCount = users.filter((u) => u.role === "admin").length;
+  const userCount = totalUsers - adminCount;
+
+  return (
+    <AppScreen title="Admin Dashboard" showBackButton>
+      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+        <Text style={styles.sectionTitle}>📊 App Statistics</Text>
+        {loading ? (
+          <ActivityIndicator size="large" color={colors.primary} />
+        ) : (
+          <>
+            <View style={styles.statsContainer}>
+              <StatCard icon="account-group" label="Total Users" value={totalUsers} color="#3498db" />
+              <StatCard icon="account" label="Regular Users" value={userCount} color="#2ecc71" />
+              <StatCard icon="shield-account" label="Admins" value={adminCount} color="#e67e22" />
+              <StatCard icon="radar" label="Scans Performed" value={scanCount} color="#9b59b6" />
+            </View>
+
+            <Text style={styles.sectionTitle}>👥 User Management</Text>
+
+            <View style={styles.userList}>
+              {users.map((u) => (
+                <View key={u._id} style={styles.card}>
+                  <MaterialCommunityIcons name="account-circle" size={40} color={colors.primary} />
+                  <View style={styles.infoContainer}>
+                    <Text style={styles.text}>{u.firstName} {u.lastName}</Text>
+                    <Text style={styles.text}>{u.email}</Text>
+                    <Text style={[styles.text, { color: u.role === "admin" ? "#e67e22" : "#555" }]}>Role: {u.role}</Text>
+                  </View>
+                  <View style={styles.actions}>
+                    <TouchableOpacity onPress={() => handleToggleRole(u._id, u.role)} style={styles.actionButton}>
+                      <MaterialCommunityIcons name="account-switch" size={24} color={colors.primary} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleDelete(u._id)} style={styles.actionButton}>
+                      <MaterialCommunityIcons name="delete" size={24} color="#e74c3c" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </>
+        )}
+      </ScrollView>
+    </AppScreen>
+  );
+}
+
+const StatCard = ({ icon, label, value, color }: any) => (
+  <View style={[styles.statCard, { borderColor: color }]}>
+    <MaterialCommunityIcons name={icon} size={30} color={color} />
+    <Text style={[styles.statValue, { color }]}>{value}</Text>
+    <Text style={styles.text}>{label}</Text>
+  </View>
+);
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    paddingBottom: 100,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
+    color: colors.header,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 10,
+    marginVertical: 15,
+  },
+  statCard: {
+    width: width * 0.42,
+    borderWidth: 2,
+    borderRadius: 12,
+    padding: 15,
+    alignItems: "center",
+    backgroundColor: "#fff",
+    marginBottom: 15,
+  },
+  userList: {
+    marginTop: 10,
+    gap: 10,
+  },
+  card: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    padding: 15,
+    elevation: 2,
+  },
+  infoContainer: {
+    flex: 1,
+    marginLeft: 10,
+    gap: 3,
+  },
+  text: {
+    fontSize: 14,
+    color: colors.text,
+  },
+  statValue: {
+    fontSize: 20,
+    fontWeight: "700",
   },
   actions: {
     flexDirection: "row",

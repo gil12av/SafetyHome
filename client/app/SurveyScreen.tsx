@@ -1,147 +1,190 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+} from "react-native";
+import AppScreen from "@/components/AppScreen";
+import { colors, spacing } from "@/styles/theme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import ScreenWithBackButton from "@/components/ScreenWithBackButton";
 
-const questions = [
-  {
-    id: 1,
-    question: "Have you ever changed your router password?",
-    type: "yesno",
-  },
-  {
-    id: 2,
-    question: "Do you know which devices are connected to your home network?",
-    type: "yesno",
-  },
-  {
-    id: 3,
-    question: "How secure do you feel about your network security?",
-    type: "scale",
-    scaleMin: 1,
-    scaleMax: 5,
-    labels: ["Not secure at all", "Very secure"],
-  },
-];
 
-const SurveyScreen = () => {
+export default function SurveyScreen() {
+  const [answers, setAnswers] = useState<Record<string, number | string>>({});
   const router = useRouter();
-  const [answers, setAnswers] = useState<Record<number, string | number>>({});
 
-  const handleAnswer = (questionId: number, answer: string | number) => {
-    setAnswers((prev) => ({ ...prev, [questionId]: answer }));
+
+  const handleSelect = (questionId: string, value: number | string) => {
+    setAnswers({ ...answers, [questionId]: value });
   };
 
   const handleSubmit = () => {
-    console.log("📋 Submitted Answers:", answers);
-    router.push("/IntroToScan");
+    console.log("Survey submitted:", answers);
+    alert("Thank you! We'll use this to improve your experience.");
+    router.push("/Dashboard");
   };
 
   return (
-    <ScreenWithBackButton title="Security Survey">
+    <AppScreen title="Security Survey" showBackButton>
       <ScrollView contentContainerStyle={styles.container}>
-        {questions.map((q) => (
-          <View key={q.id} style={styles.questionCard}>
-            <Text style={styles.questionText}>{q.question}</Text>
-            {q.type === "yesno" ? (
-              <View style={styles.optionsRow}>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    answers[q.id] === "Yes" && styles.selectedButton,
-                  ]}
-                  onPress={() => handleAnswer(q.id, "Yes")}
-                >
-                  <Text style={styles.optionText}>Yes</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[
-                    styles.optionButton,
-                    answers[q.id] === "No" && styles.selectedButton,
-                  ]}
-                  onPress={() => handleAnswer(q.id, "No")}
-                >
-                  <Text style={styles.optionText}>No</Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.optionsRow}>
-                {Array.from({ length: q.scaleMax ?? 5 }, (_, i) => i + 1).map((val) => (
-                  <TouchableOpacity
-                    key={String(val)}
-                    style={[
-                      styles.optionButton,
-                      answers[q.id] === val && styles.selectedButton,
-                    ]}
-                    onPress={() => handleAnswer(q.id, val)}
-                  >
-                    <Text style={styles.optionText}>{String(val)}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-        ))}
+        <Text style={styles.introText}>Based on the answer of this survey, I will give you some tips to start.</Text>
 
-        <TouchableOpacity
-          style={styles.submitButton}
-          onPress={handleSubmit}
-          disabled={Object.keys(answers).length !== questions.length}
-        >
-          <Text style={styles.submitButtonText}>Finish and Continue</Text>
+        <View style={styles.card}>
+          <Text style={styles.question}>1. How secure do you feel your smart home is?</Text>
+          <View style={styles.optionsRow}>
+            {[1, 2, 3, 4, 5].map((val) => (
+              <TouchableOpacity
+                key={val}
+                onPress={() => handleSelect("q1", val)}
+                style={[styles.option, answers["q1"] === val && styles.selectedOption]}
+              >
+                <Text style={styles.optionText}>{val}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.question}>2. How often do you update your devices?</Text>
+          <View style={styles.optionsRow}>
+            {[1, 2, 3, 4, 5].map((val) => (
+              <TouchableOpacity
+                key={val}
+                onPress={() => handleSelect("q2", val)}
+                style={[styles.option, answers["q2"] === val && styles.selectedOption]}
+              >
+                <Text style={styles.optionText}>{val}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.question}>3. How aware are you of device vulnerabilities?</Text>
+          <View style={styles.optionsRow}>
+            {[1, 2, 3, 4, 5].map((val) => (
+              <TouchableOpacity
+                key={val}
+                onPress={() => handleSelect("q3", val)}
+                style={[styles.option, answers["q3"] === val && styles.selectedOption]}
+              >
+                <Text style={styles.optionText}>{val}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.question}>4. What’s one thing you’d improve?</Text>
+          <TextInput
+            placeholder="Write up to 100 characters..."
+            placeholderTextColor={colors.text}
+            maxLength={100}
+            multiline
+            style={styles.textInput}
+            onChangeText={(val) => handleSelect("q4", val)}
+          />
+        </View>
+
+        <Text style={styles.aiTitle}>מענה של AI</Text>
+        <View style={styles.aiBox}>
+          <Text style={styles.aiText}>
+            Based on your answers, consider checking your router’s firmware, enabling device authentication,
+            and performing scans regularly to reduce risk.
+          </Text>
+        </View>
+
+        <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+          <Text style={styles.submitButtonText}>Submit Survey</Text>
         </TouchableOpacity>
       </ScrollView>
-    </ScreenWithBackButton>
+    </AppScreen>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    padding: spacing.lg,
+    backgroundColor: colors.background,
   },
-  questionCard: {
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 20,
-    elevation: 3,
-  },
-  questionText: {
+  introText: {
     fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
+    color: colors.text,
+    marginBottom: 20,
+    textAlign: "center",
+  },
+  card: {
+    backgroundColor: colors.card,
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 24,
+    elevation: 2,
+  },
+  question: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: colors.header,
+    marginBottom: 12,
   },
   optionsRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-between",
   },
-  optionButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: "#e0e0e0",
-    borderRadius: 8,
+  option: {
+    backgroundColor: "#e5e5ea", // אפור בהיר קבוע
+    padding: 12,
+    borderRadius: 10,
+    width: 48,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colors.divider,
   },
-  selectedButton: {
-    backgroundColor: "#4CAF50",
+  selectedOption: {
+    backgroundColor: colors.primary,
   },
   optionText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
+    color: colors.textLight,
+    fontWeight: "bold",
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: colors.divider,
+    borderRadius: 10,
+    padding: 10,
+    fontSize: 14,
+    color: colors.text,
+    minHeight: 80,
+    textAlignVertical: "top",
+  },
+  aiTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.primary,
+    marginBottom: 8,
+  },
+  aiBox: {
+    backgroundColor: "#f2f2f2",
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  aiText: {
+    fontSize: 14,
+    color: colors.text,
   },
   submitButton: {
-    backgroundColor: "#007BFF",
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: colors.primary,
+    padding: 16,
+    borderRadius: 12,
     alignItems: "center",
-    marginTop: 30,
   },
   submitButtonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "bold",
   },
 });
-
-export default SurveyScreen;

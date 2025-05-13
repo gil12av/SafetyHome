@@ -1,13 +1,11 @@
 import React from "react";
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from "react-native";
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import globalStyles from "../styles/globalStyles";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-
 const { width } = Dimensions.get("window");
+import AppScreen from "@/components/AppScreen";
+import { colors } from "@/styles/theme";
 
 type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
@@ -56,51 +54,46 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <SafeAreaView style={globalStyles.fullScreen}>
-      <LinearGradient
-        colors={["#ffffff", "#dbefff"]}
-        style={globalStyles.gradientContainer}
-      >
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Image
-            source={require("../assets/images/smart_home_logo_vibrant.png")}
-            style={styles.logo}
+    <AppScreen>
+      <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+        <Image
+          source={require("../assets/images/smart_home_logo_vibrant.png")}
+          style={styles.logo}
+        />
+        <Text style={styles.greeting}>{getTimeGreeting()}</Text>
+        <Text style={styles.welcomeText}>Welcome to SafetyHome</Text>
+        <RotatingMessage />
+  
+        <View style={styles.cardGrid}>
+          <HomeCard
+            icon="login"
+            title="Sign In / Register"
+            description="Access your account or create a new one."
+            buttonLabel="Get Started"
+            color="#4CAF50"
+            onPress={() => router.push("./UserForm")}
           />
-          <Text style={styles.greeting}>{getTimeGreeting()}</Text>
-          <Text style={styles.welcomeText}>Welcome to SafetyHome</Text>
-          <RotatingMessage />
-
-          <View style={styles.cardGrid}>
-            <HomeCard
-              icon="login"
-              title="Sign In / Register"
-              description="Access your account or create a new one."
-              buttonLabel="Get Started"
-              color="#4CAF50"
-              onPress={() => router.push("./UserForm")}
-            />
-
-            <HomeCard
-              icon="shield"
-              title="Start Scan"
-              description="Scan your network and find vulnerabilities."
-              buttonLabel="Scan Now"
-              color="#FF5722"
-              onPress={() => router.push("./ScanScreen")}
-            />
-
-            <HomeCard
-              icon="help-circle"
-              title="FAQ"
-              description="Find the answers you need."
-              buttonLabel="Learn More"
-              color="#3498db"
-              onPress={() => router.push("./FAQscreen")}
-            />
-          </View>
-        </ScrollView>
-      </LinearGradient>
-    </SafeAreaView>
+  
+          <HomeCard
+            icon="shield"
+            title="Intro To Scan"
+            description="Learn about why is so important to scan devices."
+            buttonLabel="Learn More"
+            color="#FF5722"
+            onPress={() => router.push("./IntroToScan")}
+          />
+  
+          <HomeCard
+            icon="help-circle"
+            title="FAQ"
+            description="Find the answers you need."
+            buttonLabel="Learn More"
+            color="#3498db"
+            onPress={() => router.push("./FAQscreen")}
+          />
+        </View>
+      </ScrollView>
+    </AppScreen>
   );
 }
 

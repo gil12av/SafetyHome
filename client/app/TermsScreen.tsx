@@ -1,9 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Animated, { FadeInRight } from "react-native-reanimated";
-import ScreenWithBackButton from "@/components/ScreenWithBackButton";
+import AppScreen from "@/components/AppScreen";
+import { colors } from "@/styles/theme";
+
 
 
 const sections = [
@@ -31,9 +33,8 @@ const sections = [
 
 export default function TermsScreen() {
   return (
-    <ScreenWithBackButton title="Terms of Use">
-      <LinearGradient colors={["#e0f7fa", "#ffffff"]} style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scroll}>
+    <AppScreen title="Terms of Use" showBackButton>
+     <ScrollView contentContainerStyle={styles.container}>
           <View style={styles.headerBox}>
             <Icon name="file-document-multiple-outline" size={44} color="#007BFF" />
             <Text style={styles.headerText}>Application Terms of Use</Text>
@@ -50,8 +51,7 @@ export default function TermsScreen() {
             </Animated.View>
           ))}
         </ScrollView>
-      </LinearGradient>
-    </ScreenWithBackButton>
+     </AppScreen>
   );
 }
 
@@ -69,24 +69,24 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#007BFF",
+    color: colors.header,
     marginTop: 10,
   },
+
   subText: {
-    fontSize: 13,
-    color: "#777",
-    marginTop: 4,
+   fontSize: 13,
+   color: colors.text,
+   marginTop: 4,
   },
+
   card: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     borderRadius: 15,
     padding: 18,
     marginBottom: 15,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
+    elevation: 2,
   },
+
   cardHeader: {
     flexDirection: "row",
     alignItems: "center",
@@ -95,12 +95,12 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 17,
     fontWeight: "bold",
-    color: "#333",
+    color: colors.primary,
     marginLeft: 10,
   },
   cardText: {
     fontSize: 14,
-    color: "#555",
+    color: colors.text,
     lineHeight: 22,
   },
 });

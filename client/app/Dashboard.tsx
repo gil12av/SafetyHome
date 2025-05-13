@@ -1,223 +1,262 @@
-import React, { useContext, useEffect, useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView, Dimensions } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Animated,
+  Dimensions,
+} from "react-native";
 import { useRouter } from "expo-router";
-import { LinearGradient } from "expo-linear-gradient";
-import { useAuth } from "../context/AuthContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { SafeAreaView } from "react-native-safe-area-context";
-import FooterComponent from "@/components/Footer";
-import globalStyles from "../styles/globalStyles";
+import { colors, spacing } from "@/styles/theme";
+import AppScreen from "@/components/AppScreen";
+import CyberFeed from "@/components/ui/CyberFeed";
+import { useAuth } from "@/context/AuthContext";
 
 const { width } = Dimensions.get("window");
 
-const Dashboard = () => {
+export default function Dashboard() {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const [isLoading, setIsLoading] = useState(true);
-  const firstName = user?.firstName || "Guest";
-  const [showSurveyPrompt, setShowSurveyPrompt ] = useState(false);
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [showSurvey, setShowSurvey] = useState(false);
+  const slideAnim = useRef(new Animated.Value(-width * 0.7)).current;
+
+  const firstName = user?.firstName || "User";
+  const isAdmin = user?.role === "admin";
 
   useEffect(() => {
-    if (user) {
-      setIsLoading(false);
-    } else {
-      router.replace("/UserForm");
-    }
-  }, [user]);
-
-  // ----- For Survey ----- //
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowSurveyPrompt(true);
-    }, 2000);
-  
-    return () => clearTimeout(timer); // ניקוי טיימר
+    const timer = setTimeout(() => setShowSurvey(true), 2000);
+    return () => clearTimeout(timer);
   }, []);
+
+  const toggleMenu = () => {
+    Animated.timing(slideAnim, {
+      toValue: menuOpen ? -width * 0.7 : 0,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
+    setMenuOpen(!menuOpen);
+  };
+
+  const navigate = (route: any) => {
+    toggleMenu();
+    router.push(route);
+  };
 
   const handleLogout = async () => {
     await logout();
-    Alert.alert("Logged Out", "You have successfully logged out.");
-    router.push("/UserForm");
+    router.replace("/UserForm");
   };
 
-  if (isLoading) {
-    return (
-      <SafeAreaView style={globalStyles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007BFF" />
-        <Text>Loading...</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
-    <SafeAreaView style={globalStyles.fullScreen}>
-      <LinearGradient
-        colors={["#ffffff", "#f0f4f8"]}
-        style={globalStyles.gradientContainer}
+    <AppScreen
+    title="Dashboard"
+    leftIcon={
+      <TouchableOpacity onPress={toggleMenu}>
+      <MaterialCommunityIcons name="menu" size={24} color={colors.textLight} />
+      </TouchableOpacity>
+      }
       >
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-        {showSurveyPrompt && (
-           <View style={styles.surveyPrompt}>
-             <Text style={styles.surveyText}>
-             Want to improve your security? Answer a short questionnaire to get personalized recommendations.
-             </Text>
-             <View style={styles.surveyButtons}>
-                <TouchableOpacity
-                  style={[styles.surveyButton, { backgroundColor: "#4CAF50" }]}
-                  onPress={() => router.push("/SurveyScreen")}
-                  >
-            <Text style={styles.surveyButtonText}>Take me to survey</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-             style={[styles.surveyButton, { backgroundColor: "#ccc" }]}
-             onPress={() => setShowSurveyPrompt(false)}
-           >
-             <Text style={styles.surveyButtonText}>Maybe later</Text>
-           </TouchableOpacity>
+  
+      {/* Drawer menu */}
+      <Animated.View style={[styles.drawer, { left: slideAnim }]}>
+  <View>
+    <Text style={styles.drawerTitle}>Menu</Text>
+    {[
+      { icon: "radar", label: "Scan Devices", route: "/ScanScreen" },
+      { icon: "alert", label: "Alerts", route: "/AlertsScreen" },
+      { icon: "devices", label: "Devices", route: "/DevicesScreen" },
+      { icon: "account", label: "Profile", route: "/Profile" },
+      ...(isAdmin ? [{ icon: "shield-account", label: "Admin", route: "/AdminScreen" }] : []),
+    ].map((item, index) => (
+      <TouchableOpacity
+        key={item.label}
+        onPress={() => navigate(item.route)}
+        style={[
+          styles.drawerItem,
+          {
+            backgroundColor: index % 2 === 0 ? "#1f2a40" : "#23304e",
+            borderColor: index % 2 === 0 ? "#4A90E2" : "#00bcd4",
+          },
+        ]}
+      >
+        <MaterialCommunityIcons
+          name={item.icon as any}
+          size={22}
+          color={colors.primary}
+          style={{ marginRight: 12 }}
+        />
+        <Text style={styles.drawerItemText}>{item.label}</Text>
+      </TouchableOpacity>
+    ))}
+  </View>
+
+  <View style={styles.logoutSection}>
+    <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+      <MaterialCommunityIcons name="logout" size={22} color="#e74c3c" style={{ marginRight: 10 }} />
+      <Text style={styles.logoutText}>Logout</Text>
+    </TouchableOpacity>
+  </View>
+</Animated.View>
+  
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.greetingBox}>
+          <Text style={styles.greeting}>Welcome, {firstName}!</Text>
         </View>
-     </View>
-)}
-          <Text style={styles.greeting}>Welcome, {firstName}</Text>
-
-          <View style={styles.cardGrid}>
-            <DashboardCard
-              icon="security"
-              title="Network Scan"
-              color="blue"
-              onPress={() => router.push("/ScanScreen")}
-            />
-            <DashboardCard
-              icon="alert-octagon"
-              title="Security Alerts"
-              color="red"
-              onPress={() => router.push("/AlertsScreen")}
-            />
-            <DashboardCard
-              icon="router-network"
-              title="Connected Devices"
-              color="green"
-              onPress={() => router.push("/DevicesScreen")}
-            />
-            <DashboardCard
-              icon="account-cog"
-              title="User Profile"
-              color="purple"
-              onPress={() => router.push("/Profile")}
-            />
-            {user?.role === "admin" && (
-              <DashboardCard
-                icon="cog-outline"
-                title="App Management"
-                color="#F39C12"
-                onPress={() => router.push("/AdminScreen")}
-              />
-            )}
+  
+        {showSurvey && (
+          <View style={styles.surveyBanner}>
+            <Text style={styles.surveyText}>Want better security tips?</Text>
+            <View style={styles.surveyButtons}>
+              <TouchableOpacity style={styles.surveyYes} onPress={() => router.push("/SurveyScreen")}>
+                <Text style={styles.surveyBtnText}>Take Survey</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.surveyNo} onPress={() => setShowSurvey(false)}>
+                <Text style={styles.surveyBtnText}>Not now</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutText}>Logout</Text>
-          </TouchableOpacity>
-        </ScrollView>
-        <FooterComponent />
-      </LinearGradient>
-    </SafeAreaView>
-  );
-};
-
-interface DashboardCardProps {
-  icon: keyof typeof MaterialCommunityIcons.glyphMap;
-  title: string;
-  color: string;
-  onPress: () => void;
+        )}
+  
+        <CyberFeed />
+      </ScrollView>
+    </AppScreen>
+  );  
 }
 
-const DashboardCard = ({ icon, title, color, onPress }: DashboardCardProps) => (
-  <TouchableOpacity style={[styles.card, { borderColor: color }]} onPress={onPress}>
-    <MaterialCommunityIcons name={icon} size={40} color={color} />
-    <Text style={[styles.cardTitle, { color }]}>{title}</Text>
-  </TouchableOpacity>
-);
-
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    alignItems: "center",
-    padding: 20,
+  content: {
+    paddingBottom: 100,
   },
+
+  greetingBox: {
+    backgroundColor: "#f0f0f0",
+    borderRadius: 8,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+
   greeting: {
-    fontSize: 30,
-    fontWeight: "bold",
-    color: "#333",
-    marginVertical: 20,
-  },
-  cardGrid: {
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 15,
-    width: "100%",
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
-    borderWidth: 2,
-    padding: 25,
-    width: "95%",
-    alignItems: "center",
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
-  },
-  cardTitle: {
-    marginTop: 10,
-    fontSize: 16,
+    fontSize: 26,
     fontWeight: "600",
+    color: colors.header,
+  },
+
+  menuIcon: {
+    position: "absolute",
+    top: 16,
+    left: 16,
+    zIndex: 10,
+  },
+
+  drawer: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    width: width * 0.7,
+    backgroundColor: colors.menuBackground,
+    paddingTop: 80,
+    paddingHorizontal: 20,
+    zIndex: 15,
+    justifyContent: "space-between", // מיקומים עליונים + תחתונים
+  },
+
+  drawerContent: {
+    // אזור כפתורים רגילים
+  },
+
+  drawerTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.textLight,
+    marginBottom: 20,
+  },
+  drawerItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginBottom: 12,
+    borderWidth: 2,
+  },
+
+  drawerItemText: {
+    color: colors.textLight,
+    fontSize: 17,
+    fontWeight: "500",
+  },
+
+  logoutSection: {
+    paddingVertical: spacing.md,
+    borderTopWidth: 1,
+    borderColor: "#444", 
   },
   logoutButton: {
-    marginTop: 30,
-    backgroundColor: "#e74c3c",
-    padding: 15,
-    borderRadius: 10,
-    width: "70%",
+    flexDirection: "row",
     alignItems: "center",
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    backgroundColor: "#fff0f0",
   },
   logoutText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-  },
-
-  // -- For Survey pop in user Screen -- //
-  surveyPrompt: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 10,
-    padding: 20,
-    marginBottom: 20,
-    borderColor: "#4CAF50",
-    borderWidth: 1.5,
-    width: "100%",
-  },
-  surveyText: {
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  surveyButtons: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  surveyButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-  },
-  surveyButtonText: {
-    color: "#fff",
-    fontWeight: "bold",
+    color: "#e74c3c",
+    fontWeight: "700",
     fontSize: 16,
   },
   
-});
+  overlay: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    zIndex: 5,
+  },
 
-export default Dashboard;
+  surveyBanner: {
+    backgroundColor: "#e7f7ec",
+    borderRadius: 10,
+    padding: spacing.md,
+    marginBottom: spacing.lg,
+  },
+
+  surveyText: {
+    fontSize: 16,
+    fontWeight: "500",
+    marginBottom: 10,
+    color: colors.text,
+  },
+
+  surveyButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+
+  surveyYes: {
+    backgroundColor: "#4CAF50",
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+    marginRight: 10,
+  },
+
+  surveyNo: {
+    backgroundColor: "#ccc",
+    padding: 10,
+    borderRadius: 8,
+    flex: 1,
+  },
+
+  surveyBtnText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "600",
+  },
+});

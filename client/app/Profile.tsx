@@ -1,194 +1,170 @@
-import React, { useContext, useState } from "react";
-import { View, Text, StyleSheet, Switch, TouchableOpacity, Image, ScrollView } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Image,
+  Dimensions,
+  Alert,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import FooterComponent from "@/components/Footer";
-import { useAuth } from "../context/AuthContext";
-import LottieView from "lottie-react-native";
-import ScreenWithBackButton from "@/components/ScreenWithBackButton";
-import globalStyles from "../styles/globalStyles";
-import { FontAwesome5 } from "@expo/vector-icons";
+import AppScreen from "@/components/AppScreen";
+import { colors, spacing } from "@/styles/theme";
+import { useRouter } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-const avatarOptions = [
-  { id: 1, icon: "smile-beam" },
-  { id: 2, icon: "grin" },
-  { id: 3, icon: "meh" },
-  { id: 4, icon: "user-astronaut" },
-  { id: 5, icon: "user-ninja" },
-];
+const { width } = Dimensions.get("window");
 
-export default function ProfileScreen() {
-  const { user, logout } = useAuth();
-  const [selectedAvatar, setSelectedAvatar] = useState(1);
-  const [profileImage, setProfileImage] = useState("https://via.placeholder.com/120");
+export default function Profile() {
+  const router = useRouter();
+  const [name, setName] = useState("Yossi Cohen");
+  const [email, setEmail] = useState("Yossi@gmail.com");
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+
+  const handleSave = () => {
+    alert("Changes saved!");
+  };
+
+  const handleLogout = () => {
+    Alert.alert("Logout", "Are you sure you want to logout?", [
+      { text: "Cancel", style: "cancel" },
+      { text: "Logout", onPress: () => router.replace("/UserForm") },
+    ]);
+  };
 
   const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.5,
+      quality: 0.7,
     });
 
     if (!result.canceled && result.assets.length > 0) {
-      setProfileImage(result.assets[0].uri);
+      setAvatarUri(result.assets[0].uri);
     }
   };
 
   return (
-    <>
-      <ScreenWithBackButton title="User Profile" style={globalStyles.screenContainer}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Avatar Selection */}
-          <View style={styles.cardCentered}>
-            <Text style={styles.label}>Choose Avatar</Text>
-            <View style={styles.avatarOptionsContainer}>
-              {avatarOptions.map((option) => (
-                <TouchableOpacity
-                  key={option.id}
-                  style={[
-                    styles.avatarOption,
-                    selectedAvatar === option.id && styles.avatarOptionSelected,
-                  ]}
-                  onPress={() => setSelectedAvatar(option.id)}
-                >
-                  <FontAwesome5 name={option.icon} size={32} color={selectedAvatar === option.id ? "#fff" : "#333"} />
-                </TouchableOpacity>
-              ))}
-            </View>
-            <TouchableOpacity style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Save Avatar</Text>
-            </TouchableOpacity>
-          </View>
+    <AppScreen title="Profile" showBackButton>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <Text style={styles.sectionTitle}>Your Profile Picture</Text>
+        <TouchableOpacity onPress={pickImage} style={styles.avatarWrapper}>
+          <Image
+            source={avatarUri ? { uri: avatarUri } : require("../assets/images/avatar1.png")}
+            style={styles.avatarImage}
+          />
+          <Text style={styles.changeAvatarText}>Tap to change photo</Text>
+        </TouchableOpacity>
 
-          {/* Profile Picture Upload */}
-          <View style={styles.cardCentered}>
-            <Text style={styles.label}>Profile Picture</Text>
-            <Image
-              source={{ uri: profileImage }}
-              style={styles.avatarLarge}
-            />
-            <TouchableOpacity style={styles.saveButton} onPress={pickImage}>
-              <Text style={styles.saveButtonText}>Upload from Gallery or Camera</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.cardCentered}>
+          <Text style={styles.label}>Full Name</Text>
+          <TextInput
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+            placeholder="Enter full name"
+            placeholderTextColor={colors.placeholder}
+          />
 
-          {/* Full Name */}
-          <View style={styles.cardCentered}>
-            <Text style={styles.label}>Full Name</Text>
-            <Text style={styles.value}>{user?.firstName} {user?.lastName}</Text>
-            <TouchableOpacity style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Edit Name</Text>
-            </TouchableOpacity>
-          </View>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            value={email}
+            onChangeText={setEmail}
+            style={styles.input}
+            placeholder="Enter email"
+            placeholderTextColor={colors.placeholder}
+            keyboardType="email-address"
+          />
 
-          {/* Email */}
-          <View style={styles.cardCentered}>
-            <Text style={styles.label}>Email</Text>
-            <Text style={styles.value}>{user?.email}</Text>
-            <TouchableOpacity style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Edit Email</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <MaterialCommunityIcons name="content-save" size={20} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.saveButtonText}>Save Changes</Text>
+          </TouchableOpacity>
 
-          {/* Security */}
-          <View style={styles.cardCentered}>
-            <Text style={styles.label}>Security</Text>
-            <TouchableOpacity style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Change Password</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Dark Mode Toggle */}
-          <View style={styles.cardRow}>
-            <Text style={styles.label}>Dark Mode</Text>
-            <Switch value={false} onValueChange={() => {}} />
-          </View>
-
-          {/* Logout */}
-          <View style={styles.cardCentered}>
-            <TouchableOpacity style={styles.saveButton} onPress={logout}>
-              <Text style={styles.saveButtonText}>Logout</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </ScreenWithBackButton>
-      <FooterComponent />
-    </>
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <MaterialCommunityIcons name="logout" size={20} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.saveButtonText}>Logout</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
   scrollContent: {
-    padding: 20,
-    alignItems: "center",
+    padding: spacing.lg,
     paddingBottom: 100,
+    backgroundColor: colors.background,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.header,
+    marginBottom: 12,
+  },
+  avatarWrapper: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  avatarImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 8,
+  },
+  changeAvatarText: {
+    fontSize: 14,
+    color: colors.primary,
   },
   cardCentered: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
+    backgroundColor: colors.card,
+    borderRadius: 20,
     padding: 20,
-    width: "100%",
-    marginBottom: 20,
-    elevation: 3,
-    alignItems: "center",
+    elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  cardRow: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 20,
-    width: "100%",
-    marginBottom: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-  },
-  avatarLarge: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    marginBottom: 10,
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
+    color: colors.text,
     marginBottom: 8,
   },
-  value: {
+  input: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    padding: 10,
     fontSize: 16,
-    color: "#333",
-    marginBottom: 8,
-  },
-  avatarOptionsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginTop: 10,
-    marginBottom: 10,
-  },
-  avatarOption: {
-    backgroundColor: "#eee",
-    borderRadius: 50,
-    padding: 12,
-    marginHorizontal: 5,
-  },
-  avatarOptionSelected: {
-    backgroundColor: "#4A90E2",
+    color: colors.text,
+    marginBottom: 16,
   },
   saveButton: {
-    backgroundColor: "#4A90E2",
-    paddingVertical: 10,
+    flexDirection: "row",
+    backgroundColor: colors.primary,
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    borderRadius: 10,
-    alignSelf: "center",
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 10,
+  },
+  logoutButton: {
+    flexDirection: "row",
+    backgroundColor: "#e74c3c",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
   },
   saveButtonText: {
     color: "#fff",

@@ -13,7 +13,8 @@ import {
 import LottieView from "lottie-react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Scan from "../components/Scan";
-import ScreenWithBackButton from "@/components/ScreenWithBackButton";
+import AppScreen from "@/components/AppScreen";
+import { colors } from "@/styles/theme";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { scheduleScan, fetchScheduledScan } from "../services/api";
 
@@ -211,17 +212,15 @@ export default function ScanScreen() {
   );
 
   return (
-    <ScreenWithBackButton title="Scan">
-      <View style={styles.container}>
-        <FlatList
-          data={scanResults}
-          renderItem={renderDevice}
-          keyExtractor={(_, i) => i.toString()}
-          contentContainerStyle={styles.list}
-          ListHeaderComponent={ListHeader}
-        />
-      </View>
-    </ScreenWithBackButton>
+    <AppScreen title="Scan" showBackButton>
+      <FlatList
+        data={scanResults}
+        renderItem={renderDevice}
+        keyExtractor={(_, i) => i.toString()}
+        contentContainerStyle={styles.list}
+        ListHeaderComponent={ListHeader}
+      />
+    </AppScreen>
   );
 }
 
@@ -233,28 +232,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
   },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    color: colors.header,
   },
+
   scheduleRow: {
     flexDirection: "row",
     justifyContent: "center",
     marginVertical: 12,
   },
+
   scheduleBtn: {
     flexDirection: "row",
-    backgroundColor: "#4A90E2",
+    backgroundColor: colors.primary,
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 14,
     alignItems: "center",
   },
+
   scheduleText: {
-    color: "#fff",
-    marginLeft: 10,
-    fontWeight: "600",
-  },
+  color: "#fff",
+  marginLeft: 10,
+  fontWeight: "600",
+  fontSize: 16,
+},
+
   cardContainer: {
     width: "100%",
     alignItems: "center",
@@ -262,19 +267,19 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   scanCard: {
-    backgroundColor: "#fff",
-    borderRadius: 18,
+    backgroundColor: colors.card,
+    borderRadius: 20,
     borderWidth: 2,
     padding: 25,
     width: "100%",
     alignItems: "center",
     marginBottom: 16,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 6,
   },
+
   quickBorder: {
     borderColor: "#50E3C2",
   },
@@ -287,12 +292,13 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   cardDesc: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-    marginTop: 8,
-    lineHeight: 20,
-  },
+  fontSize: 14,
+  color: colors.text,
+  textAlign: "center",
+  marginTop: 8,
+  lineHeight: 20,
+},
+
   loadingArea: {
     alignItems: "center",
     marginVertical: 20,
@@ -308,13 +314,14 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   resultCard: {
-    backgroundColor: "#fff",
+    backgroundColor: colors.card,
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 10,
     marginHorizontal: 16,
     marginBottom: 12,
     elevation: 2,
   },
+  
   resultText: {
     color: "#333",
     fontSize: 15,

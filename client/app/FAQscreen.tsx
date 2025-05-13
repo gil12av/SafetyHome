@@ -11,8 +11,8 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Animated, { FadeInRight } from "react-native-reanimated";
-import { LinearGradient } from "expo-linear-gradient";
-import ScreenWithBackButton from "../components/ScreenWithBackButton";
+import AppScreen from "@/components/AppScreen";
+import { colors } from "@/styles/theme";
 import { useRouter } from "expo-router";
 
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -81,13 +81,13 @@ const FAQScreen = () => {
   };
 
   return (
-    <ScreenWithBackButton title="Frequently Asked Questions">
-      <LinearGradient colors={["#e0f7fa", "#ffffff"]} style={styles.container}>
+    <AppScreen title="FAQ" showBackButton>
+      <View style={styles.container}>
         <View style={styles.headerBox}>
-          <Icon name="comment-question-outline" size={36} color="#007BFF" />
+          <Icon name="comment-question-outline" size={36} color={colors.primary} />
           <Text style={styles.headerTitle}>Important Information About the App</Text>
         </View>
-
+  
         <FlatList
           data={faqs}
           keyExtractor={(_, index) => index.toString()}
@@ -95,9 +95,9 @@ const FAQScreen = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 30 }}
         />
-
+  
         <View style={styles.termsBox}>
-          <Icon name="file-document-outline" size={30} color="#007BFF" />
+          <Icon name="file-document-outline" size={30} color={colors.primary} />
           <Text style={styles.termsTitle}>Terms of Use</Text>
           <Text style={styles.termsText}>
             Using the app constitutes acceptance of our terms. We are committed to protecting your privacy and data.
@@ -106,14 +106,16 @@ const FAQScreen = () => {
             <Text style={styles.termsLink}>Learn more</Text>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
-    </ScreenWithBackButton>
+      </View>
+    </AppScreen>
   );
+  
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
     padding: 20,
   },
   headerBox: {
