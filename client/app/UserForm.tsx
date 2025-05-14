@@ -1,5 +1,16 @@
+// 🎨 Fully upgraded UserForm with visual enhancements and interactive features
 import React, { useState, useContext } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  ScrollView,
+  Image,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
@@ -7,14 +18,14 @@ import { API_URL } from "@/services/api";
 import axios from "axios";
 import AppScreen from "@/components/AppScreen";
 import { colors } from "@/styles/theme";
-
-
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function UserForm() {
   const router = useRouter();
   const authContext = useContext(AuthContext);
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -98,6 +109,7 @@ export default function UserForm() {
   return (
     <AppScreen title={isRegister ? "Register" : "Login"} showBackButton>
       <ScrollView contentContainerStyle={styles.innerContainer}>
+        <Image source={require("../assets/images/main_logo.png")} style={styles.logo} />
         <Text style={styles.title}>{isRegister ? "Create Account" : "Welcome Back!"}</Text>
 
         {loading ? (
@@ -114,7 +126,21 @@ export default function UserForm() {
             )}
 
             <InputField icon="email" placeholder="Email" value={formData.email} onChangeText={(v: string) => handleInputChange("email", v)} keyboardType="email-address" />
-            <InputField icon="lock" placeholder="Password" value={formData.password} onChangeText={(v: string) => handleInputChange("password", v)} secureTextEntry />
+
+            <View style={styles.inputContainer}>
+              <Icon name="lock" size={20} color="#777" />
+              <TextInput
+                style={styles.input}
+                placeholder="Password"
+                placeholderTextColor="#999"
+                secureTextEntry={!showPassword}
+                value={formData.password}
+                onChangeText={(v: string) => handleInputChange("password", v)}
+              />
+              <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+                <MaterialCommunityIcons name={showPassword ? "eye" : "eye-off"} size={20} color={colors.primary} />
+              </TouchableOpacity>
+            </View>
 
             {isRegister && (
               <InputField icon="lock" placeholder="Confirm Password" value={formData.confirmPassword} onChangeText={(v: string) => handleInputChange("confirmPassword", v)} secureTextEntry />
@@ -129,10 +155,17 @@ export default function UserForm() {
                 {isRegister ? "Already have an account? Sign In" : "Don't have an account? Register"}
               </Text>
             </TouchableOpacity>
+
+            <Text style={styles.dividerText}>or</Text>
+
+            <TouchableOpacity style={styles.socialButton}>
+              <MaterialCommunityIcons name="google" size={20} color="#fff" />
+              <Text style={styles.socialButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
           </>
         )}
       </ScrollView>
-   </AppScreen>
+    </AppScreen>
   );
 }
 
@@ -148,6 +181,13 @@ const styles = StyleSheet.create({
     width: "100%",
     alignItems: "center",
     paddingTop: 30,
+    paddingBottom: 60,
+  },
+  logo: {
+    width: 100,
+    height: 100,
+    resizeMode: "contain",
+    marginBottom: 20,
   },
   title: {
     fontSize: 26,
@@ -172,6 +212,9 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color: "#333",
   },
+  eyeIcon: {
+    marginLeft: 10,
+  },
   button: {
     backgroundColor: "#4A90E2",
     paddingVertical: 14,
@@ -191,5 +234,25 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 14,
     textDecorationLine: "underline",
+  },
+  dividerText: {
+    marginTop: 20,
+    marginBottom: 10,
+    color: "#999",
+    fontSize: 14,
+  },
+  socialButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#de5246",
+    padding: 12,
+    borderRadius: 10,
+    width: "90%",
+    justifyContent: "center",
+  },
+  socialButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    marginLeft: 10,
   },
 });
