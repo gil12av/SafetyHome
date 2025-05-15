@@ -15,7 +15,8 @@ interface AppScreenProps {
   title?: string;
   children: React.ReactNode;
   showBackButton?: boolean;
-  leftIcon?: React.ReactNode; // ✅ חדש
+  leftIcon?: React.ReactNode; 
+  rightIcon?: React.ReactNode; 
 }
 
 const AppScreen: React.FC<AppScreenProps> = ({
@@ -23,6 +24,7 @@ const AppScreen: React.FC<AppScreenProps> = ({
   children,
   showBackButton = false,
   leftIcon,
+  rightIcon,
 }) => {
   const router = useRouter();
 
@@ -39,18 +41,24 @@ const AppScreen: React.FC<AppScreenProps> = ({
         ) : (
           <View style={styles.backPlaceholder} />
         )}
+  
         <Text style={styles.title}>{title || 'Screen'}</Text>
-        <View style={styles.backPlaceholder} />
+  
+        {rightIcon ? (
+          <View style={styles.backButton}>{rightIcon}</View>
+        ) : (
+          <View style={styles.backPlaceholder} />
+        )}
       </View>
-
+  
       <View style={styles.content}>{children}</View>
-
+  
       <View style={styles.footer}>
         <Text style={styles.footerText}>© 2025 SafetyHome</Text>
       </View>
     </SafeAreaView>
   );
-};
+};  
 
 const styles = StyleSheet.create({
   safeArea: {

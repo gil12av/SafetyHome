@@ -12,8 +12,12 @@ import { useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing } from "@/styles/theme";
 import AppScreen from "@/components/AppScreen";
-import CyberFeed from "@/components/ui/CyberFeed";
+import CyberFeedWidget from "@/components/ui/CyberFeedWidget";
 import { useAuth } from "@/context/AuthContext";
+import CommunityFeed from "../components/ui/social/CommunityFeed";
+import NotificationBell from "@/components/ui/social/NotificationBell";
+
+
 
 const { width } = Dimensions.get("window");
 
@@ -57,11 +61,11 @@ export default function Dashboard() {
     title="Dashboard"
     leftIcon={
       <TouchableOpacity onPress={toggleMenu}>
-      <MaterialCommunityIcons name="menu" size={24} color={colors.textLight} />
+        <MaterialCommunityIcons name="menu" size={24} color={colors.textLight} />
       </TouchableOpacity>
-      }
-      >
-  
+    }
+    rightIcon={<NotificationBell />}
+    >
       {/* Drawer menu */}
       <Animated.View style={[styles.drawer, { left: slideAnim }]}>
   <View>
@@ -122,7 +126,8 @@ export default function Dashboard() {
           </View>
         )}
   
-        <CyberFeed />
+        <CyberFeedWidget />
+        <CommunityFeed />
       </ScrollView>
     </AppScreen>
   );  

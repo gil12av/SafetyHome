@@ -77,6 +77,17 @@ export const logoutUser = async () => {
   }
 };
 
+export const getAllUsers = async () => {
+  try {
+    console.log("📤 trying to fetch users to dropdown.");
+    const res = await axiosInstance.get("/users/list"); 
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to fetch users:", err);
+    return [];
+  }
+};
+
 // ==================================================================== //
 // ======================SCAN SCREEN AND DEEP SCAN===================== //
 // ==================================================================== //
@@ -267,3 +278,114 @@ export const fetchAdminStats = async () => {
   }
 };
 
+
+// ==================================================================== //
+// ========= DASHBOARD (article, feed, comment and like)!!============= //
+// ==================================================================== //
+
+// CyberFeed - שליפת כתבות מהשרת
+export const fetchArticles = async () => {
+  try {
+    console.log("🌐 Fetching articles from server...");
+    const response = await axiosInstance.get("/articles");
+    console.log("✅ Articles received:", response.data.length);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Failed to fetch articles:", error.response?.data || error.message);
+    return [];
+  }
+};
+
+// שליפת פוסטים
+export const getAllPosts = async () => {
+  try {
+    const res = await axiosInstance.get("/posts");
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to load posts:", err);
+    return [];
+  }
+};
+
+// יצירת פוסט
+export const createPost = async (postData) => {
+  try {
+    const res = await axiosInstance.post("/posts", postData);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to create post:", err);
+    throw err;
+  }
+};
+
+// לייק/ביטול לייק
+export const toggleLike = async (postId) => {
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/like`);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to like/unlike:", err);
+    throw err;
+  }
+};
+
+// שליפת תגובות לפוסט
+export const getCommentsForPost = async (postId) => {
+  try {
+    const res = await axiosInstance.get(`/posts/${postId}/comments`);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to fetch comments:", err);
+    return [];
+  }
+};
+
+// יצירת תגובה
+export const createComment = async (postId, text) => {
+  try {
+    const res = await axiosInstance.post(`/posts/${postId}/comments`, { text });
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to post comment:", err);
+    throw err;
+  }
+};
+
+
+// ==================================================================== //
+// ================= COMMUNICATE WITH ADMIN AND USERS ================= //
+// ==================================================================== //
+// שליחת הודעה
+export const sendMessage = async ({ recipientId, content, isSystem = false }) => {
+  try {
+    const res = await axiosInstance.post("/messages", {
+      recipientId,
+      content,
+      isSystem,
+    });
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to send message:", err);
+    throw err;
+  }
+};
+
+// שליפת כל ההודעות שהמשתמש קיבל
+export const getMessages = async () => {
+  try {
+    const res = await axiosInstance.get("/messages");
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to fetch messages:", err);
+    return [];
+  }
+};
+
+// סימון הודעה כנקראה
+export const markMessageAsRead = async (messageId) => {
+  try {
+    await axiosInstance.patch(`/messages/${messageId}/read`);
+  } catch (err) {
+    console.error("❌ Failed to mark message as read:", err);
+  }
+};

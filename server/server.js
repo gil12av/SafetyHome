@@ -59,6 +59,18 @@ app.use("/api/alerts", alertRoutes);
 const scanScheduleRoute = require("./src/routes/scanScheduleRoute");
 app.use("/api", scanScheduleRoute);
 
+// For showing article in Dashboard:
+const articleRoute = require("./src/routes/articleRoute");
+app.use("/api/articles", articleRoute);
+
+// For showing posts and comment and do like to different user:
+const postRoutes = require("./src/routes/postRoute");
+app.use("/api/posts", postRoutes);
+
+// For send message between users, inbox with admin etc'.. :
+const messageRoutes = require("./src/routes/messageRoute");
+app.use("/api/messages", messageRoutes);
+
 
 
 // MongoDB connection

@@ -170,3 +170,18 @@ router.get("/admin/stats", requireAdmin, async (req, res) => {
   }
 });
 
+// יחזיר רשימה של המשתמשים הקיימים לצורך שליחת הודעות
+router.get("/list", async (req, res) => {
+  try {
+    if (!req.session?.user?._id) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    console.log("Showing a list of users..");
+    const users = await User.find({}, "_id firstName lastName role");
+    res.json(users);
+  } catch (err) {
+    console.error("❌ Failed to fetch users:", err);
+    res.status(500).json({ error: "Failed to fetch users" });
+  }
+});
