@@ -2,113 +2,152 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
+  FlatList,
+  TouchableOpacity,
   StyleSheet,
-  TextInput,
-  Button,
-  ActivityIndicator,
-  Alert,
 } from "react-native";
-import AppScreen from "@/components/AppScreen";
-import { getAllUsers, sendMessage } from "@/services/api";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
+import { useAuth } from "@/context/AuthContext";
+import { getAllUsers, getMessages } from "@/services/api";
+import AppScreen from "@/components/AppScreen";
 
-type DropdownItem = {
-    label: string;
-    value: string;
-  };
+type User = {
+  _id: string;
+  firstName: string;
+  lastName: string;
+};
 
-  
+type Message = {
+  _id: string;
+  sender: User;
+  recipient: User;
+  content: string;
+  createdAt: string;
+};
+
+type Conversation = {
+  user: User;
+  lastMessage: string;
+  time: string;
+};
+
+type DropDownItem = {
+  label: string;
+  value: string;
+};
+
 export default function NewMessageScreen() {
-  const [users, setUsers] = useState<DropdownItem[]>([]);
-  const [recipientId, setRecipientId] = useState(null);
-  const [message, setMessage] = useState("");
-  const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
 
-  const loadUsers = async () => {
-    const res = await getAllUsers();
-    const options = res.map((u: any) => ({
-      label: `${u.firstName} ${u.lastName}`,
-      value: u._id,
-    }));
-    setUsers(options);
-  };
+  const [users, setUsers] = useState<User[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
-  const handleSend = async () => {
-    if (!recipientId || !message.trim()) return;
-    setLoading(true);
-    try {
-      await sendMessage({ recipientId, content: message });
-      Alert.alert("Success", "Message sent");
-      setMessage("");
-      setRecipientId(null);
-      router.push({ pathname: "/social/chat/[id]", params: { id: recipientId } });
-    } catch (err) {
-      console.error("Failed to send message", err);
-      Alert.alert("Error", "Could not send message");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [open, setOpen] = useState(false);
+  const [items, setItems] = useState<DropDownItem[]>([]);
 
   useEffect(() => {
+    const loadUsers = async () => {
+      const usersList: User[] = await getAllUsers();
+      const dropDownItems: DropDownItem[] = usersList
+        .filter((u) => u._id !== user?._id)
+        .map((u) => ({
+          label: `${u.firstName} ${u.lastName}`,
+          value: u._id,
+        }));
+      setUsers(usersList);
+      setItems(dropDownItems);
+    };
+
+    const loadConversations = async () => {
+      const messages: Message[] = await getMessages();
+      const uniqueMap: { [key: string]: Conversation } = {};
+
+      messages.forEach((msg) => {
+        const other =
+        msg.sender._id === user?._id ? msg.recipient : msg.sender
+        if (!uniqueMap[other._id]) {
+          uniqueMap[other._id] = {
+            user: other,
+            lastMessage: msg.content,
+            time: msg.createdAt,
+          };
+        }
+      });
+
+      setConversations(Object.values(uniqueMap));
+    };
+
     loadUsers();
+    loadConversations();
   }, []);
 
+  const navigateToChat = (userId: string) => {
+    router.push({ pathname: "/social/chat/[id]", params: { id: userId } });
+  };
+
   return (
-    <AppScreen title="Send Message" showBackButton>
-      <View style={styles.container}>
-        <Text style={styles.label}>Select Recipient:</Text>
-        <DropDownPicker
-          open={open}
-          value={recipientId}
-          items={users}
-          setOpen={setOpen}
-          setValue={setRecipientId}
-          setItems={setUsers}
-          placeholder="Choose user..."
-          style={styles.dropdown}
-        />
-
-        <TextInput
-          placeholder="Type your message..."
-          style={styles.input}
-          multiline
-          value={message}
-          onChangeText={setMessage}
-        />
-
-        {loading ? (
-          <ActivityIndicator color="#000" />
-        ) : (
-          <Button title="Send" onPress={handleSend} />
+    <AppScreen title="New Message" showBackButton>
+      <Text style={styles.header}>📨 Chat : </Text>
+      <FlatList
+        data={conversations}
+        keyExtractor={(item) => item.user._id}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigateToChat(item.user._id)}
+          >
+            <Text style={styles.name}>
+              {item.user.firstName} {item.user.lastName}
+            </Text>
+            <Text style={styles.preview}>{item.lastMessage}</Text>
+          </TouchableOpacity>
         )}
-      </View>
+      />
+
+      <Text style={styles.header}>💬 Send New Message :</Text>
+      <DropDownPicker
+        open={open}
+        value={selectedUserId}
+        items={items}
+        setOpen={setOpen}
+        setValue={setSelectedUserId}
+        setItems={setItems}
+        placeholder="Choose user to send"
+        onChangeValue={(value) => {
+          if (typeof value === "string") {
+            navigateToChat(value);
+          }
+        }}
+        style={styles.dropdown}
+      />
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  header: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginVertical: 12,
   },
-  label: {
-    fontWeight: "600",
-    marginBottom: 8,
+  card: {
+    backgroundColor: "#f2f2f2",
+    padding: 12,
+    marginBottom: 10,
+    borderRadius: 8,
+  },
+  name: {
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  preview: {
+    color: "#666",
+    marginTop: 4,
   },
   dropdown: {
-    marginBottom: 16,
     zIndex: 1000,
-  },
-  input: {
-    borderColor: "#ccc",
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 8,
-    minHeight: 60,
-    textAlignVertical: "top",
-    marginBottom: 12,
   },
 });
