@@ -75,6 +75,9 @@ app.use("/api/messages", messageRoutes);
 const notificationRoute = require("./src/routes/notificationRoute");
 app.use("/api/notifications", notificationRoute);
 
+//For use Bot and chatgpt models.
+const gptRoute = require("./src/routes/gptRoute");
+app.use("/api/gpt", gptRoute);
 
 
 // MongoDB connection

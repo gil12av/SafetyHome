@@ -461,3 +461,34 @@ export const markNotificationAsRead = async (notificationId) => {
     handleError(error, "marking notification as read");
   }
 };
+
+
+// ==================================================================== //
+// ========================== GPT-BOT ================================= //
+// ==================================================================== //
+
+// ❓ שולח שאלה ל־GPT ומחזיר תשובה קצרה (2–3 שורות)
+export const askGpt = async (prompt) => {
+  try {
+    console.log("📤 Asking GPT:", prompt);
+    const res = await axiosInstance.post("/gpt/ask", { prompt });
+    console.log("✅ GPT Answer:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("❌ GPT Error:", err.response?.data || err.message);
+    throw err;
+  }
+};
+
+// 📜 מחזיר את היסטוריית השיחה האחרונה של המשתמש (עד 20 הודעות)
+export const getGptHistory = async () => {
+  try {
+    console.log("📤 Fetching GPT chat history...");
+    const res = await axiosInstance.get("/gpt/history");
+    console.log("📬 GPT history received:", res.data.length, "messages");
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to load GPT history:", err.response?.data || err.message);
+    throw err;
+  }
+};
