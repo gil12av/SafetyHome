@@ -2,23 +2,33 @@ import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { getMessages } from "@/services/api";
+import { getNotifications } from "@/services/api"; // לוודא שיש
+
 
 export default function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
-    const load = async () => {
-      const messages = await getMessages();
-      const unread = messages.filter((m: any) => !m.isRead);
-      setUnreadCount(unread.length);
+    const fetchNotifications = async () => {
+      try {
+        const notifs = await getNotifications();
+        const relevant = notifs.filter((n: any) =>
+          ["like", "comment", "message"].includes(n.type)
+        );
+        const unread = relevant.filter((n: any) => !n.isRead);
+        setUnreadCount(unread.length);
+      } catch (err) {
+        console.error("Failed to load notifications:", err);
+      }
     };
-    load();
+  
+    fetchNotifications();
   }, []);
+  
 
   return (
-    <TouchableOpacity onPress={() => router.push("/InboxScreen")}>
+    <TouchableOpacity onPress={() => router.push("/NotificationsScreen")}>
       <View style={styles.bell}>
         <MaterialCommunityIcons name="bell-outline" size={26} color="#fff" />
         {unreadCount > 0 && (
@@ -38,8 +48,8 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: "absolute",
-    top: -2,
-    right: -2,
+    top: -4,
+    right: -4,
     backgroundColor: "red",
     borderRadius: 10,
     paddingHorizontal: 6,

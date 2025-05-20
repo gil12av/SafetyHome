@@ -2,7 +2,7 @@ import axios from "axios";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // ipconfig getifaddr en0
-export const API_URL = "http://192.168.31.59:5001/api";
+export const API_URL = "http://192.168.31.131:5001/api";
 
 // יצירת אינסטנס של axios עם הגדרות ברירת מחדל
 const axiosInstance = axios.create({
@@ -307,6 +307,18 @@ export const getAllPosts = async () => {
   }
 };
 
+// שליפת פוסט לפי המזהה הספצפיפי למידה ומישהו לייק ובעת לחיצה נגיע לפוסט .
+export const getPostById = async (postId) => {
+  try {
+    const res = await axiosInstance.get(`/posts/${postId}`);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to fetch post by ID:", err);
+    throw err;
+  }
+};
+
+
 // יצירת פוסט
 export const createPost = async (postData) => {
   try {
@@ -314,6 +326,28 @@ export const createPost = async (postData) => {
     return res.data;
   } catch (err) {
     console.error("❌ Failed to create post:", err);
+    throw err;
+  }
+};
+
+// מחיקת פוסט
+export const deletePost = async (postId) => {
+  try {
+    const res = await axiosInstance.delete(`/posts/${postId}`);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to delete post:", err);
+    throw err;
+  }
+};
+
+// עדכון פוסט
+export const updatePost = async (postId, updatedData) => {
+  try {
+    const res = await axiosInstance.put(`/posts/${postId}`, updatedData);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to update post:", err);
     throw err;
   }
 };
@@ -329,16 +363,16 @@ export const toggleLike = async (postId) => {
   }
 };
 
-// שליפת תגובות לפוסט
-export const getCommentsForPost = async (postId) => {
-  try {
-    const res = await axiosInstance.get(`/posts/${postId}/comments`);
-    return res.data;
-  } catch (err) {
-    console.error("❌ Failed to fetch comments:", err);
-    return [];
-  }
-};
+// // שליפת תגובות לפוסט
+// export const getCommentsForPost = async (postId) => {
+//   try {
+//     const res = await axiosInstance.get(`/posts/${postId}/comments`);
+//     return res.data;
+//   } catch (err) {
+//     console.error("❌ Failed to fetch comments:", err);
+//     return [];
+//   }
+// };
 
 // יצירת תגובה
 export const createComment = async (postId, text) => {
@@ -346,7 +380,7 @@ export const createComment = async (postId, text) => {
     const res = await axiosInstance.post(`/posts/${postId}/comments`, { text });
     return res.data;
   } catch (err) {
-    console.error("❌ Failed to post comment:", err);
+    console.error("❌ Failed to create comment:", err);
     throw err;
   }
 };
@@ -381,11 +415,49 @@ export const getMessages = async () => {
   }
 };
 
+// שליפה מלאה של השיחה בין שני משתמשים מסוימים.
+export const getConversation = async (otherUserId) => {
+  try {
+    const res = await axiosInstance.get(`/messages/conversation/${otherUserId}`);
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to fetch conversation:", err);
+    return [];
+  }
+};
+
+
 // סימון הודעה כנקראה
 export const markMessageAsRead = async (messageId) => {
   try {
     await axiosInstance.patch(`/messages/${messageId}/read`);
   } catch (err) {
     console.error("❌ Failed to mark message as read:", err);
+  }
+};
+
+// ==================================================================== //
+// ======================== NOTIFICATIONS ============================== //
+// ==================================================================== //
+
+// שליפת כל ההתראות של המשתמש
+export const getNotifications = async () => {
+  try {
+    console.log("🔔 Fetching user notifications...");
+    const res = await axiosInstance.get("/notifications");
+    console.log("📬 Notifications received:", res.data.length);
+    return res.data;
+  } catch (error) {
+    handleError(error, "fetching notifications");
+  }
+};
+
+// סימון התראה כנקראה
+export const markNotificationAsRead = async (notificationId) => {
+  try {
+    console.log("✅ Marking notification as read:", notificationId);
+    await axiosInstance.patch(`/notifications/${notificationId}/read`);
+  } catch (error) {
+    handleError(error, "marking notification as read");
   }
 };

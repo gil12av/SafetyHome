@@ -23,7 +23,7 @@ export default function CommunityFeed() {
       <PostInput onPostCreated={loadPosts} />
       <ScrollView>
         {posts.map((post) => (
-          <PostCard key={post._id} post={post} onLikeUpdated={loadPosts} />
+          <PostCard key={post._id} post={post} onLikeUpdated={loadPosts} onPostUpdated={loadPosts} />
         ))}
       </ScrollView>
     </View>

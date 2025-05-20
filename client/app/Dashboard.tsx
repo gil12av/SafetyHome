@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
   Dimensions,
+  FlatList
 } from "react-native";
 import { useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -74,6 +75,8 @@ export default function Dashboard() {
       { icon: "radar", label: "Scan Devices", route: "/ScanScreen" },
       { icon: "alert", label: "Alerts", route: "/AlertsScreen" },
       { icon: "devices", label: "Devices", route: "/DevicesScreen" },
+      { icon: "bell", label: "Notifications", route: "/NotificationsScreen" },
+      { icon: "chat", label: "chat", route: "/NewMessageScreen" },
       { icon: "account", label: "Profile", route: "/Profile" },
       ...(isAdmin ? [{ icon: "shield-account", label: "Admin", route: "/AdminScreen" }] : []),
     ].map((item, index) => (
@@ -107,28 +110,36 @@ export default function Dashboard() {
   </View>
 </Animated.View>
   
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.greetingBox}>
-          <Text style={styles.greeting}>Welcome, {firstName}!</Text>
-        </View>
-  
-        {showSurvey && (
-          <View style={styles.surveyBanner}>
-            <Text style={styles.surveyText}>Want better security tips?</Text>
-            <View style={styles.surveyButtons}>
-              <TouchableOpacity style={styles.surveyYes} onPress={() => router.push("/SurveyScreen")}>
-                <Text style={styles.surveyBtnText}>Take Survey</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.surveyNo} onPress={() => setShowSurvey(false)}>
-                <Text style={styles.surveyBtnText}>Not now</Text>
-              </TouchableOpacity>
-            </View>
+<FlatList
+  data={[]}
+  renderItem={null}
+  keyExtractor={() => "static"}
+  contentContainerStyle={styles.content}
+  ListHeaderComponent={
+    <>
+      <View style={styles.greetingBox}>
+        <Text style={styles.greeting}>Welcome, {firstName}!</Text>
+      </View>
+
+      {showSurvey && (
+        <View style={styles.surveyBanner}>
+          <Text style={styles.surveyText}>Want better security tips?</Text>
+          <View style={styles.surveyButtons}>
+            <TouchableOpacity style={styles.surveyYes} onPress={() => router.push("/SurveyScreen")}>
+              <Text style={styles.surveyBtnText}>Take Survey</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.surveyNo} onPress={() => setShowSurvey(false)}>
+              <Text style={styles.surveyBtnText}>Not now</Text>
+            </TouchableOpacity>
           </View>
-        )}
-  
-        <CyberFeedWidget />
-        <CommunityFeed />
-      </ScrollView>
+        </View>
+      )}
+
+      <CyberFeedWidget />
+      <CommunityFeed />
+    </>
+  }
+/>
     </AppScreen>
   );  
 }

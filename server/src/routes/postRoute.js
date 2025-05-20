@@ -1,90 +1,173 @@
 const express = require("express");
-const Post = require("../models/Post");
-const Comment = require("../models/Comment");
 const router = express.Router();
+const Post = require("../models/Post");
+const Notification = require("../models/Notification");
 
-// יצירת פוסט חדש
-router.post("/", async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const { content, imageUrl, link } = req.body;
-
-    const newPost = new Post({ userId, content, imageUrl, link });
-    await newPost.save();
-    res.status(201).json(newPost);
-  } catch (error) {
-    console.error("❌ Failed to create post:", error);
-    res.status(500).json({ error: "Failed to create post" });
-  }
-});
-
-// שליפת כל הפוסטים (מהחדש לישן)
+// שליפת כל הפוסטים
 router.get("/", async (req, res) => {
   try {
     const posts = await Post.find()
-      .sort({ createdAt: -1 })
-      .populate("userId", "firstName lastName role"); // מציג שם משתמש
+      .populate("userId", "firstName lastName")
+      .populate("comments.userId", "firstName lastName")
+      .sort({ createdAt: -1 });
+
     res.json(posts);
   } catch (error) {
-    console.error("❌ Failed to fetch posts:", error);
+    console.error("Error fetching posts:", error);
     res.status(500).json({ error: "Failed to fetch posts" });
   }
 });
 
-// לייק/ביטול לייק
-router.post("/:postId/like", async (req, res) => {
+// יצירת פוסט חדש
+router.post("/", async (req, res) => {
+  const user = req.session.user;
+  if (!user) return res.status(401).json({ error: "Not authenticated" });
+
   try {
-    const userId = req.session.user._id;
-    const post = await Post.findById(req.params.postId);
+    const newPost = new Post({
+      userId: user._id,
+      content: req.body.content,
+      imageUrl: req.body.imageUrl,
+      link: req.body.link,
+    });
 
-    if (!post) return res.status(404).json({ error: "Post not found" });
+    const saved = await newPost.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    console.error("Error creating post:", error);
+    res.status(500).json({ error: "Failed to create post" });
+  }
+});
 
-    const liked = post.likes.includes(userId);
-    if (liked) {
-      post.likes = post.likes.filter((id) => id.toString() !== userId);
-    } else {
-      post.likes.push(userId);
+// הוספת תגובה לפוסט
+router.post("/:id/comments", async (req, res) => {
+    const user = req.session.user;
+    if (!user) return res.status(401).json({ error: "Not authenticated" });
+  
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).json({ error: "Post not found" });
+  
+      const newComment = {
+        userId: user._id,
+        text: req.body.text,
+        createdAt: new Date(),
+      };
+  
+      post.comments.push(newComment);
+      await post.save();
+  
+      console.log("💬 New comment added by:", user.firstName, user.lastName);
+      console.log("📌 On post ID:", post._id);
+  
+      // שליחת התראה אם המגיב לא הבעלים של הפוסט
+      if (String(post.userId) !== String(user._id)) {
+        console.log("🔔 creating notification for comment on post:", post._id);
+  
+        try {
+          const createdNotif = await Notification.create({
+            user: post.userId,           // מי יקבל את ההתראה
+            sender: user._id,            // מי עשה את הפעולה
+            type: "comment",
+            post: post._id,
+          });
+  
+          console.log("✅ Notification saved:", createdNotif);
+        } catch (notifErr) {
+          console.error("❌ Failed to save notification:", notifErr);
+        }
+      } else {
+        console.log("⚠️ Not sending notification – user commented on their own post.");
+      }
+  
+      const updatedPost = await Post.findById(req.params.id)
+        .populate("userId", "firstName lastName")
+        .populate("comments.userId", "firstName lastName");
+  
+      res.json(updatedPost);
+    } catch (err) {
+      console.error("❌ Failed to create comment:", err);
+      res.status(500).json({ error: "Server error" });
     }
+  });
+  
 
-    await post.save();
-    res.json({ likes: post.likes.length, liked: !liked });
-  } catch (error) {
-    console.error("❌ Failed to toggle like:", error);
-    res.status(500).json({ error: "Like failed" });
-  }
-});
+// לייק או ביטול לייק
+router.post("/:id/like", async (req, res) => {
+    const user = req.session.user;
+    if (!user) return res.status(401).json({ error: "Not authenticated" });
+  
+    try {
+      const post = await Post.findById(req.params.id);
+      if (!post) return res.status(404).json({ error: "Post not found" });
+  
+      const alreadyLiked = post.likes.includes(user._id);
+  
+      if (alreadyLiked) {
+        post.likes.pull(user._id);
+        console.log("👎 User unliked post:", post._id);
+      } else {
+        post.likes.push(user._id);
+        console.log("👍 User liked post:", post._id);
+  
+        // שליחת התראה רק אם המשתמש עושה לייק למישהו אחר
+        if (String(post.userId) !== String(user._id)) {
+          console.log("🔔 creating notification for like on post:", post._id);
+  
+          try {
+            const createdNotif = await Notification.create({
+              user: post.userId,
+              sender: user._id,
+              type: "like",
+              post: post._id,
+            });
+  
+            console.log("✅ Notification saved:", createdNotif);
+          } catch (notifErr) {
+            console.error("❌ Failed to save like notification:", notifErr);
+          }
+        } else {
+          console.log("⚠️ Not sending like notification – user liked their own post.");
+        }
+      }
+  
+      await post.save();
+  
+      const updatedPost = await Post.findById(req.params.id)
+        .populate("userId", "firstName lastName")
+        .populate("comments.userId", "firstName lastName");
+  
+      res.json(updatedPost);
+    } catch (err) {
+      console.error("❌ Failed to like/unlike post:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  });
+  
+  
+  // ✅ שליפת פוסט לפי ID עבור הודעות לייק/תגובה
+router.get("/:id", async (req, res) => {
+    const user = req.session.user;
+    const { id } = req.params;
+  
+    console.log("📥 GET /api/posts/:id =>", id); // בדיקה מה התקבל מהקליינט
+  
+    if (!user) return res.status(401).json({ error: "Not authenticated" });
+  
+    try {
+      const post = await Post.findById(id);
+      if (!post) {
+        console.warn("⚠️ No post found with ID:", id);
+        return res.status(404).json({ error: "Post not found" });
+      }
+  
+      console.log("🟢 Found post:", post._id);
+      res.json(post);
+    } catch (err) {
+      console.error("❌ Failed to fetch post:", err);
+      res.status(500).json({ error: "Failed to fetch post" });
+    }
+  });
 
-// For Comment  //
-
-// הגשת תגובה
-router.post("/:postId/comments", async (req, res) => {
-  try {
-    const userId = req.session.user._id;
-    const { text } = req.body;
-    const postId = req.params.postId;
-
-    const comment = new Comment({ postId, userId, text });
-    await comment.save();
-
-    res.status(201).json(comment);
-  } catch (error) {
-    console.error("❌ Failed to add comment:", error);
-    res.status(500).json({ error: "Failed to add comment" });
-  }
-});
-
-// שליפת תגובות לפוסט
-router.get("/:postId/comments", async (req, res) => {
-  try {
-    const comments = await Comment.find({ postId: req.params.postId })
-      .sort({ createdAt: 1 })
-      .populate("userId", "firstName lastName");
-    res.json(comments);
-  } catch (error) {
-    console.error("❌ Failed to fetch comments:", error);
-    res.status(500).json({ error: "Failed to fetch comments" });
-  }
-});
-
-
+  
 module.exports = router;

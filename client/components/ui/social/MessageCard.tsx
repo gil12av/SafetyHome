@@ -1,75 +1,103 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { markMessageAsRead } from "@/services/api";
+import { View, Text, StyleSheet } from "react-native";
+import { useAuth } from "@/context/AuthContext";
 
 type Message = {
+  _id: string;
+  content: string;
+  isRead: boolean;
+  isSystem: boolean;
+  sender: {
     _id: string;
-    content: string;
-    isRead: boolean;
-    isSystem: boolean;
-    sender: {
-      firstName: string;
-      lastName: string;
-      role: string;
-    };
+    firstName: string;
+    lastName: string;
+    role: string;
   };
-  
-  type Props = {
-    message: Message;
-    onRead: () => void;
-  };
-  
-  export default function MessageCard({ message, onRead }: Props) {
-  const handleRead = async () => {
-    if (!message.isRead) {
-      await markMessageAsRead(message._id);
-      onRead?.();
-    }
-  };
+  createdAt: string;
+};
+
+type Props = {
+  message: Message;
+  onRead: () => void;
+};
+
+export default function MessageCard({ message, onRead }: Props) {
+  const { user } = useAuth();
+  if (!user) return null;
+
+  const isSentByMe = message.sender._id === user._id;
+  const isSystem = message.isSystem;
 
   return (
-    <TouchableOpacity
-      style={[styles.card, message.isRead ? styles.read : styles.unread]}
-      onPress={handleRead}
-    >
-      <Text style={[styles.sender, message.isSystem && styles.systemSender]}>
-        {message.isSystem ? "System Message" : `${message.sender.firstName} ${message.sender.lastName}`}
-      </Text>
-      <Text style={styles.content}>{message.content}</Text>
-      <Text style={styles.status}>
-        {message.isRead ? "✔✔ Read" : "✔ Unread"}
-      </Text>
-    </TouchableOpacity>
+    <View style={[styles.container, isSentByMe ? styles.alignRight : styles.alignLeft]}>
+      <View
+        style={[
+          styles.bubble,
+          isSystem
+            ? styles.systemBubble
+            : isSentByMe
+            ? styles.sentBubble
+            : styles.receivedBubble,
+        ]}
+      >
+        {!isSentByMe && !isSystem && (
+          <Text style={styles.sender}>
+            {message.sender.firstName} {message.sender.lastName}
+            {message.sender.role === "admin" ? " (Admin)" : ""}
+          </Text>
+        )}
+
+        <Text style={styles.content}>{message.content}</Text>
+
+        {isSentByMe && (
+          <Text style={styles.status}>
+            {message.isRead ? "✔✔ Read" : "✔ Sent"}
+          </Text>
+        )}
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    padding: 12,
-    borderRadius: 10,
+  container: {
     marginBottom: 12,
+    paddingHorizontal: 12,
   },
-  unread: {
-    backgroundColor: "#fef4e7",
+  alignRight: {
+    alignItems: "flex-end",
   },
-  read: {
-    backgroundColor: "#e7f4ef",
+  alignLeft: {
+    alignItems: "flex-start",
+  },
+  bubble: {
+    maxWidth: "80%",
+    borderRadius: 12,
+    padding: 10,
+  },
+  sentBubble: {
+    backgroundColor: "#DCF8C6",
+  },
+  receivedBubble: {
+    backgroundColor: "#f1f0f0",
+  },
+  systemBubble: {
+    backgroundColor: "#ffe4b5",
+    borderLeftWidth: 4,
+    borderLeftColor: "#e67e22",
   },
   sender: {
-    fontWeight: "600",
-    fontSize: 16,
+    fontWeight: "bold",
     marginBottom: 4,
-  },
-  systemSender: {
-    color: "#d35400",
+    color: "#555",
   },
   content: {
     fontSize: 14,
-    marginBottom: 6,
   },
   status: {
-    fontSize: 12,
+    fontSize: 10,
+    color: "#999",
+    marginTop: 6,
     textAlign: "right",
-    color: "#888",
   },
 });

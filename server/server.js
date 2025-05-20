@@ -71,6 +71,10 @@ app.use("/api/posts", postRoutes);
 const messageRoutes = require("./src/routes/messageRoute");
 app.use("/api/messages", messageRoutes);
 
+// For different type of notify to user.
+const notificationRoute = require("./src/routes/notificationRoute");
+app.use("/api/notifications", notificationRoute);
+
 
 
 // MongoDB connection
