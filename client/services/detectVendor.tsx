@@ -63,3 +63,4 @@ const ouiVendors: Record<string, string> = {
     return vendor ? normalizeVendor(vendor) : null;
   }
   
+  

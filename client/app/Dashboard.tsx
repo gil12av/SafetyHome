@@ -77,7 +77,7 @@ export default function Dashboard() {
       { icon: "devices", label: "Devices", route: "/DevicesScreen" },
       { icon: "bell", label: "Notifications", route: "/NotificationsScreen" },
       { icon: "chat", label: "chat", route: "/NewMessageScreen" },
-      { icon: "bot", label: "Bot", route: "/TalkWithBot" },
+      { icon: "wechat", label: "Bot", route: "/TalkWithBot" },
       { icon: "account", label: "Profile", route: "/Profile" },
       ...(isAdmin ? [{ icon: "shield-account", label: "Admin", route: "/AdminScreen" }] : []),
     ].map((item, index) => (

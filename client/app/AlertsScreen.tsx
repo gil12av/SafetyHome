@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, ScrollView, StyleSheet, Linking, TouchableOpacity, Animated, Easing, ActivityIndicator } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Linking, TouchableOpacity, Animated, Easing, ActivityIndicator, Alert } from "react-native";
 import AppScreen from "@/components/AppScreen";
 import { fetchScanHistory, fetchCVEsForDevice, saveSecurityAlerts } from "../services/api";
 import { detectVendor } from "../services/detectVendor";
+import * as Clipboard from 'expo-clipboard' ;
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface CVE {
   id: string;
@@ -123,12 +125,16 @@ export default function AlertsScreen() {
     console.log("📦 Vendor Selected:", vendor);
 
     try {
+      setLoadingMessage(`🔍 Fetching vulnerabilities for ${vendor}...`);
+      setLoading(true);
       const cves = await fetchCVEsForDevice(vendor);
       const sortedCVEs = cves.sort((a: CVE, b: CVE) => {
         const order: { [key: string]: number } = { critical: 1, high: 2, medium: 3, low: 4 };
         return (order[a.severity.toLowerCase()] || 5) - (order[b.severity.toLowerCase()] || 5);
       }).slice(0, 3);
       setGeneralCVEs(sortedCVEs);
+      setLoading(false);
+        setLoadingMessage("✔️ Results loaded.");
     } catch (error) {
       console.error("Error fetching general CVEs:", error);
     }
@@ -173,8 +179,8 @@ export default function AlertsScreen() {
         {/* פתיח קבוע לכל משתמש */}
         {!loading && (
           <View style={styles.successBox}>
-            <Text style={styles.successText}>👋 Welcome to the Vulnerability Check Screen </Text>
-            <Text style={styles.subText}>We will check if your smart home devices are exposed to known vulnerabilities.</Text>
+            <Text style={styles.title}>🔐 Network Security Alerts</Text>
+            <Text style={styles.description}>Below are your device vulnerabilities and suggested fixes. Review each item carefully.</Text>
             <Text style={styles.subText}>If vulnerabilities are found, we will show a summary and recommended action.</Text>
             <Text style={styles.subText}>If everything is secure, you'll see a confirmation message.🔒</Text>
           </View>
@@ -195,9 +201,27 @@ export default function AlertsScreen() {
                 <Text style={styles.vendorLabel}>🔍 vendor: {alert.vendor}</Text>
                 {alert.cves.map((cve, i) => (
                   <View key={i} style={[styles.cveBox, { borderLeftColor: getSeverityColor(cve.severity) }]}>
-                    <Text style={styles.cveTitle}>{cve.id} ({cve.severity})</Text>
+                    <View style={styles.cveHeader}>
+                    <View style={styles.cveHeader}>
+                    <Text style={styles.cveTitle}>{cve.id}</Text>
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+                      <TouchableOpacity
+                        onPress={() => {
+                        Clipboard.setStringAsync(cve.id);
+                        Alert.alert("Copied", `${cve.id} copied to clipboard`);
+                        }}
+                         >
+                      <MaterialCommunityIcons name="content-copy" size={18} color="#007bff" />
+                      </TouchableOpacity>
+                    <Text style={[styles.severityBadge, { backgroundColor: getSeverityColor(cve.severity) }]}>
+                      {cve.severity.toUpperCase()}
+                    </Text>
+                    </View>
+                  </View>
+                  </View>
                     <Text style={styles.cveDesc}>{cve.description}</Text>
-                    <Text style={styles.suggestionText}>💡 Our advice: {getSuggestion(cve.description)}</Text>
+                    <Text style={styles.suggestionText}>💡 {getSuggestion(cve.description)}</Text>
+
                   </View>
                 ))}
               </View>
@@ -226,6 +250,7 @@ export default function AlertsScreen() {
                     activeOpacity={0.8}
                   >
                     <Text style={styles.primaryButtonText}>Yes, show me</Text>
+                    {loading && <ActivityIndicator size="small" color="#007bff" style={{ marginLeft: 10 }} />}
                   </TouchableOpacity>
                 </Animated.View>
                 <TouchableOpacity onPress={() => console.log("🙅‍♂️ המשתמש ויתר על הצגה כללית")} style={styles.secondaryButton} activeOpacity={0.8}>
@@ -253,7 +278,17 @@ export default function AlertsScreen() {
                 <Text style={styles.generalCVEsTitle}>⚡ CVE's for: {selectedVendor}</Text>
                 {generalCVEs.map((cve, idx) => (
                   <View key={idx} style={[styles.cveBox, { borderLeftColor: getSeverityColor(cve.severity) }]}>
+                    <View style={styles.cveHeader}>
                     <Text style={styles.cveTitle}>{cve.id} ({cve.severity})</Text>
+                      <TouchableOpacity
+                        onPress={() => {
+                          Clipboard.setStringAsync(cve.id);
+                          Alert.alert("Copied", `${cve.id} copied to clipboard`);
+                          }}
+                          >
+                        <MaterialCommunityIcons name="content-copy" size={20} color="#007bff" />
+                      </TouchableOpacity>
+                    </View>
                     <Text style={styles.cveDesc}>{cve.description}</Text>
                     <Text style={styles.suggestionText}>💡 {getSuggestion(cve.description)}</Text>
                   </View>
@@ -262,8 +297,8 @@ export default function AlertsScreen() {
             )}
 
             {/* טקסט סיום */}
-            <Text style={[styles.subText, { marginTop: 20, textAlign: 'center' }]}>
-            ✅ We have finished scanning. It is recommended to address the vulnerabilities discovered to maintain a secure network.
+            <Text style={styles.finalNote}>
+              ✅ Scan complete. Follow the suggested actions above to improve your smart home security.
             </Text>
           </>
         )}
@@ -277,6 +312,35 @@ const styles = StyleSheet.create({
   loadingContainer: { alignItems: "center", justifyContent: "center", marginTop: 40 },
   loadingMessage: { marginTop: 15, fontSize: 16, color: "#555", textAlign: "center" },
 
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 5
+  },
+  description: {
+    fontSize: 15,
+    color: "#555",
+    textAlign: "center"
+  },
+  
+  cveHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  severityBadge: {
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 12,
+    overflow: "hidden"
+  },
+  
   successBox: {
     backgroundColor: "#d4edda",
     padding: 15,
@@ -379,13 +443,24 @@ const styles = StyleSheet.create({
   },
   cveDesc: {
     fontSize: 13,
-    marginBottom: 5
+    marginBottom: 5,
+    color: "#444",
+    lineHeight: 18,
   },
+  
   suggestionText: {
     fontSize: 13,
     color: "#333",
     fontStyle: "italic",
-    marginBottom: 5
-  }
-});
+    marginBottom: 10,
+  },
 
+  finalNote: {
+    fontSize: 14,
+    color: "#155724",
+    textAlign: "center",
+    marginTop: 30,
+    paddingHorizontal: 10,
+  }
+  
+});
