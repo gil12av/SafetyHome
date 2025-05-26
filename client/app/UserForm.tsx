@@ -245,7 +245,7 @@ const styles = StyleSheet.create({
   socialButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#de5246",
+    backgroundColor: "grey",
     padding: 12,
     borderRadius: 10,
     width: "90%",

@@ -10,13 +10,15 @@ import {
 import { useRouter } from 'expo-router';
 import { colors, spacing } from '@/styles/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import Animated, { FadeIn } from 'react-native-reanimated';
 
 interface AppScreenProps {
   title?: string;
   children: React.ReactNode;
   showBackButton?: boolean;
-  leftIcon?: React.ReactNode; 
-  rightIcon?: React.ReactNode; 
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
 }
 
 const AppScreen: React.FC<AppScreenProps> = ({
@@ -30,8 +32,15 @@ const AppScreen: React.FC<AppScreenProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      
       <View style={styles.header}>
+        <LinearGradient
+          colors={['#2c3e50', '#34495e']}
+          style={StyleSheet.absoluteFill}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        />
         {leftIcon ? (
           <View style={styles.backButton}>{leftIcon}</View>
         ) : showBackButton ? (
@@ -41,24 +50,26 @@ const AppScreen: React.FC<AppScreenProps> = ({
         ) : (
           <View style={styles.backPlaceholder} />
         )}
-  
+
         <Text style={styles.title}>{title || 'Screen'}</Text>
-  
+
         {rightIcon ? (
           <View style={styles.backButton}>{rightIcon}</View>
         ) : (
           <View style={styles.backPlaceholder} />
         )}
       </View>
-  
-      <View style={styles.content}>{children}</View>
-  
+
+      <Animated.View entering={FadeIn} style={styles.content}>
+        {children}
+      </Animated.View>
+
       <View style={styles.footer}>
         <Text style={styles.footerText}>© 2025 SafetyHome</Text>
       </View>
     </SafeAreaView>
   );
-};  
+};
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -69,14 +80,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: colors.header,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    overflow: 'hidden',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     color: colors.textLight,
-    fontWeight: '600',
+    fontWeight: '700',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   backButton: {
     padding: spacing.sm,
