@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { getNotifications } from "@/services/api"; // לוודא שיש
+import { getNotifications } from "@/services/api.jsx";
 
 
 export default function NotificationBell() {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, TextInput, Button, StyleSheet, Image, TouchableOpacity } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { createPost } from "@/services/api";
+import { createPost } from "@/services/api.jsx";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 export default function PostInput({ onPostCreated }: { onPostCreated: () => void }) {

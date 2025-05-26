@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, ScrollView, StyleSheet, Linking, TouchableOpacity, Animated, Easing, ActivityIndicator, Alert } from "react-native";
 import AppScreen from "@/components/AppScreen";
-import { fetchScanHistory, fetchCVEsForDevice, saveSecurityAlerts } from "../services/api";
+import { fetchScanHistory, fetchCVEsForDevice, saveSecurityAlerts } from "@/services/api.jsx";
 import { detectVendor } from "../services/detectVendor";
 import * as Clipboard from 'expo-clipboard' ;
 import { MaterialCommunityIcons } from '@expo/vector-icons';

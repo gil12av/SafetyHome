@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from "react-native";
-import { getConversation, sendMessage } from "@/services/api";
+import { getConversation, sendMessage } from "@/services/api.jsx";
 import AppScreen from "@/components/AppScreen";
 import { useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/context/AuthContext";

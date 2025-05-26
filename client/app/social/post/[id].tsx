@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, ActivityIndicator, StyleSheet, Alert } from "react-native";
 import AppScreen from "@/components/AppScreen";
 import { useLocalSearchParams } from "expo-router";
-import { getPostById } from "@/services/api";
+import { getPostById } from "@/services/api.jsx";
 import PostCard from "@/components/ui/social/Post_card";
 
 export default function PostDetailsScreen() {

@@ -14,7 +14,7 @@ import {
 import { useRouter } from "expo-router";
 import { AuthContext } from "../context/AuthContext";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import { API_URL } from "@/services/api";
+import { API_URL } from "@/services/api.jsx";
 import axios from "axios";
 import AppScreen from "@/components/AppScreen";
 import { colors } from "@/styles/theme";
@@ -23,6 +23,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 export default function UserForm() {
   const router = useRouter();
   const authContext = useContext(AuthContext);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -90,7 +91,7 @@ export default function UserForm() {
       );
 
       if (!response.data || response.status >= 400) {
-        throw new Error(response.data?.error || "Failed to process request.");
+        throw new Error((response.data as any)?.error || "Failed to process request.");
       }
 
       Alert.alert("Success", isRegister ? "Registration successful!" : "Login successful!");

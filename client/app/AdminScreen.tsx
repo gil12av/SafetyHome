@@ -270,7 +270,7 @@ import {
   updateUserRole,
   deleteUser,
   fetchScanHistory,
-} from "@/services/api";
+} from "@/services/api.jsx";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AppScreen from "@/components/AppScreen";
 import { colors } from "@/styles/theme";

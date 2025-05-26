@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { getAllPosts } from "@/services/api";
+import { getAllPosts } from "@/services/api.jsx";
 import PostCard from "./Post_card";
 import PostInput from "./Post_input";
 import { Post } from "../../../constants/types"

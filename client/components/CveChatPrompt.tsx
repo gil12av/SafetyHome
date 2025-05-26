@@ -9,8 +9,9 @@ import {
   ActivityIndicator,
   Animated,
 } from 'react-native';
-import { askCveGpt, getCveGptHistory } from '@/services/api';
+import { askCveGpt, getCveGptHistory } from '@/services/api.jsx';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 
 type GptMessage = {
     _id: string;

@@ -18,7 +18,7 @@ import {
   deleteDevice,
   updateDevice,
   createDevice,
-} from "../services/api";
+} from "@/services/api.jsx";
 
 const { width } = Dimensions.get("window");
 

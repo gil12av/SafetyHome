@@ -9,7 +9,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useAuth } from "@/context/AuthContext";
-import { askGpt, getGptHistory } from "@/services/api";
+import { askGpt, getGptHistory } from "@/services/api.jsx";
 import AppScreen from "@/components/AppScreen";
 
 interface GptMessage {

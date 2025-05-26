@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from "react-native";
-import { fetchArticles } from "@/services/api";
+import { fetchArticles } from "@/services/api.jsx";
 import { colors, spacing } from "@/styles/theme";
 import * as WebBrowser from "expo-web-browser";
 

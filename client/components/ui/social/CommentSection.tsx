@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, FlatList, StyleSheet } from "react-native";
-import { createComment } from "@/services/api";
+import { createComment } from "@/services/api.jsx";
 
 type Comment = {
   _id?: string;

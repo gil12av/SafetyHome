@@ -1,4 +1,4 @@
-import { API_URL } from "@/services/api";
+import { API_URL } from "@/services/api.jsx";
 import React, { createContext, useState, useContext, useEffect, ReactNode } from "react";
 
 interface UserType {

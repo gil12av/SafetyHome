@@ -9,7 +9,7 @@ import {
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
-import { getAllUsers, getMessages } from "@/services/api";
+import { getAllUsers, getMessages } from "@/services/api.jsx";
 import AppScreen from "@/components/AppScreen";
 
 type User = {

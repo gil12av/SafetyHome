@@ -16,7 +16,7 @@ import Scan from "../components/Scan";
 import AppScreen from "@/components/AppScreen";
 import { colors } from "@/styles/theme";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { scheduleScan, fetchScheduledScan } from "../services/api";
+import { scheduleScan, fetchScheduledScan } from "@/services/api.jsx";
 
 const { width } = Dimensions.get("window");
 

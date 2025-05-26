@@ -14,7 +14,7 @@ import {
   toggleLike,
   deletePost,
   updatePost,
-} from "@/services/api";
+} from "@/services/api.jsx";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import Swipeable from "react-native-gesture-handler/Swipeable";
 import { RectButton, GestureHandlerRootView } from "react-native-gesture-handler";

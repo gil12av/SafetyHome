@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native";
-import { getNotifications, markNotificationAsRead } from "@/services/api";
+import { getNotifications, markNotificationAsRead } from "@/services/api.jsx";
 import { useRouter } from "expo-router";
 import AppScreen from "@/components/AppScreen";
 
