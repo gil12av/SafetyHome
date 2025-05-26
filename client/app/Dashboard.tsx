@@ -54,7 +54,7 @@ export default function Dashboard() {
 
   const handleLogout = async () => {
     await logout();
-    router.replace("/UserForm");
+    router.replace("/HomeScreen");
   };
 
   return (

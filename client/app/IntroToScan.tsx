@@ -13,7 +13,7 @@ const IntroToSecurityScreen = () => {
   };
 
   return (
-  <AppScreen title="Why Scanning Matters" showBackButton>
+  <AppScreen title="Why Scanning Matters" showBackButton showBottomNav={false}>
   <ScrollView contentContainerStyle={styles.container}>
     <LottieView
       source={require("../assets/animations/IntroToScan.json")}

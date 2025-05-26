@@ -20,8 +20,8 @@ const { width } = Dimensions.get("window");
 
 export default function Profile() {
   const router = useRouter();
-  const [name, setName] = useState("Yossi Cohen");
-  const [email, setEmail] = useState("Yossi@gmail.com");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
 
   const handleSave = () => {
@@ -31,7 +31,7 @@ export default function Profile() {
   const handleLogout = () => {
     Alert.alert("Logout", "Are you sure you want to logout?", [
       { text: "Cancel", style: "cancel" },
-      { text: "Logout", onPress: () => router.replace("/UserForm") },
+      { text: "Logout", onPress: () => router.replace("/HomeScreen") },
     ]);
   };
 

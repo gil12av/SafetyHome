@@ -108,10 +108,29 @@ export default function UserForm() {
   };
 
   return (
-    <AppScreen title={isRegister ? "Register" : "Login"} showBackButton>
+    <AppScreen title={isRegister ? "Register" : "Login"} showBackButton showBottomNav={false}>
       <ScrollView contentContainerStyle={styles.innerContainer}>
         <Image source={require("../assets/images/main_logo.png")} style={styles.logo} />
+
         <Text style={styles.title}>{isRegister ? "Create Account" : "Welcome Back!"}</Text>
+
+        <View style={styles.switchTab}>
+              <TouchableOpacity onPress={() => setIsRegister(false)} style={[styles.tab, !isRegister && styles.activeTab]}>
+                <Text style={[styles.tabText, !isRegister && styles.activeText]}>Login</Text>
+              </TouchableOpacity>
+            
+            <TouchableOpacity onPress={() => setIsRegister(true)} style={[styles.tab, isRegister && styles.activeTab]}>
+              <Text style={[styles.tabText, isRegister && styles.activeText]}>Register</Text>
+            </TouchableOpacity>
+          </View>
+
+        
+          <Text style={styles.subtitle}>
+            {isRegister
+              ? "Join SafetyHome and start protecting your smart home today."
+              : "Log in to manage your home’s security from anywhere."}
+          </Text>
+
 
         {loading ? (
           <ActivityIndicator size="large" color="#007BFF" />
@@ -119,10 +138,17 @@ export default function UserForm() {
           <>
             {isRegister && (
               <>
+                <View style={styles.benefitsBox}>
+                  <Text style={styles.benefitItem}>✔ Scan your smart home in seconds</Text>
+                  <Text style={styles.benefitItem}>✔ Get notified about security risks</Text>
+                  <Text style={styles.benefitItem}>✔ Receive smart recommendations</Text>
+                </View>
+
                 <InputField icon="person" placeholder="First Name" value={formData.firstName} onChangeText={(v: string) => handleInputChange("firstName", v)} />
                 <InputField icon="person" placeholder="Last Name" value={formData.lastName} onChangeText={(v: string) => handleInputChange("lastName", v)} />
                 <InputField icon="phone" placeholder="Phone" value={formData.phone} onChangeText={(v: string) => handleInputChange("phone", v)} keyboardType="phone-pad" />
                 <InputField icon="location-on" placeholder="Country" value={formData.country} onChangeText={(v: string) => handleInputChange("country", v)} />
+                
               </>
             )}
 
@@ -151,17 +177,23 @@ export default function UserForm() {
               <Text style={styles.buttonText}>{isRegister ? "Register" : "Login"}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => setIsRegister(!isRegister)}>
-              <Text style={styles.switchText}>
-                {isRegister ? "Already have an account? Sign In" : "Don't have an account? Register"}
-              </Text>
-            </TouchableOpacity>
 
             <Text style={styles.dividerText}>or</Text>
 
-            <TouchableOpacity style={styles.socialButton}>
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => router.push("./AppleGoogle")}
+              >
               <MaterialCommunityIcons name="google" size={20} color="#fff" />
               <Text style={styles.socialButtonText}>Continue with Google</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.socialButton}
+              onPress={() => router.push("./AppleGoogle")}
+              >
+              <MaterialCommunityIcons name="apple" size={20} color="#fff" />
+              <Text style={styles.socialButtonText}>Continue with Apple</Text>
             </TouchableOpacity>
           </>
         )}
@@ -250,10 +282,63 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     width: "90%",
     justifyContent: "center",
+    marginBottom: 10,
   },
   socialButtonText: {
     color: "#fff",
     fontSize: 16,
     marginLeft: 10,
   },
+  switchTab: {
+    flexDirection: "row",
+    backgroundColor: "#eee",
+    borderRadius: 10,
+    marginBottom: 15,
+    overflow: "hidden",
+    width: "90%",
+  },
+
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
+
+  activeTab: {
+    backgroundColor: "#4A90E2",
+  },
+
+  tabText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#666",
+  },
+
+  activeText: {
+    color: "#fff",
+  },
+
+  subtitle: {
+    fontSize: 14,
+    color: "#777",
+    marginBottom: 20,
+    textAlign: "center",
+    paddingHorizontal: 20,
+  },
+  
+  benefitsBox: {
+    width: "90%",
+    backgroundColor: "#F3F8FC",
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  benefitItem: {
+    fontSize: 13,
+    color: "#333",
+    marginBottom: 6,
+  },
+  
+  
 });

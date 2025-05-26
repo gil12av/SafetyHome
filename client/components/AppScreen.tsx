@@ -12,6 +12,10 @@ import { colors, spacing } from '@/styles/theme';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import CustomBottomNavBar from './CustomBottomNavBar';
+import { useAuth } from '../context/AuthContext'; 
+
+
 
 interface AppScreenProps {
   title?: string;
@@ -19,6 +23,7 @@ interface AppScreenProps {
   showBackButton?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
+  showBottomNav?: boolean; 
 }
 
 const AppScreen: React.FC<AppScreenProps> = ({
@@ -26,9 +31,11 @@ const AppScreen: React.FC<AppScreenProps> = ({
   children,
   showBackButton = false,
   leftIcon,
-  rightIcon,
+  rightIcon, 
+  showBottomNav = true,
 }) => {
   const router = useRouter();
+  const { user } = useAuth();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -64,9 +71,14 @@ const AppScreen: React.FC<AppScreenProps> = ({
         {children}
       </Animated.View>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2025 SafetyHome</Text>
-      </View>
+      {user && showBottomNav && <CustomBottomNavBar />}
+      
+      {!user && (
+        <View style={{ alignItems: 'center', padding: 10 }}>
+          <Text style={{ color: '#aaa', fontSize: 12 }}>Login to access full navigation</Text>
+        </View>
+      )}
+
     </SafeAreaView>
   );
 };

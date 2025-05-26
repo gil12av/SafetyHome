@@ -9,6 +9,7 @@ import AnimatedMessage from "@/components/AnimatedMessage";
 import AppScreen from "@/components/AppScreen";
 import { colors } from "@/styles/theme";
 
+
 const { width } = Dimensions.get("window");
 type IconName = keyof typeof MaterialCommunityIcons.glyphMap;
 
@@ -66,7 +67,8 @@ export default function HomeScreen() {
   const router = useRouter();
 
   return (
-    <AppScreen>
+    
+    <AppScreen showBottomNav={false}>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <Image
           source={require("../assets/images/smart_home_logo_vibrant.png")}

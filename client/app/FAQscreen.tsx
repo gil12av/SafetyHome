@@ -81,7 +81,7 @@ const FAQScreen = () => {
   };
 
   return (
-    <AppScreen title="FAQ" showBackButton>
+    <AppScreen title="FAQ" showBackButton showBottomNav={false}>
       <View style={styles.container}>
         <View style={styles.headerBox}>
           <Icon name="comment-question-outline" size={36} color={colors.primary} />
