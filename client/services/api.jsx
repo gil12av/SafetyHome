@@ -492,3 +492,32 @@ export const getGptHistory = async () => {
     throw err;
   }
 };
+
+// function For askGPT and fetchMessage from alertScreen!
+export const askCveGpt = async ({ prompt, cveCode }) => {
+  try {
+    console.log("📤 Asking GPT (CVE):", prompt);
+    const res = await axiosInstance.post("/gpt/ask", {
+      prompt,
+      source: "cve_chat",
+      cveCode,
+      component: "AlertsScreen",
+    });
+    return res.data;
+  } catch (err) {
+    console.error("❌ GPT Error (CVE):", err.response?.data || err.message);
+    throw err;
+  }
+};
+
+export const getCveGptHistory = async () => {
+  try {
+    const res = await axiosInstance.get("/gpt/history", {
+      params: { source: "cve_chat" },
+    });
+    return res.data;
+  } catch (err) {
+    console.error("❌ Failed to load CVE GPT history:", err.response?.data || err.message);
+    return [];
+  }
+};

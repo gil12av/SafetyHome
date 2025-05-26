@@ -144,7 +144,7 @@ router.post("/:id/like", async (req, res) => {
     }
   });
   
-  
+
   // ✅ שליפת פוסט לפי ID עבור הודעות לייק/תגובה
 router.get("/:id", async (req, res) => {
     const user = req.session.user;
@@ -169,5 +169,32 @@ router.get("/:id", async (req, res) => {
     }
   });
 
-  
+ 
+ // ADDITIONAL TO EDIT AND DELETE POST :
+
+// מחיקת פוסט
+router.delete('/:id', async (req, res) => {
+  try {
+    const deleted = await Post.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Post not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// עדכון פוסט
+router.put('/:id', async (req, res) => {
+  try {
+    const updated = await Post.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!updated) return res.status(404).json({ error: 'Post not found' });
+    res.json(updated);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+module.exports = router;
+
+
 module.exports = router;

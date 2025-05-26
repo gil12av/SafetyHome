@@ -5,6 +5,8 @@ import { fetchScanHistory, fetchCVEsForDevice, saveSecurityAlerts } from "../ser
 import { detectVendor } from "../services/detectVendor";
 import * as Clipboard from 'expo-clipboard' ;
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import CveChatPrompt from "@/components/CveChatPrompt";
+
 
 interface CVE {
   id: string;
@@ -303,6 +305,7 @@ export default function AlertsScreen() {
           </>
         )}
       </ScrollView>
+      <CveChatPrompt />
     </AppScreen>
   );
 }

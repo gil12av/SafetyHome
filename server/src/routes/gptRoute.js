@@ -51,4 +51,18 @@ router.post("/ask", async (req, res) => {
   }
 });
 
+router.get("/history", async (req, res) => {
+    const { source } = req.query;
+    try {
+      const filter = { userId: req.session.user._id };
+      if (source) {
+        filter.source = source;
+      }
+      const messages = await GptMessage.find(filter).sort({ createdAt: 1 }).limit(20);
+      res.json(messages);
+    } catch (err) {
+      console.error("❌ GPT History Fetch Error:", err);
+      res.status(500).json({ error: "Failed to fetch GPT messages" });
+    }
+  });
 module.exports = router;
