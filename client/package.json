@@ -67,6 +67,7 @@
     "react-native-snap-carousel": "^3.9.1",
     "react-native-svg": "15.8.0",
     "react-native-swipe-list-view": "^3.2.9",
+    "react-native-toast-message": "^2.3.0",
     "react-native-tooltip": "^5.2.0",
     "react-native-vector-icons": "^10.2.0",
     "react-native-web": "^0.19.13",
