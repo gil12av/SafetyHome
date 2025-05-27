@@ -43,7 +43,7 @@ const AppScreen: React.FC<AppScreenProps> = ({
       
       <View style={styles.header}>
         <LinearGradient
-          colors={['#2c3e50', '#34495e']}
+          colors={['#bdc3c7', '#434343']}
           style={StyleSheet.absoluteFill}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
@@ -72,7 +72,7 @@ const AppScreen: React.FC<AppScreenProps> = ({
       </Animated.View>
 
       {user && showBottomNav && <CustomBottomNavBar />}
-      
+
       {!user && (
         <View style={{ alignItems: 'center', padding: 10 }}>
           <Text style={{ color: '#aaa', fontSize: 12 }}>Login to access full navigation</Text>
