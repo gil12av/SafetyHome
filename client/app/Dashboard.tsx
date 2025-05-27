@@ -13,10 +13,10 @@ import { useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors, spacing } from "@/styles/theme";
 import AppScreen from "@/components/AppScreen";
-import CyberFeedWidget from "@/components/ui/CyberFeedWidget";
 import { useAuth } from "@/context/AuthContext";
 import CommunityFeed from "../components/ui/social/CommunityFeed";
 import NotificationBell from "@/components/ui/social/NotificationBell";
+import CyberFeedList from "@/components/ui/CyberFeedList";
 
 
 
@@ -87,8 +87,8 @@ export default function Dashboard() {
         style={[
           styles.drawerItem,
           {
-            backgroundColor: index % 2 === 0 ? "#1f2a40" : "#23304e",
-            borderColor: index % 2 === 0 ? "#4A90E2" : "#00bcd4",
+            backgroundColor: index % 2 === 0 ? "#768089" : "#636d78",
+            borderColor: "#black",
           },
         ]}
       >
@@ -136,7 +136,7 @@ export default function Dashboard() {
         </View>
       )}
 
-      <CyberFeedWidget />
+      <CyberFeedList limit={5} showHeader />
       <CommunityFeed />
     </>
   }
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   },
 
   greetingBox: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#ebedee",
     borderRadius: 8,
     padding: spacing.md,
     marginBottom: spacing.lg,
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 26,
     fontWeight: "600",
-    color: colors.header,
+    color: "#2c3e50",
   },
 
   menuIcon: {
@@ -175,9 +175,10 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: width * 0.7,
-    backgroundColor: colors.menuBackground,
+    backgroundColor: "#868f96",
     paddingTop: 80,
     paddingHorizontal: 20,
+    paddingBottom: 60,
     zIndex: 15,
     justifyContent: "space-between", // מיקומים עליונים + תחתונים
   },
@@ -187,7 +188,7 @@ const styles = StyleSheet.create({
   },
 
   drawerTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "700",
     color: colors.textLight,
     marginBottom: 20,
@@ -200,6 +201,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 12,
     borderWidth: 2,
+    
   },
 
   drawerItemText: {
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
   logoutSection: {
     paddingVertical: spacing.md,
     borderTopWidth: 1,
-    borderColor: "#444", 
+    borderColor: "black", 
   },
   logoutButton: {
     flexDirection: "row",
@@ -219,7 +221,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     paddingHorizontal: 12,
     borderRadius: 10,
-    backgroundColor: "#fff0f0",
+    backgroundColor: "#343a40",
   },
   logoutText: {
     color: "#e74c3c",
@@ -238,7 +240,7 @@ const styles = StyleSheet.create({
   },
 
   surveyBanner: {
-    backgroundColor: "#e7f7ec",
+    backgroundColor: "#ebedee",
     borderRadius: 10,
     padding: spacing.md,
     marginBottom: spacing.lg,
