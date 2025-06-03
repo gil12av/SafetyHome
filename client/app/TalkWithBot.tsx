@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   chatContainer: {
-    paddingBottom: 10,
+    paddingBottom: 100,
   },
   bubble: {
     marginVertical: 6,
@@ -146,12 +146,21 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderTopWidth: 1,
-    borderColor: "#ccc",
+    position: 'absolute',
+    bottom: 90, // ⬅️ היה מוסתר – עכשיו יושב בדיוק מעל ה־navbar
+    left: 10,
+    right: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 6,
   },
   input: {
     flex: 1,

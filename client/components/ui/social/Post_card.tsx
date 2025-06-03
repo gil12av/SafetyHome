@@ -22,6 +22,22 @@ import CommentSection from "./CommentSection";
 import { useAuth } from "@/context/AuthContext";
 import Animated, { useSharedValue, withSpring, useAnimatedStyle } from "react-native-reanimated";
 
+type User = {
+  _id: string;
+  firstName?: string;
+  lastName?: string;
+};
+
+type Post = {
+  _id: string;
+  content: string;
+  imageUrl?: string;
+  link?: string;
+  userId: User;
+  likes: string[];
+  comments: any[];
+  createdAt: string;
+};
 
 type Props = {
   post: any;
@@ -109,14 +125,15 @@ export default function PostCard({ post, onLikeUpdated, onPostUpdated }: Props) 
           <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 6 }}>
             <View style={styles.avatar}>
               <Text style={styles.avatarText}>
-                {post.userId.firstName.charAt(0)}
-                {post.userId.lastName.charAt(0)}
+                {post.userId?.firstName?.charAt(0) ?? "?"}
+                {post.userId?.lastName?.charAt(0) ?? ""}
               </Text>
             </View>
             <View style={{ marginLeft: 10 }}>
-              <Text style={styles.name}>
-                {post.userId.firstName} {post.userId.lastName}
-              </Text>
+             <Text style={styles.name}>
+              {post.userId?.firstName ?? "Unknown"} {post.userId?.lastName ?? ""}
+            </Text>
+
               <Text style={styles.time}>{timeAgo}</Text>
             </View>
           </View>

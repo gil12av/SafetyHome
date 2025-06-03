@@ -175,7 +175,7 @@ export default function AlertsScreen() {
 
 
   return (
-    <AppScreen title="Security Alerts" showBackButton>
+    <AppScreen title="Security Alerts" showBackButton floatingComponent={<CveChatPrompt />}>
       <ScrollView contentContainerStyle={styles.container}>
 
         {/* פתיח קבוע לכל משתמש */}
@@ -305,13 +305,13 @@ export default function AlertsScreen() {
           </>
         )}
       </ScrollView>
-      <CveChatPrompt />
+      
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, gap: 20 },
+  container: { padding: 20, paddingBottom: 100, gap: 20 },
   loadingContainer: { alignItems: "center", justifyContent: "center", marginTop: 40 },
   loadingMessage: { marginTop: 15, fontSize: 16, color: "#555", textAlign: "center" },
 

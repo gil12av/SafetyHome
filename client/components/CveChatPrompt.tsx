@@ -91,16 +91,17 @@ export default function CveChatPrompt() {
       {!expanded ? (
         <TouchableOpacity onPress={() => setExpanded(true)} style={styles.openButton}>
           <MaterialCommunityIcons name="chat-question" size={20} color="#007bff" />
-          <Text style={styles.openText}> Ask chat about a specific CVE</Text>
+          <Text style={styles.openText}> 🔍 Need help? Tap to analyze CVE  </Text>
         </TouchableOpacity>
       ) : (
         <View style={{ flex: 1 }}>
-          <View style={styles.headerRow}>
-            <Text style={styles.header}>💬 CVE Chat Assistant</Text>
-            <TouchableOpacity onPress={() => setExpanded(false)}>
-              <MaterialCommunityIcons name="close" size={22} color="#555" />
-            </TouchableOpacity>
+          <View style={[styles.headerRow, { backgroundColor: '#007bff', borderRadius: 10, padding: 10 }]}>
+            <Text style={[styles.header, { color: '#fff' }]}>💬 CVE Chat Assistant</Text>
+              <TouchableOpacity onPress={() => setExpanded(false)}>
+                <MaterialCommunityIcons name="close" size={22} color="#fff" />
+              </TouchableOpacity>
           </View>
+
           <Text style={styles.subtext}>Paste a CVE ID (e.g. CVE-2023-XXXXX) to get actionable tips. Follow-up questions are supported.</Text>
 
           <FlatList
@@ -133,33 +134,53 @@ export default function CveChatPrompt() {
 const styles = StyleSheet.create({
   containerCollapsed: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#e6f7ff',
-    padding: 10,
-    borderRadius: 12,
-    elevation: 5,
+    bottom: 100,
+    left: 20,
+    backgroundColor: '#ffffff',
+    borderColor: '#007bff',
+    borderWidth: 1.5,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 8,
   },
   containerExpanded: {
     position: 'absolute',
-    bottom: 10,
+    bottom: 20,
     right: 10,
-    width: '90%',
-    height: '50%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 10,
-    elevation: 10,
+    left: 10, 
+    height: '65%',
+    backgroundColor: '#ffffff',
+    borderRadius: 18,
+    padding: 14,
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
   },
+  
   openButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    backgroundColor: '#007bff',
+    borderRadius: 30,
+    elevation: 8,
   },
   openText: {
-    color: '#007bff',
-    fontWeight: 'bold',
-    marginLeft: 6,
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14,
   },
+
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -167,11 +188,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   header: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   subtext: {
-    fontSize: 12,
+    fontSize: 15,
     color: '#555',
     marginBottom: 10,
   },
@@ -194,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#e2e2e2',
   },
   text: {
-    fontSize: 14,
+    fontSize: 15,
   },
   inputContainer: {
     flexDirection: 'row',

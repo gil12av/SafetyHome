@@ -5,12 +5,16 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { getAllUsers, getMessages } from "@/services/api.jsx";
 import AppScreen from "@/components/AppScreen";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
+
 
 type User = {
   _id: string;
@@ -90,7 +94,33 @@ export default function NewMessageScreen() {
 
   return (
     <AppScreen title="New Message" showBackButton>
-      <Text style={styles.header}>📨 Chat : </Text>
+    <View style={{ flex: 1, backgroundColor: "#f9f9f9", paddingHorizontal: 16, paddingTop: 10 }}>
+      
+      <Text style={styles.header}>💬 Start a New Conversation</Text>
+      <View style={{ zIndex: 2000 }}>
+        <DropDownPicker
+          open={open}
+          value={selectedUserId}
+          items={items}
+          setOpen={setOpen}
+          setValue={setSelectedUserId}
+          setItems={setItems}
+          placeholder="Choose user to send"
+          onChangeValue={(value) => {
+            if (typeof value === "string") {
+              Alert.alert("✅ Starting chat", "Redirecting to conversation...");
+              navigateToChat(value);
+            }
+          }}
+          dropDownDirection="AUTO"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+        />
+      </View>
+  
+      <Text style={styles.header}>📨 Existing Chats</Text>
+      <View style={{ height: 1, backgroundColor: "#ccc", marginBottom: 10 }} />
+  
       <FlatList
         data={conversations}
         keyExtractor={(item) => item.user._id}
@@ -99,31 +129,21 @@ export default function NewMessageScreen() {
             style={styles.card}
             onPress={() => navigateToChat(item.user._id)}
           >
-            <Text style={styles.name}>
-              {item.user.firstName} {item.user.lastName}
-            </Text>
-            <Text style={styles.preview}>{item.lastMessage}</Text>
+            <View>
+              <Text style={styles.name}>
+                {item.user.firstName} {item.user.lastName}
+              </Text>
+              <Text style={styles.preview}>{item.lastMessage}</Text>
+            </View>
+            <MaterialCommunityIcons name="chat-outline" size={22} color="#007bff" />
           </TouchableOpacity>
         )}
+        contentContainerStyle={{ paddingBottom: 140 }}
       />
-
-      <Text style={styles.header}>💬 Send New Message :</Text>
-      <DropDownPicker
-        open={open}
-        value={selectedUserId}
-        items={items}
-        setOpen={setOpen}
-        setValue={setSelectedUserId}
-        setItems={setItems}
-        placeholder="Choose user to send"
-        onChangeValue={(value) => {
-          if (typeof value === "string") {
-            navigateToChat(value);
-          }
-        }}
-        style={styles.dropdown}
-      />
-    </AppScreen>
+  
+    </View>
+  </AppScreen>
+  
   );
 }
 
@@ -134,20 +154,44 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   card: {
-    backgroundColor: "#f2f2f2",
-    padding: 12,
-    marginBottom: 10,
-    borderRadius: 8,
+    backgroundColor: "#fff",
+    padding: 16,
+    marginBottom: 12,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+    borderWidth: 1,
+    borderColor: "#ddd",
   },
   name: {
     fontWeight: "bold",
     fontSize: 16,
+    color: "#333",
   },
   preview: {
-    color: "#666",
-    marginTop: 4,
+    color: "#555",
+    fontStyle: "italic",
+    marginTop: 6,
   },
+
   dropdown: {
+    backgroundColor: "#fff",
+    borderColor: "#ccc",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+  },
+  
+  dropdownContainer: {
+    borderColor: "#ccc",
+    borderRadius: 10,
     zIndex: 1000,
   },
+  
 });

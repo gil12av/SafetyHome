@@ -24,6 +24,7 @@ interface AppScreenProps {
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
   showBottomNav?: boolean; 
+  floatingComponent?: React.ReactNode; 
 }
 
 const AppScreen: React.FC<AppScreenProps> = ({
@@ -33,6 +34,7 @@ const AppScreen: React.FC<AppScreenProps> = ({
   leftIcon,
   rightIcon, 
   showBottomNav = true,
+  floatingComponent,
 }) => {
   const router = useRouter();
   const { user } = useAuth();
@@ -78,8 +80,12 @@ const AppScreen: React.FC<AppScreenProps> = ({
           <Text style={{ color: '#aaa', fontSize: 12 }}>Login to access full navigation</Text>
         </View>
       )}
-
-    </SafeAreaView>
+      {floatingComponent && (
+        <View style={StyleSheet.absoluteFill}>
+      {floatingComponent}
+    </View>
+    )}
+ </SafeAreaView>
   );
 };
 
