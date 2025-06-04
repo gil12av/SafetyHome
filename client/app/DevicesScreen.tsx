@@ -235,7 +235,7 @@ export default function DevicesScreen() {
       <View style={{ marginBottom: 10 }}>
         <Text style={styles.inputLabel}>Device Name (required)</Text>
          <TextInput
-          style={[styles.input, errors.deviceName && { borderColor: "red" }]}
+          style={[styles.input, !!errors.deviceName && { borderColor: "red" }]}
           placeholder="e.g. Bedroom Light"
           value={form.deviceName}
           onChangeText={(t) => setForm({ ...form, deviceName: t })}
@@ -246,7 +246,7 @@ export default function DevicesScreen() {
       <View style={{ marginBottom: 10 }}>
         <Text style={styles.inputLabel}>IP Address (optional)</Text>
          <TextInput
-          style={[styles.input, errors.ipAddress && { borderColor: "red" }]}
+          style={[styles.input, !!errors.ipAddress && { borderColor: "red" }]}
           placeholder="e.g. 192.168.0.20"
           value={form.ipAddress}
           onChangeText={(t) => setForm({ ...form, ipAddress: t })}
@@ -256,7 +256,7 @@ export default function DevicesScreen() {
       <View style={{ marginBottom: 10 }}>
         <Text style={styles.inputLabel}>MAC Address (required)</Text>
          <TextInput
-          style={[styles.input, errors.macAddress && { borderColor: "red" }]}
+          style={[styles.input, !!errors.macAddress && { borderColor: "red" }]}
           placeholder="e.g. AA:BB:CC:DD:EE:FF"
           value={form.macAddress}
           onChangeText={(t) => setForm({ ...form, macAddress: t })}
@@ -267,7 +267,7 @@ export default function DevicesScreen() {
       <View style={{ marginBottom: 10 }}>
         <Text style={styles.inputLabel}>Vendor (required)</Text>
          <TextInput
-          style={[styles.input, errors.vendor && { borderColor: "red" }]}
+          style={[styles.input, !!errors.vendor && { borderColor: "red" }]}
           placeholder="e.g. TP-Link"
           value={form.vendor}
           onChangeText={(t) => setForm({ ...form, vendor: t })}
