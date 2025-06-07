@@ -25,6 +25,7 @@ interface AppScreenProps {
   rightIcon?: React.ReactNode;
   showBottomNav?: boolean; 
   floatingComponent?: React.ReactNode; 
+  onBack?: () => void;
 }
 
 const AppScreen: React.FC<AppScreenProps> = ({

@@ -19,7 +19,6 @@ import NotificationBell from "@/components/ui/social/NotificationBell";
 import CyberFeedList from "@/components/ui/CyberFeedList";
 
 
-
 const { width } = Dimensions.get("window");
 
 export default function Dashboard() {
@@ -79,6 +78,7 @@ export default function Dashboard() {
       { icon: "chat", label: "chat", route: "/NewMessageScreen" },
       { icon: "wechat", label: "Bot", route: "/TalkWithBot" },
       { icon: "account", label: "Profile", route: "/Profile" },
+      { icon: "shield-key", label: "Guidance", route: "/GuidanceScreen" },
       ...(isAdmin ? [{ icon: "shield-account", label: "Admin", route: "/AdminScreen" }] : []),
     ].map((item, index) => (
       <TouchableOpacity
