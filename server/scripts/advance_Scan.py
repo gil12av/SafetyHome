@@ -2,6 +2,7 @@ import nmap
 from mac_vendor_lookup import MacLookup
 import json
 import netifaces
+import sys
 
 def get_local_ip_range():
     try:
@@ -45,7 +46,10 @@ def scan_network(ip_range):
     devices = []
 
     try:
-        nm.scan(hosts=ip_range, arguments='-O -sS -sV -Pn')
+        nm.scan(hosts=ip_range, arguments='-sn -e en0 --unprivileged')
+        #print("🛠 DEBUG - RAW HOSTS:", file=sys.stderr)
+        #print(nm.all_hosts(), file=sys.stderr)
+    
     except Exception as e:
         return {"error": f"Failed to scan network: {str(e)}"}
 

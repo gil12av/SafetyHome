@@ -1,13 +1,14 @@
 import nmap
 from mac_vendor_lookup import MacLookup
 import json
+import sys
 
 def scan_network(ip_range):
     nm = nmap.PortScanner()
     devices = []
 
     try:
-        nm.scan(hosts=ip_range, arguments='-sn')
+        nm.scan(hosts=ip_range, arguments='-sn -e en0 --unprivileged')
     except Exception as e:
         return {"error": f"Failed to scan network: {str(e)}"}
 
@@ -31,11 +32,6 @@ def get_vendor(mac_address):
         return "Vendor Not Available"
 
 if __name__ == "__main__":
-    ip_range = "192.168.31.0/24"  # ניתן להחליף בכתובת דינמית
+    ip_range = "192.168.31.0/24"
     results = scan_network(ip_range)
-    
-    # במידה ואין תוצאה, הצגת הודעת שגיאה
-    if "error" in results:
-        print(json.dumps(results, indent=4))
-    else:
-        print(json.dumps(results, indent=4))
+    print(json.dumps(results))  # רק JSON נקי!

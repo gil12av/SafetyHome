@@ -127,6 +127,7 @@ const styles = StyleSheet.create({
   },
   chatContainer: {
     paddingBottom: 100,
+    bottom:30,
   },
   bubble: {
     marginVertical: 6,
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: 'absolute',
-    bottom: 90, // ⬅️ היה מוסתר – עכשיו יושב בדיוק מעל ה־navbar
+    bottom: 85, // ⬅️ היה מוסתר – עכשיו יושב בדיוק מעל ה־navbar
     left: 10,
     right: 10,
     flexDirection: 'row',
