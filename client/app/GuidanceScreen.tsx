@@ -5,25 +5,64 @@ import { WebView } from 'react-native-webview';
 import { Ionicons } from '@expo/vector-icons';
 
 const manufacturers = [
-  { name: 'Apple', icon: require('../assets/vendors/apple.png'), 
-    tips: 'Use strong passwords and enable two-factor authentication.',
-    video: 'https://www.apple.com/support/' },
-
-  { name: 'Xiaomi', icon: require('../assets/vendors/xiaomi.png'), 
-   tips: 'Change default passwords and update firmware.', 
-   video: 'https://www.mi.com/global/support/' },
-
-  { name: 'Sensibo', icon: require('../assets/vendors/sensibo.png'), 
-   tips: 'Check app settings regularly for updates.', 
-   video: 'https://sensibo.com/pages/support' },
-
-  { name: 'Aqara', icon: require('../assets/vendors/aqara.png'), 
-    tips: 'Reset the hub before updating.', 
-    video: 'https://www.aqara.com/us/support.html' },
-    
-  { name: 'Samsung', icon: require('../assets/vendors/samsung.png'), 
-   tips: 'Use Samsung SmartThings app for device security.', 
-   video: 'https://www.samsung.com/support/' },
+  {
+    name: 'Apple',
+    icon: require('../assets/vendors/apple.png'),
+    tips: [
+      'Use strong passwords and enable two-factor authentication for your Apple ID.',
+      'Avoid connecting to public Wi-Fi networks without VPN.',
+      'Keep your apps up to date via the App Store.',
+      'Do not download apps from unknown websites.'
+    ],
+    video: 'https://www.apple.com/support/',
+    supportLinkText: '  Visit Apple Support'
+  },
+  {
+    name: 'Xiaomi',
+    icon: require('../assets/vendors/xiaomi.png'),
+    tips: [
+      'Change all default passwords immediately after setup.',
+      'Update firmware regularly through the Mi Home app.',
+      'Disable remote access if you do not need it.',
+      'Review privacy settings frequently.'
+    ],
+    video: 'https://www.mi.com/global/support/',
+    supportLinkText: '  Visit Xiaomi Support'
+  },
+  {
+    name: 'Sensibo',
+    icon: require('../assets/vendors/sensibo.png'),
+    tips: [
+      'Check app settings regularly for updates.',
+      'Ensure your Wi-Fi password is strong.',
+      'Reboot the device after firmware updates.'
+    ],
+    video: 'https://support.sensibo.com',
+    supportLinkText: '  Visit Sensibo Support'
+  },
+  {
+    name: 'Aqara',
+    icon: require('../assets/vendors/aqara.png'),
+    tips: [
+      'Reset the hub before updating.',
+      'Use secure Wi-Fi connections only.',
+      'Change default login credentials.'
+    ],
+    video: 'https://www.aqara.com/us/support.html',
+    supportLinkText: '  Visit Aqara Support'
+  },
+  {
+    name: 'Samsung',
+    icon: require('../assets/vendors/samsung.png'),
+    tips: [
+      'Use the Samsung SmartThings app for device security.',
+      'Regularly update device firmware.',
+      'Enable notifications for security alerts.',
+      'Avoid sharing your account credentials.'
+    ],
+    video: 'https://www.samsung.com/support/',
+    supportLinkText: '  Visit Samsung Support'
+  },
 ];
 
 
@@ -89,10 +128,18 @@ const GuidanceScreen = () => {
           {selectedManufacturer && (
             <View style={styles.tipCard}>
               <Text style={styles.tipTitle}>{selectedManufacturer.name}</Text>
-              <Text style={styles.tipText}>{selectedManufacturer.tips}</Text>
+              {selectedManufacturer.tips.map((tip:any, index:any) => (
+               <View key={index} style={styles.tipItem}>
+               <Text style={styles.bullet}>•</Text>
+               <Text style={styles.tipText}>{tip}</Text>
+            </View>
+            ))}
+
               <TouchableOpacity style={styles.videoButton} onPress={() => setWebUrl(selectedManufacturer.video)}>
-                <Ionicons name="play-circle-outline" size={20} color="white" />
-                <Text style={{ color: 'white', marginLeft: 6 }}>Watch video</Text>
+              <Ionicons name="globe-outline" size={20} color="white" />
+              <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}>
+                 {selectedManufacturer.supportLinkText || ' Open Support Website'}
+              </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -187,29 +234,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
   },
-  tipCard: {
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#f2f2f2',
+  tipItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 6,
   },
-  tipTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 8,
+  bullet: {
+    fontSize: 16,
+    color: '#007AFF',
+    marginRight: 6,
   },
   tipText: {
     fontSize: 14,
     color: '#333',
+    flex: 1,
+  },
+  tipTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#2c3e50',
+  },
+  tipCard: {
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    padding: 15,
+    marginTop: 20,
+    elevation: 2,
   },
   videoButton: {
-    flexDirection: 'row',
-    backgroundColor: '#007AFF',
-    padding: 10,
-    borderRadius: 8,
     marginTop: 12,
+    flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#007AFF',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
   },
+  
   passwordBox: {
     backgroundColor: '#f6f6f6',
     borderRadius: 10,

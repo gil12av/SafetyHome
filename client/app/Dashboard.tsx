@@ -74,11 +74,12 @@ export default function Dashboard() {
       { icon: "radar", label: "Scan Devices", route: "/ScanScreen" },
       { icon: "alert", label: "Alerts", route: "/AlertsScreen" },
       { icon: "devices", label: "Devices", route: "/DevicesScreen" },
-      { icon: "bell", label: "Notifications", route: "/NotificationsScreen" },
-      { icon: "chat", label: "chat", route: "/NewMessageScreen" },
-      { icon: "wechat", label: "Bot", route: "/TalkWithBot" },
-      { icon: "account", label: "Profile", route: "/Profile" },
       { icon: "shield-key", label: "Guidance", route: "/GuidanceScreen" },
+      { icon: "wechat", label: "Bot", route: "/TalkWithBot" },
+      { icon: "chat", label: "chat", route: "/NewMessageScreen" },
+      { icon: "bell", label: "Notifications", route: "/NotificationsScreen" },
+      { icon: "account", label: "Profile", route: "/Profile" },
+      
       ...(isAdmin ? [{ icon: "shield-account", label: "Admin", route: "/AdminScreen" }] : []),
     ].map((item, index) => (
       <TouchableOpacity
