@@ -18,6 +18,10 @@ import { colors } from "@/styles/theme";
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { scheduleScan, fetchScheduledScan } from "@/services/api.jsx";
 import axios from "axios";
+import DecryptText from "@/components/DecryptText";
+import RotatingMessage from "@/components/RotatingMessage";
+
+
 
 const { width } = Dimensions.get("window");
 
@@ -122,6 +126,12 @@ export default function ScanScreen() {
           <Icon name="information-outline" size={24} color="#555" />
         </TouchableOpacity>
       </View>
+      <DecryptText
+        text="_Scanning your home network."
+      />
+      <DecryptText
+        text="_Security starts here. "
+      />
 
       {/* Info Modal */}
       <Modal
@@ -149,23 +159,6 @@ export default function ScanScreen() {
         </View>
       </Modal>
 
-      {/* Schedule Button */}
-      <View style={styles.scheduleRow}>
-        <TouchableOpacity style={styles.scheduleBtn} onPress={showDatePicker}>
-          <Icon name="calendar-clock" size={20} color="#fff" />
-          <Text style={styles.scheduleText}>
-            {scheduledScan || "Schedule Next Scan"}
-          </Text>
-        </TouchableOpacity>
-        {datePickerVisible && (
-          <DateTimePicker
-            value={date}
-            mode="datetime"
-            display="default"
-            onChange={onDateChange}
-          />
-        )}
-      </View>
 
       {/* Scan Options Cards */}
       {!loading && (
@@ -208,6 +201,44 @@ export default function ScanScreen() {
           </Animated.View>
           <Text style={styles.progressText}>{Math.round(progress * 100)}%</Text>
         </View>
+      )}
+    
+      {/* Schedule Button */}
+      <Text style={styles.scheduleInfo}>
+        You can also schedule your next scan at a convenient time.
+      </Text>
+      <View style={styles.scheduleRow}>
+        <TouchableOpacity style={styles.scheduleBtn} onPress={showDatePicker}>
+          <Icon name="calendar-clock" size={20} color="#fff" />
+          <Text style={styles.scheduleText}>
+            {scheduledScan || "Schedule Next Scan"}
+          </Text>
+        </TouchableOpacity>
+        {datePickerVisible && (
+          <DateTimePicker
+            value={date}
+            mode="datetime"
+            display="default"
+            onChange={onDateChange}
+          />
+        )}
+      </View>
+
+        {!loading && scanResults.length === 0 && (
+          <Text style={styles.resultMessage}>
+           No new devices were discovered in this scan.
+          </Text>
+        )}
+
+      {!loading && scanResults.length > 0 && (
+        <>
+          <Text style={styles.resultHeader}>
+            Devices Detected:
+          </Text>
+          <Text style={styles.resultMessage}>
+            These devices were discovered in your recent scan and will be analyzed for potential vulnerabilities.
+          </Text>
+        </>
       )}
     </View>
   );
@@ -268,19 +299,19 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   scanCard: {
-    backgroundColor: colors.card,
-    borderRadius: 20,
-    borderWidth: 2,
+    borderRadius: 24,
     padding: 25,
     width: "100%",
     alignItems: "center",
     marginBottom: 16,
     shadowColor: "#000",
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.15,
     shadowRadius: 10,
     shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    overflow: "hidden", // כדי שהגרדיאנט ייחתך יפה
   },
-
+  
   quickBorder: {
     borderColor: "#50E3C2",
   },
@@ -329,7 +360,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   list: {
-    paddingBottom: 20,
+    paddingBottom: 100,
   },
   modalBackdrop: {
     flex: 1,
@@ -363,4 +394,44 @@ const styles = StyleSheet.create({
     color: "#4A90E2",
     fontWeight: "600",
   },
+  introText: {
+    fontSize: 15,
+    color: "#555",
+    textAlign: "center",
+    marginHorizontal: 20,
+    marginBottom: 16,
+    lineHeight: 22,
+  },
+  reultSummary: {
+    fontSize: 16,
+    color: "#555",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  resultHeader: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginTop: 20,
+    marginBottom: 6,
+    marginLeft: 16,
+    color: "#333",
+  },
+  resultMessage: {
+    fontSize: 15,
+    color: "#555",
+    textAlign: "center",
+    marginHorizontal: 20,
+    marginBottom: 10,
+    lineHeight: 20,
+  },
+  scheduleInfo: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    marginTop: 20,
+    marginBottom: 6,
+    lineHeight: 20,
+  },
+  
+  
 });

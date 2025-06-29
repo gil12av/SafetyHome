@@ -8,6 +8,7 @@ import { FadeIn, FadeOut } from "react-native-reanimated";
 import AnimatedMessage from "@/components/AnimatedMessage";
 import AppScreen from "@/components/AppScreen";
 import { colors } from "@/styles/theme";
+import RotatingMessage from "@/components/RotatingMessage";
 
 
 const { width } = Dimensions.get("window");
@@ -76,7 +77,7 @@ export default function HomeScreen() {
         />
         <Text style={styles.greeting}>{getTimeGreeting()}</Text>
         <Text style={styles.welcomeText}>Welcome to SafetyHome</Text>
-        <AnimatedMessage />
+        <RotatingMessage />
         <LottieView
            source={require('../assets/animations/homeScreen.json')} // עדכן לשם הקובץ שלך
            autoPlay
