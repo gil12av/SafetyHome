@@ -166,8 +166,7 @@ const GuidanceScreen = () => {
           <Text style={styles.title}>🔧 Manufacturer Tips</Text>
   
           <Text style={styles.introText}>
-            here you can find recommendations, manage your devices,
-            and enhance your home network security.
+            Welcome to the Guidance Center – manage devices and improve your security.
           </Text>
   
           <Text style={styles.subtitle}>
